@@ -1,0 +1,45 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+/* Margin */
+.m {
+	@include spacing(margin);
+}
+
+/* Spaced */
+.spaced {
+	// Extra Small
+	&-xs {
+		> * + * {
+			margin-top: 0.25em;
+		}
+	}
+
+	// Small
+	&-sm {
+		> * + * {
+			margin-top: 0.5em;
+		}
+	}
+
+	// Medium
+	&-md {
+		> * + * {
+			margin-top: 0.75em;
+		}
+	}
+
+	// Large
+	&-lg {
+		> * + * {
+			margin-top: 1em;
+		}
+	}
+
+	// Extra Large
+	&-xl {
+		> * + * {
+			margin-top: 1.25em;
+		}
+	}
+}

@@ -1,0 +1,46 @@
+// Project
+$project: '.lg';
+
+// Colors (Variables)
+$white: #fff !default;
+$light: #ebf0f5 !default;
+$gray: #8997a3 !default;
+$dark: #0f1d29 !default;
+$black: #000 !default;
+$primary: #49cc5b !default;
+$accent: #498fcc !default;
+
+// Colors (Map)
+$colors: (
+	'white': $white,
+	'light': $light,
+	'gray': $gray,
+	'dark': $dark,
+	'black': $black,
+	'primary': $primary,
+	'accent': $accent,
+);
+
+// Containers (Map)
+$container-base: 60rem;
+$containers: (
+	'sm': 30rem,
+	'md': 40rem,
+	'lg': 50rem,
+);
+
+// Font
+$fontcolor: #{$light};
+$fontfamily: 'Poppins', sans-serif;
+$fontfamily-serif: 'Merriweather', serif;
+$fontsize: 1rem;
+
+// Spacing
+$doc-spacing: 1rem;
+$doc-spacing-lg: $doc-spacing * 0.75;
+$doc-spacing-sm: $doc-spacing * 0.5;
+
+// Padding
+$doc-padding: $doc-spacing * 3;
+$doc-padding-lg: $doc-padding * 0.75;
+$doc-padding-sm: $doc-padding * 0.5;

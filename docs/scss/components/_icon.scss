@@ -1,0 +1,81 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+/* Infocon */
+#{$project}-infocon {
+	align-items: center;
+	display: inline-flex;
+	line-height: 1.25;
+	vertical-align: top;
+
+	// Item
+	> * {
+		display: inline-flex;
+		vertical-align: top;
+	}
+
+	// Icon (Default)
+	i {
+		font-style: normal;
+		height: 1.5em;
+		width: 1.5em;
+
+		// Margin Left
+		&:not(:first-child) {
+			margin-left: 0.75em;
+		}
+
+		// Margin Right
+		&:not(:last-child) {
+			margin-right: 0.75em;
+		}
+
+		// Contain Img/Svg
+		@include containImgSvg;
+	}
+
+	// Icon (Styles)
+	.icon {
+		// Chevron
+		&__chevron-left,
+		&__chevron-right {
+			height: 0.75em;
+			width: 0.5em;
+		}
+
+		// Email
+		&__email {
+			height: 0.75em;
+			width: 1em;
+		}
+
+		// Info Delivery
+		&__info-delivery {
+			height: 1.25em;
+			width: 2em;
+		}
+
+		// Info Price
+		&__info-price {
+			height: 2em;
+			width: 2em;
+		}
+
+		// Info Return
+		&__info-return {
+			height: 1.3125em;
+			width: 1.75em;
+		}
+
+		// Phone
+		&__phone {
+			height: 1em;
+			width: 1em;
+		}
+	}
+
+	// Anchor (Default)
+	a {
+		text-decoration: none;
+	}
+}

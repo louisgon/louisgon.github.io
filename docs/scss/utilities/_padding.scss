@@ -1,0 +1,7 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+/* Padding */
+.p {
+	@include spacing(padding);
+}

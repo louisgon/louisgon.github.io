@@ -1,0 +1,11 @@
+/* Max Width */
+.max-width {
+	@for $i from 1 through 16 {
+		$width-px: ($i * 80) + 80;
+		$width-rem: ($i * 5rem) + 5rem;
+
+		&--#{$width-px} {
+			max-width: $width-rem;
+		}
+	}
+}

@@ -1,0 +1,13 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Plugins
+@use 'sass:color';
+
+// Site Footer
+.site__footer {
+	flex: 0 0 auto;
+	text-align: center;
+	padding-top: var(--doc-padding);
+	padding-bottom: var(--doc-padding);
+}

@@ -1,0 +1,37 @@
+// Break Points
+$bp-lg: 60em;
+$bp-md: 45em;
+$bp-sm: 30em;
+
+// Hide
+.hide\:bp {
+	@media (max-width: #{$bp-lg}) {
+		&-lg {
+			display: none !important;
+		}
+	}
+	@media (max-width: #{$bp-md}) {
+		&-md {
+			display: none !important;
+		}
+	}
+	@media (max-width: #{$bp-sm}) {
+		&-sm {
+			display: none !important;
+		}
+	}
+}
+
+// Desktop Only
+.desktop-only {
+	@media (max-width: 60em) {
+		display: none !important;
+	}
+}
+
+// Mobile Only
+.mobile-only {
+	@media (min-width: 60.01em) {
+		display: none !important;
+	}
+}

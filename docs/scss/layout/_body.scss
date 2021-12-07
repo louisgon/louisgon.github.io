@@ -1,0 +1,59 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Plugins
+@use 'sass:color';
+
+// Page Wrapper
+.page__wrapper {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+
+// Site Main
+.site__main {
+	flex: 1 1 auto;
+
+	// Section
+	:where(section) {
+		display: block;
+		overflow: hidden;
+		position: relative;
+		width: 100%;
+		z-index: 0;
+
+		&:not(.lg__intro) {
+			padding-top: calc(2 * var(--header-size));
+			margin-top: calc(4 * var(--doc-spacing));
+		}
+	}
+}
+
+// Project
+#{$project} {
+	// Intro
+	&__intro {
+		display: flex;
+		flex-direction: column;
+		min-height: calc(100vh - var(--header-size));
+		justify-content: center;
+	}
+}
+
+// Block Accordion
+.block__accordion {
+	display: flex;
+
+	// Item
+	> * {
+		flex: 1 1 auto;
+	}
+
+	// Nav
+	> .accordion__nav {
+		flex: 0 0 auto;
+		width: 12.5rem;
+		margin-right: var(--doc-padding);
+	}
+}

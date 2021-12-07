@@ -1,0 +1,221 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Direction
+$directionMap: (
+	'row': row,
+	'row-reverse': row-reverse,
+	'col': column,
+	'col-reverse': column-reverse,
+);
+@mixin directionMix {
+	// Width (Default)
+	@each $key, $value in $directionMap {
+		@at-root .#{&}-#{$key} {
+			flex-direction: #{$value};
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			@each $key, $value in $directionMap {
+				@at-root .#{$prefix}\:#{&}-#{$key} {
+					flex-direction: #{$value};
+				}
+			}
+		}
+	}
+}
+
+// Grow
+$growMap: (
+	'grow': 1,
+	'grow-0': 0,
+);
+@mixin growMix {
+	// Width (Default)
+	@each $key, $value in $growMap {
+		@at-root .#{&}-#{$key} {
+			flex-grow: #{$value};
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			@each $key, $value in $growMap {
+				@at-root .#{$prefix}\:#{&}-#{$key} {
+					flex-grow: #{$value};
+				}
+			}
+		}
+	}
+}
+
+// Items
+$itemsMap: (
+	'start': flex-start,
+	'end': flex-end,
+	'center': center,
+	'baseline': baseline,
+	'stretch': stretch,
+);
+@mixin itemsMix {
+	// Width (Default)
+	@each $key, $value in $itemsMap {
+		@at-root .#{&}-#{$key} {
+			align-items: #{$value};
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			@each $key, $value in $itemsMap {
+				@at-root .#{$prefix}\:#{&}-#{$key} {
+					align-items: #{$value};
+				}
+			}
+		}
+	}
+}
+
+// Justify
+$justifyMap: (
+	'start': flex-start,
+	'end': flex-end,
+	'center': center,
+	'between': space-between,
+	'around': space-around,
+	'evenly': space-evenly,
+);
+@mixin justifyMix {
+	// Width (Default)
+	@each $key, $value in $justifyMap {
+		@at-root .#{&}-#{$key} {
+			justify-content: #{$value};
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			@each $key, $value in $justifyMap {
+				@at-root .#{$prefix}\:#{&}-#{$key} {
+					justify-content: #{$value};
+				}
+			}
+		}
+	}
+}
+
+// Self
+$selfMap: (
+	'auto': auto,
+	'start': flex-start,
+	'end': flex-end,
+	'center': center,
+	'stretch': stretch,
+	'baseline': baseline,
+);
+@mixin selfMix {
+	// Width (Default)
+	@each $key, $value in $selfMap {
+		@at-root .#{&}-#{$key} {
+			align-self: #{$value};
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			@each $key, $value in $selfMap {
+				@at-root .#{$prefix}\:#{&}-#{$key} {
+					align-self: #{$value};
+				}
+			}
+		}
+	}
+}
+
+// Shrink
+$shrinkMap: (
+	'grow': 1,
+	'grow-0': 0,
+);
+@mixin shrinkMix {
+	// Width (Default)
+	@each $key, $value in $shrinkMap {
+		@at-root .#{&}-#{$key} {
+			flex-shrink: #{$value};
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			@each $key, $value in $shrinkMap {
+				@at-root .#{$prefix}\:#{&}-#{$key} {
+					flex-shrink: #{$value};
+				}
+			}
+		}
+	}
+}
+
+// Wrap
+$wrapMap: (
+	'nowrap': nowrap,
+	'wrap': wrap,
+	'wrap-reverse': wrap-reverse,
+);
+@mixin wrapMix {
+	// Width (Default)
+	@each $key, $value in $wrapMap {
+		@at-root .#{&}-#{$key} {
+			flex-wrap: #{$value};
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			@each $key, $value in $wrapMap {
+				@at-root .#{$prefix}\:#{&}-#{$key} {
+					flex-wrap: #{$value};
+				}
+			}
+		}
+	}
+}
+
+// Flex
+flex {
+	// Wrap
+	@include wrapMix;
+
+	// Direction
+	@include directionMix;
+
+	// Grow
+	@include growMix;
+
+	// Shrink
+	@include shrinkMix;
+}
+
+// Items
+items {
+	@include itemsMix;
+}
+
+// Self
+self {
+	@include selfMix;
+}
+
+// Justify
+justify {
+	@include justifyMix;
+}

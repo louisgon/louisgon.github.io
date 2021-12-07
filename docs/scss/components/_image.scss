@@ -1,0 +1,62 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Block Image
+.block__image {
+	display: block;
+	position: relative;
+	text-decoration: none;
+	z-index: 0;
+}
+
+/* Anchor */
+.image__anchor {
+	display: block;
+	text-decoration: none;
+}
+
+/* Cover */
+.image__cover {
+	display: block;
+	height: 100%;
+	left: 0;
+	object-fit: cover;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: -2;
+}
+
+/* Fluid */
+.image__fluid {
+	width: 100%;
+}
+
+// Avatar Image
+.avatar__image {
+	// Highlight
+	&::before {
+		@include transition('transform');
+		backface-visibility: hidden;
+		border: 2px solid $primary;
+		border-image-slice: 1;
+		border-image-source: linear-gradient(90deg, $accent, $primary);
+		content: '';
+		height: 100%;
+		left: 0;
+		overflow: hidden;
+		position: absolute;
+		top: 0;
+		transform: translate(7.5%, 7.5%);
+		width: 100%;
+		z-index: -10;
+	}
+
+	// Hover
+	&:hover {
+		// Highlight
+		&::before {
+			transform: translate(5%, 5%);
+		}
+	}
+}

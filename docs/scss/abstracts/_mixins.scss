@@ -1,0 +1,250 @@
+// Abstracts
+@use '../abstracts/variables' as *;
+
+// Plugins
+@use 'sass:math';
+@use 'sass:selector';
+
+// Responsive Breakpoints
+$respBP: (
+	'60em': 'lg',
+	'45em': 'md',
+	'30em': 'sm',
+);
+
+// Button Fluid
+@mixin buttonFluid {
+	// Width (Default)
+	.button-fluid {
+		display: flex;
+		padding: 0.5em;
+		width: 100%;
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			.#{$prefix}\:button-fluid {
+				display: flex;
+				padding: 0.5em;
+				width: 100%;
+			}
+		}
+	}
+}
+
+// Container
+@mixin container($width) {
+	// Variables
+	$width-desktop: ($width + ($doc-padding * 2));
+	$width-mobile-lg: ($width + ($doc-padding-lg * 2));
+	$width-mobile-sm: ($width + ($doc-padding-sm * 2));
+
+	// Responsive
+	@media (min-width: 60.01em) {
+		max-width: $width-desktop;
+	}
+	@media (max-width: 60em) and (min-width: 30.01em) {
+		@if ($width-mobile-lg < 60rem) {
+			max-width: $width-mobile-lg;
+		}
+	}
+	@media (max-width: 30em) {
+		@if ($width-mobile-sm < 30rem) {
+			max-width: $width-mobile-sm;
+		}
+	}
+}
+
+// Contain Img/Svg
+@mixin containImgSvg {
+	img,
+	svg {
+		display: block;
+		height: 100%;
+		width: 100%;
+	}
+	img {
+		object-fit: contain;
+	}
+}
+
+// Columns Children
+@mixin colsChildren {
+	// Width (Default)
+	> .col {
+		// Auto
+		&-auto {
+			flex: 0 0 auto;
+			width: auto;
+		}
+
+		// Numbered
+		@for $cIndex from 1 through 12 {
+			$width: math.div($cIndex, 12) * 100%;
+
+			&-#{$cIndex} {
+				flex: 0 0 auto;
+				width: $width;
+			}
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			> .#{$prefix}\:col {
+				// Auto
+				&-auto {
+					flex: 0 0 auto;
+					width: auto;
+				}
+
+				// Numbered
+				@for $cIndex from 1 through 12 {
+					$width: math.div($cIndex, 12) * 100%;
+
+					&-#{$cIndex} {
+						flex: 0 0 auto;
+						width: $width;
+					}
+				}
+			}
+		}
+	}
+}
+
+// Columns Parent
+@mixin colsParent {
+	// Width (Default)
+	@for $cIndex from 1 through 12 {
+		$width: math.div($cIndex, 12) * 100%;
+		&.cols-#{$cIndex} > .col {
+			flex: 0 0 auto;
+			width: $width;
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			@for $cIndex from 1 through 12 {
+				$width: math.div($cIndex, 12) * 100%;
+				&.#{$prefix}\:cols-#{$cIndex} > .col {
+					flex: 0 0 auto;
+					width: $width;
+				}
+			}
+		}
+	}
+}
+
+// List Reset
+@mixin list-reset {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+// Spacing
+@mixin spacing($type) {
+	@for $pIndex from 1 through 4 {
+		// Variables
+		$classSet: null;
+		$classSetChunk: null;
+		$position: null;
+		$property: null;
+
+		// Position
+		@if $pIndex == 1 {
+			$position: top;
+			$classSet: #{&}, #{&}t, #{&}y;
+			$classSetChunk: #{&}t, #{&}y;
+		}
+		@if $pIndex == 2 {
+			$position: bottom;
+			$classSet: #{&}, #{&}b, #{&}y;
+			$classSetChunk: #{&}b, #{&}y;
+		}
+		@if $pIndex == 3 {
+			$position: left;
+			$classSet: #{&}, #{&}l, #{&}x;
+		}
+		@if $pIndex == 4 {
+			$position: right;
+			$classSet: #{&}, #{&}r, #{&}x;
+		}
+
+		// Property
+		$property: #{$type} + '-' + #{$position};
+
+		// Root
+		@at-root {
+			// Chunk
+			@if ($classSetChunk) {
+				#{$classSetChunk} {
+					&-chunk {
+						@for $cIndex from 1 through 6 {
+							$number: ($cIndex * 2) + 2;
+
+							&--#{$cIndex} {
+								#{$property}: calc(#{$number} * var(--doc-spacing));
+							}
+						}
+					}
+				}
+			}
+
+			// Number
+			@if ($classSet) {
+				#{$classSet} {
+					@for $nIndex from 0 through 12 {
+						$number: ($nIndex * 0.25);
+
+						&--#{$nIndex} {
+							@if $nIndex == 0 {
+								#{$property}: 0;
+							} @else {
+								#{$property}: calc(#{$number} * var(--doc-spacing));
+							}
+						}
+					}
+				}
+			}
+
+			// Auto
+			@if ($classSet) and ($type == margin) {
+				#{$classSet} {
+					&--auto {
+						#{$property}: auto;
+					}
+				}
+			}
+		}
+	}
+}
+
+// Transition
+@mixin transition($properties...) {
+	$array_t: ();
+	$array_w: ();
+
+	@each $declaration in $properties {
+		$duration: 0.15s;
+		$timing-function: ease;
+		$property: $declaration;
+
+		$array_t: append($array_t, #{$property + ' ' + $duration + ' ' + $timing-function}, comma);
+		$array_w: append($array_w, #{$property}, comma);
+	}
+
+	transition: $array_t;
+	will-change: $array_w;
+}
+
+// Unify Parent
+@mixin unify-parent($child) {
+	@at-root #{selector.unify(&, $child)} {
+		@content;
+	}
+}

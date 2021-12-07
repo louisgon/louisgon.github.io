@@ -1,0 +1,41 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Link
+$link: '.link';
+
+// Default
+#{$link}__default {
+	border-bottom: 1px solid currentColor;
+	font-size: 0.875rem;
+	letter-spacing: 0.0125em;
+
+	@include unify-parent(a) {
+		@include transition('opacity');
+		text-decoration: none;
+
+		// Hover
+		&:hover {
+			opacity: 0.5;
+		}
+	}
+}
+
+// Uppercase
+#{$link}__up {
+	border-bottom: 1px solid currentColor;
+	font-size: 1rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+
+	@include unify-parent(a) {
+		@include transition('opacity');
+		text-decoration: none;
+
+		// Hover
+		&:hover {
+			opacity: 0.5;
+		}
+	}
+}

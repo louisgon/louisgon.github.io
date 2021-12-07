@@ -1,0 +1,110 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+/* Root */
+:root {
+	// Header
+	--header-size: 6.125rem;
+
+	// Spacing
+	--doc-padding: #{$doc-padding};
+	--doc-spacing: #{$doc-spacing};
+
+	@media (max-width: 60em) and (min-width: 30.01em) {
+		--doc-padding: #{$doc-padding-lg};
+		--doc-spacing: #{$doc-spacing-lg};
+	}
+	@media (max-width: 30em) {
+		--doc-padding: #{$doc-padding-sm};
+		--doc-spacing: #{$doc-spacing-sm};
+	}
+}
+
+// HTML
+html {
+	scroll-behavior: smooth;
+}
+
+// Body
+body {
+	background: $dark;
+	border: 0 solid $white;
+	color: $fontcolor;
+	cursor: auto;
+	font-family: $fontfamily;
+	font-size: 1rem;
+	line-height: 1.5;
+	margin: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+// Restrict width
+img,
+input,
+iframe,
+select,
+textarea {
+	height: auto;
+	max-width: 100%;
+}
+
+// Anchor
+a {
+	color: inherit;
+	text-decoration: underline;
+}
+
+// SVG
+svg:not([fill]) {
+	fill: currentColor;
+}
+
+// Image
+img {
+	vertical-align: top;
+}
+
+// Reset Margin
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ol,
+ul {
+	margin: 0;
+}
+
+// Clearfix
+.clearfix {
+	&::after {
+		clear: both;
+		content: '';
+		display: block;
+	}
+}
+
+// Button Reset
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+	appearance: none;
+	background: none;
+	border: none;
+	border-radius: 0;
+	color: inherit;
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
+}
+
+// Move Firefox Select
+@-moz-document url-prefix() {
+	select {
+		text-indent: -2px;
+	}
+}

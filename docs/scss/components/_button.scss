@@ -1,0 +1,93 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Plugins
+@use 'sass:color';
+
+// Button Reset
+%button-reset {
+	align-items: center;
+	cursor: pointer;
+	display: inline-flex;
+	justify-content: center;
+	text-align: center;
+	user-select: none;
+	vertical-align: top;
+}
+
+// Button Base
+%button-base {
+	@extend %button-reset;
+	@include transition('background-color');
+	background: transparent;
+	border: 2px solid transparent;
+	font-family: $fontfamily;
+	font-weight: 600;
+	line-height: 1.5;
+	opacity: 1;
+	padding: calc(0.75em - 2px) calc(1.5em - 2px);
+
+	// Responsive
+	@media (min-width: 60.01em) {
+		font-size: 1rem;
+	}
+	@media (max-width: 60em) and (min-width: 30.01em) {
+		font-size: 0.9375rem;
+	}
+	@media (max-width: 30em) {
+		font-size: 0.875rem;
+	}
+
+	// Icon Base
+	i {
+		flex: 0 0 auto;
+		height: 1.5em;
+		width: 1.5em;
+
+		// Margin
+		&:not(:first-child) {
+			margin-left: 0.5em;
+		}
+		&:not(:last-child) {
+			margin-right: 0.5em;
+		}
+
+		// Contain Img/SVG
+		@include containImgSvg;
+
+		// Icon Styles
+		&.icon {
+			// Chevron
+			&__chevron-left,
+			&__chevron-right {
+				height: 0.75em;
+				width: 0.5em;
+			}
+		}
+	}
+
+	// Anchor
+	@include unify-parent(a) {
+		text-decoration: none;
+	}
+}
+
+/* Button */
+.button {
+	@extend %button-base;
+	border-color: $primary;
+	color: $primary;
+
+	// Icon
+	i {
+		color: $dark;
+	}
+
+	// Hover
+	&:hover {
+		background-color: rgba($primary, 15%);
+	}
+}
+
+/* Button Fluid */
+@include buttonFluid;

@@ -1,0 +1,398 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Grid
+$grid: '.grid';
+
+/* Row (Default */
+#{$grid}__row {
+	display: flex;
+	flex-wrap: wrap;
+
+	// Item
+	> * {
+		flex-shrink: 0;
+		max-width: 100%;
+		width: 100%;
+	}
+
+	// Columns
+	> .col {
+		flex: 1 0 0%;
+	}
+
+	// Generate Columns (Parent)
+	@include colsParent;
+
+	// Generate Columns (Children)
+	@include colsChildren;
+
+	// Gap
+	&.gap {
+		// Small
+		&--sm {
+			margin-bottom: calc(-2 * var(--doc-spacing));
+			margin-left: calc(-0.5 * var(--doc-spacing));
+			margin-right: calc(-0.5 * var(--doc-spacing));
+
+			// Item
+			> * {
+				margin-bottom: calc(2 * var(--doc-spacing));
+				padding-left: calc(0.5 * var(--doc-spacing));
+				padding-right: calc(0.5 * var(--doc-spacing));
+			}
+		}
+
+		// Medium
+		&--md {
+			margin-bottom: calc(-3 * var(--doc-spacing));
+			margin-left: calc(-1 * var(--doc-spacing));
+			margin-right: calc(-1 * var(--doc-spacing));
+
+			// Item
+			> * {
+				margin-bottom: calc(3 * var(--doc-spacing));
+				padding-left: var(--doc-spacing);
+				padding-right: var(--doc-spacing);
+			}
+		}
+
+		// Large
+		&--lg {
+			margin-bottom: calc(-4 * var(--doc-spacing));
+			margin-left: calc(-2 * var(--doc-spacing));
+			margin-right: calc(-2 * var(--doc-spacing));
+
+			// Item
+			> * {
+				margin-bottom: calc(4 * var(--doc-spacing));
+				padding-left: calc(2 * var(--doc-spacing));
+				padding-right: calc(2 * var(--doc-spacing));
+			}
+		}
+	}
+}
+
+/* Info Bar */
+#{$grid}__ib {
+	display: flex;
+	justify-content: space-between;
+	margin-left: -0.5rem;
+	margin-right: -0.5rem;
+
+	> * {
+		margin-left: 0.5rem;
+		margin-right: 0.5rem;
+
+		@media (max-width: 90.01em) {
+			flex: 1 1 0%;
+		}
+		@media (max-width: 90em) {
+			flex: 0 1 auto;
+		}
+	}
+}
+
+/* HCHI */
+#{$grid}__hchi {
+	width: 100%;
+
+	@media (min-width: 60.01em) {
+		$widthOffset: 2.5rem;
+		align-items: center;
+		display: flex;
+
+		// Item (Default)
+		> * {
+			flex: 1 1 auto;
+		}
+
+		// Item (Styles)
+		> .item {
+			// Content
+			&__content {
+				flex: 0 0 auto;
+				width: calc(50% + $widthOffset);
+			}
+
+			// Image
+			&__image {
+				img {
+					display: block;
+				}
+			}
+		}
+
+		// Not Flipped
+		&:not(.is-flipped) {
+			// Item
+			> .item {
+				// Content
+				&__content {
+					// Odd
+					&:nth-child(odd) {
+						// Content
+						.content {
+							// Container
+							&__container {
+								margin-left: auto;
+							}
+
+							// Inner
+							&__inner {
+								margin-right: auto;
+							}
+						}
+					}
+
+					// Event
+					&:nth-child(even) {
+						// Content
+						.content {
+							// Container
+							&__container {
+								margin-right: auto;
+							}
+
+							// Inner
+							&__inner {
+								margin-left: auto;
+							}
+						}
+					}
+				}
+
+				// Image
+				&__image {
+					&:nth-child(odd) {
+						img {
+							margin-left: auto;
+						}
+					}
+					&:nth-child(even) {
+						img {
+							margin-right: auto;
+						}
+					}
+				}
+			}
+		}
+
+		// Flipped
+		&.is-flipped {
+			flex-direction: row-reverse;
+
+			// Item
+			> .item {
+				// Content
+				&__content {
+					// Odd
+					&:nth-child(odd) {
+						// Content
+						.content {
+							// Container
+							&__container {
+								margin-right: auto;
+							}
+
+							// Inner
+							&__inner {
+								margin-left: auto;
+							}
+						}
+					}
+
+					// Even
+					&:nth-child(even) {
+						// Content
+						.content {
+							// Container
+							&__container {
+								margin-left: auto;
+							}
+
+							// Inner
+							&__inner {
+								margin-right: auto;
+							}
+						}
+					}
+				}
+
+				// Image
+				&__image {
+					&:nth-child(odd) {
+						img {
+							margin-right: auto;
+						}
+					}
+					&:nth-child(even) {
+						img {
+							margin-left: auto;
+						}
+					}
+				}
+			}
+		}
+
+		// Content
+		.content {
+			// Container
+			&__container {
+				max-width: (($container-base * 0.5) + $doc-padding) + $widthOffset;
+			}
+
+			// Inner
+			&__inner {
+				max-width: (($container-base * 0.5) - ($doc-padding * 2)) + $widthOffset;
+			}
+		}
+	}
+	@media (max-width: 60em) {
+		margin-left: auto;
+		margin-right: auto;
+		max-width: 45rem;
+
+		// Margin
+		> * + * {
+			margin-top: calc(3 * var(--doc-spacing));
+		}
+
+		// Item (Styles)
+		> .item {
+			&__image {
+				padding-left: var(--doc-padding);
+				padding-right: var(--doc-padding);
+			}
+		}
+	}
+}
+
+/* Inline Split */
+#{$grid}__is {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: calc(0.5 * var(--doc-spacing)) var(--doc-spacing);
+	justify-content: space-between;
+}
+
+/* Inline Form */
+#{$grid}__if {
+	// Desktop
+	@media (min-width: 60.01em) {
+		align-items: flex-end;
+		display: flex;
+
+		// Item (Default)
+		> * {
+			flex: 1 1 0%;
+
+			// Margin
+			+ * {
+				margin-left: calc(2 * var(--doc-spacing));
+			}
+		}
+
+		// Item (Styles)
+		> .item {
+			// Submit
+			&__submit {
+				flex: 0 0 auto;
+			}
+		}
+	}
+
+	// Mobile
+	@media (max-width: 60em) {
+		// Item (Default)
+		> * {
+			// Margin
+			+ * {
+				margin-top: calc(1.5 * var(--doc-spacing));
+			}
+		}
+
+		// Item (Styles)
+		> .item {
+			// Submit
+			&__submit {
+				// Margin
+				&:not(:first-child) {
+					margin-top: calc(2.25 * var(--doc-spacing));
+				}
+			}
+		}
+	}
+}
+
+/* Product Category */
+#{$grid}__pcat {
+	display: flex;
+
+	@media (min-width: 60.01em) {
+		// Item (Default)
+		> * {
+			flex: 1 1 auto;
+			width: 100%;
+		}
+
+		// Item (Styles)
+		> .item {
+			// Sidebar
+			&__sidebar {
+				flex: 0 0 auto;
+				margin-right: var(--doc-padding);
+				width: 17.5rem;
+			}
+		}
+	}
+	@media (max-width: 60em) {
+		flex-direction: column;
+	}
+}
+
+/* Head Split */
+#{$grid}__hs {
+	display: flex;
+	justify-content: space-between;
+
+	// Item (Default)
+	> * {
+		flex: 1 1 auto;
+	}
+
+	// Item (Styles)
+	> .item {
+		// Left
+		&__left {
+			margin-right: var(--doc-padding);
+		}
+
+		// Right
+		&__right {
+			flex: 0 0 auto;
+			text-align: right;
+		}
+	}
+}
+
+/* Product Intro */
+#{$grid}__pi {
+	display: flex;
+
+	// Item (Default)
+	> * {
+		flex: 1 1 auto;
+	}
+
+	// Item (Styles)
+	> .item {
+		// Carousel
+		&__carousel {
+			flex: 0 0 auto;
+			margin-right: var(--doc-padding);
+			width: calc(50% - 2.5rem);
+		}
+	}
+}

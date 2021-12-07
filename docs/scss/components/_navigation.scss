@@ -1,0 +1,96 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Navigation
+$nav: '.nav';
+
+/* Default */
+#{$nav}__default {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+
+	// Font Size
+	@media (min-width: 90.01em) {
+		font-size: 1rem;
+	}
+	@media (max-width: 90em) and (min-width: 75.01em) {
+		font-size: 0.9375rem;
+	}
+	@media (max-width: 75em) {
+		font-size: 0.875rem;
+	}
+
+	// Link
+	#{$nav}__link {
+		@include transition('color');
+		color: $light;
+		display: flex;
+		font-weight: 500;
+		line-height: 1.5;
+		position: relative;
+		text-decoration: none;
+		z-index: 0;
+
+		// Border
+		&::after {
+			@include transition('opacity', 'transform', 'visibility');
+			background: $primary;
+			content: '';
+			display: block;
+			height: 2px;
+			left: 0;
+			opacity: 0;
+			pointer-events: none;
+			position: absolute;
+			top: 100%;
+			transform: scaleX(0);
+			visibility: hidden;
+			width: 100%;
+		}
+
+		// Hover
+		&:hover {
+			color: rgba($light, 75%);
+		}
+
+		// Active
+		&.is-active {
+			// Border
+			&::after {
+				opacity: 1;
+				transform: scaleX(1);
+				visibility: visible;
+			}
+		}
+	}
+
+	// Logo
+	#{$nav}__logo {
+		width: 2.5rem;
+	}
+
+	// Button
+	.button {
+		font-size: 0.875rem;
+	}
+}
+
+// Links
+#{$nav}__links {
+	align-items: center;
+	display: flex;
+	margin-left: -0.5em;
+	margin-right: -0.5em;
+
+	// Items
+	> * {
+		margin-left: 0.5em;
+		margin-right: 0.5em;
+
+		// Last
+		&:last-child {
+			margin-left: 1em;
+		}
+	}
+}

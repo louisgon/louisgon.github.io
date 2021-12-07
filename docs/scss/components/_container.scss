@@ -1,0 +1,35 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Make Container
+%make-container {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: var(--doc-padding);
+	padding-right: var(--doc-padding);
+	width: 100%;
+}
+
+/* Container (Base) */
+.container {
+	@extend %make-container;
+	@include container($container-base);
+}
+
+/* Container (Fluid) */
+.container--fluid {
+	@extend %make-container;
+
+	@media (min-width: 60.01em) {
+		max-width: 100%;
+	}
+}
+
+/* Container (Sizes) */
+@each $breakpoint, $width in $containers {
+	.container--#{$breakpoint} {
+		@extend %make-container;
+		@include container($width);
+	}
+}

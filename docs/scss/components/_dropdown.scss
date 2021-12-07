@@ -1,0 +1,37 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+/* Dropdown Default */
+.dropdown__default {
+	background: $yellow;
+	padding: calc(4 * var(--doc-spacing));
+
+	// Item
+	.dropdown-item {
+		&:not(:first-child) {
+			margin-top: calc(2 * var(--doc-spacing));
+		}
+	}
+
+	// Link
+	.dropdown-link {
+		@include transition('color');
+		color: $dark;
+		display: block;
+		font-weight: 400;
+		letter-spacing: -0.025em;
+		text-decoration: none;
+		white-space: nowrap;
+
+		@media (min-width: 82.51em) {
+			font-size: 1rem;
+		}
+		@media (max-width: 82.5em) {
+			font-size: 0.875rem;
+		}
+
+		&:hover {
+			color: rgba($dark, 50%);
+		}
+	}
+}

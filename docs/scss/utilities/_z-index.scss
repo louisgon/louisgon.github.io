@@ -1,0 +1,37 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// zIndex
+$zIndexMap: (
+	'0': 0,
+	'10': 10,
+	'20': 20,
+	'30': 30,
+	'40': 40,
+	'50': 50,
+	'auto': 'auto',
+);
+@mixin zIndexMix {
+	// Width (Default)
+	@each $key, $value in $zIndexMap {
+		@at-root .#{&}-#{$key} {
+			z-index: #{$value};
+		}
+	}
+
+	// Width (Responsive)
+	@each $width, $prefix in $respBP {
+		@media (max-width: $width) {
+			@each $key, $value in $zIndexMap {
+				@at-root .#{$prefix}\:#{&}-#{$key} {
+					z-index: #{$value};
+				}
+			}
+		}
+	}
+}
+
+// zIndex
+z-index {
+	@include zIndexMix;
+}

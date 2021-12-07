@@ -1,0 +1,31 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Plugins
+@use 'sass:color';
+
+// Site Header
+.site__header {
+	flex: 0 0 auto;
+	left: 0;
+	padding-bottom: calc(0.5 * var(--doc-padding));
+	padding-top: calc(0.5 * var(--doc-padding));
+	position: sticky;
+	top: 0;
+	width: 100%;
+	z-index: 90;
+
+	// After
+	&::after {
+		background: linear-gradient(0deg, rgba($dark, 0%), rgba($dark, 100%));
+		content: '';
+		display: block;
+		height: 200%;
+		left: 0;
+		pointer-events: none;
+		position: absolute;
+		top: 0;
+		width: 100%;
+		z-index: -1;
+	}
+}

@@ -1,0 +1,57 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Plugins
+@use 'sass:math';
+
+// Page Background
+.page__background {
+	font-size: 1vw;
+	height: 100%;
+	left: 0;
+	overflow: hidden;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: -1;
+
+	// Items
+	i {
+		animation: bgItem 10s linear 0s infinite;
+		backface-visibility: hidden;
+		background: rgba($black, 10%);
+		border-radius: 50%;
+		display: inline-flex;
+		opacity: 1;
+		position: absolute;
+		top: 100%;
+		transform: translate3d(-50%, 100%, 0);
+		width: 0;
+		will-change: transform;
+
+		// Aspect Ratio
+		&::before {
+			content: '';
+			display: block;
+			padding-bottom: 100%;
+		}
+
+		// Random
+		@for $i from 1 through 200 {
+			&:nth-child(#{$i}) {
+				animation-delay: math.random(10) * 0.3s;
+				animation-duration: (math.random(20) + 10) * 1s;
+				left: math.random(100) * 1%;
+				width: (math.random(90) + 10) * 0.1em;
+			}
+		}
+	}
+}
+
+// Animation
+@keyframes bgItem {
+	100% {
+		top: 0;
+		transform: translate3d(-50%, -100%, 0);
+	}
+}

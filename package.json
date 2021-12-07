@@ -1,0 +1,26 @@
+{
+	"name": "louis-gg",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"cssCompile": "sass --watch --style=expanded ./docs/scss/main.scss:./docs/scss/main.css",
+		"cssBuild": "npx postcss ./docs/scss/main.css -o ./docs/style.min.css -w --env development",
+		"dev": "npm-run-all -p cssCompile cssBuild"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"homepage": "",
+	"devDependencies": {
+		"autoprefixer": "^10.4.0",
+		"cssnano": "^5.0.10",
+		"npm-run-all": "^4.1.5",
+		"postcss": "^8.3.11",
+		"postcss-cli": "^9.0.2",
+		"postcss-sort-media-queries": "^4.1.0",
+		"postcss-sorting": "^7.0.1",
+		"sass": "^1.43.4"
+	},
+	"dependencies": {}
+}
