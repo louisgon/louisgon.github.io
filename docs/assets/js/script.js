@@ -28,14 +28,24 @@ if (lg_accordionButtons.length > 0) {
 	});
 }
 
-// Onload
-window.addEventListener('load', function () {
-	setTimeout(function () {
-		document.body.classList.add('has-loaded');
-	}, 2000);
+// Nav Toggle
+const lg_navToggle = document.querySelector('.nav__toggle__button');
+lg_navToggle.addEventListener('click', function () {
+	if (document.body.classList.contains('open-nav__links')) {
+		document.body.classList.remove('open-nav__links');
+	} else {
+		document.body.classList.add('open-nav__links');
+	}
 });
 
 // Generate Random Number
 function randomNumber(min, max) {
 	return Math.random() * (max - min) + min;
 }
+
+// Has Loaded
+window.addEventListener('load', function () {
+	setTimeout(function () {
+		document.body.classList.remove('is-loading');
+	}, 2000);
+});
