@@ -24,8 +24,8 @@
 		z-index: 0;
 
 		&:not(.lg__intro) {
-			padding-top: calc(2 * var(--header-size));
 			margin-top: calc(4 * var(--doc-spacing));
+			padding-top: calc(2 * var(--header-size));
 		}
 	}
 }
@@ -36,8 +36,8 @@
 	&__intro {
 		display: flex;
 		flex-direction: column;
-		min-height: calc(100vh - var(--header-size));
 		justify-content: center;
+		min-height: calc(100vh - var(--header-size));
 	}
 }
 
@@ -53,8 +53,8 @@
 	// Nav
 	> .accordion__nav {
 		flex: 0 0 auto;
-		width: 15rem;
 		margin-right: var(--doc-padding);
+		width: 15rem;
 	}
 }
 
@@ -64,29 +64,33 @@
 	&__nav {
 		// Item
 		&__item {
-			border-left: 2px solid rgba($white, 25%);
+			border-left: 2px solid rgba($light, 10%);
 		}
 
 		// Button
 		&__button {
-			position: relative;
+			@include transition('background-color', 'color');
+			color: $gray;
+			display: inline-flex;
 			font-size: 1rem;
 			font-weight: 400;
 			padding: 0.75em 1.25em;
+			position: relative;
+			vertical-align: top;
 
 			// Border
 			&::before {
-				position: absolute;
-				top: 0;
-				right: 100%;
-				width: 2px;
-				height: 100%;
 				background: $accent;
+				height: 100%;
+				position: absolute;
+				right: 100%;
+				top: 0;
+				width: 2px;
 			}
 
 			// Active
 			&.is-active {
-				font-weight: 500;
+				color: $fontcolor;
 
 				// Border
 				&::before {
@@ -94,11 +98,22 @@
 					display: block;
 				}
 			}
+
+			// Hover
+			&:hover {
+				background-color: rgba($light, 10%);
+				color: $fontcolor;
+			}
 		}
 	}
 
 	// Content
 	&__content {
 		display: none;
+
+		// Active
+		&.is-active {
+			display: block;
+		}
 	}
 }
