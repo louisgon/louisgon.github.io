@@ -11,13 +11,13 @@ $nav: '.nav';
 	justify-content: space-between;
 
 	// Font Size
-	@media (min-width: 90.01em) {
+	@media (min-width: 60.01em) {
 		font-size: 1rem;
 	}
-	@media (max-width: 90em) and (min-width: 75.01em) {
+	@media (max-width: 60em) and (min-width: 30.01em) {
 		font-size: 0.9375rem;
 	}
-	@media (max-width: 75em) {
+	@media (max-width: 30em) {
 		font-size: 0.875rem;
 	}
 
@@ -68,6 +68,13 @@ $nav: '.nav';
 	// Logo
 	#{$nav}__logo {
 		width: 2.5rem;
+
+		@media (max-width: 60em) and (min-width: 30.01em) {
+			width: 2.25rem;
+		}
+		@media (max-width: 30em) {
+			width: 2rem;
+		}
 	}
 
 	// Button
@@ -76,21 +83,35 @@ $nav: '.nav';
 	}
 }
 
+// Nav
+#{$nav}__toggle {
+	width: 2rem;
+	height: 1.5rem;
+	background: $white;
+}
+
 // Links
 #{$nav}__links {
-	align-items: center;
-	display: flex;
-	margin-left: -0.5em;
-	margin-right: -0.5em;
+	@media (min-width: 45.01em) {
+		align-items: center;
+		display: flex;
+		margin-left: -0.5em;
+		margin-right: -0.5em;
 
-	// Items
-	> * {
-		margin-left: 0.5em;
-		margin-right: 0.5em;
+		// Items
+		> * {
+			margin-left: 0.5em;
+			margin-right: 0.5em;
 
-		// Last
-		&:last-child {
-			margin-left: 1em;
+			// Last
+			&:last-child {
+				margin-left: 1em;
+			}
 		}
+	}
+	@media (max-width: 45em) {
+		position: fixed;
+		top: 0;
+		right: 0;
 	}
 }

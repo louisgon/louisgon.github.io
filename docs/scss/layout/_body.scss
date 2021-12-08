@@ -19,14 +19,10 @@
 	:where(section) {
 		display: block;
 		overflow: hidden;
+		padding-top: calc(4 * var(--doc-spacing) + var(--header-size));
 		position: relative;
 		width: 100%;
 		z-index: 0;
-
-		&:not(.lg__intro) {
-			margin-top: calc(4 * var(--doc-spacing));
-			padding-top: calc(2 * var(--header-size));
-		}
 	}
 }
 
@@ -114,6 +110,68 @@
 		// Active
 		&.is-active {
 			display: block;
+		}
+	}
+}
+
+// Work
+.work {
+	// Card
+	&__card {
+		background: $light;
+		display: block;
+		overflow: hidden;
+		padding-bottom: 80%;
+		position: relative;
+		text-decoration: none;
+		z-index: 0;
+
+		// Overlay
+		&__overlay {
+			align-items: center;
+			background: rgba($dark, 90%);
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			justify-content: center;
+			left: 0;
+			position: absolute;
+			top: 0;
+			width: 100%;
+
+			// Button
+			.button {
+				height: auto;
+				width: auto;
+			}
+		}
+
+		@include unify-parent(a) {
+			img {
+				@include transition('transform');
+				backface-visibility: hidden;
+				transform: scale3d(1, 1, 1);
+			}
+
+			// Overlay
+			.work__card__overlay {
+				@include transition('opacity', 'visbility');
+				opacity: 0;
+				visibility: hidden;
+			}
+
+			// Hover
+			&:hover {
+				img {
+					transform: scale3d(1.05, 1.05, 1.05);
+				}
+
+				// Overlay
+				.work__card__overlay {
+					opacity: 1;
+					visibility: visible;
+				}
+			}
 		}
 	}
 }

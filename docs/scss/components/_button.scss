@@ -38,34 +38,6 @@
 		font-size: 0.875rem;
 	}
 
-	// Icon Base
-	i {
-		flex: 0 0 auto;
-		height: 1.5em;
-		width: 1.5em;
-
-		// Margin
-		&:not(:first-child) {
-			margin-left: 0.5em;
-		}
-		&:not(:last-child) {
-			margin-right: 0.5em;
-		}
-
-		// Contain Img/SVG
-		@include containImgSvg;
-
-		// Icon Styles
-		&.icon {
-			// Chevron
-			&__chevron-left,
-			&__chevron-right {
-				height: 0.75em;
-				width: 0.5em;
-			}
-		}
-	}
-
 	// Anchor
 	@include unify-parent(a) {
 		text-decoration: none;
@@ -78,14 +50,16 @@
 	border-color: $primary;
 	color: $primary;
 
-	// Icon
-	i {
-		color: $dark;
-	}
-
 	// Hover
 	&:hover {
 		background-color: rgba($primary, 15%);
+	}
+
+	// Accent
+	&--accent {
+		@extend %button-base;
+		border-color: $accent;
+		color: $accent;
 	}
 }
 

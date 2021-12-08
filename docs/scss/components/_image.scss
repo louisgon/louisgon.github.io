@@ -37,36 +37,27 @@
 	// Background
 	&::before,
 	&::after {
-		border-radius: 50%;
+		@include transition('transform');
+		backface-visibility: hidden;
+		border: 2px solid transparent;
 		content: '';
-		position: absolute;
-		transform: translate(10%, 10%);
-	}
-
-	// Gradient
-	&::before {
-		background: linear-gradient(90deg, $accent, $primary);
 		height: 100%;
 		left: 0;
+		position: absolute;
 		top: 0;
 		width: 100%;
 		z-index: -10;
 	}
 
-	// Overlay
-	&::after {
-		background: $dark;
-		height: calc(100% - 8px);
-		left: 4px;
-		top: 4px;
-		width: calc(100% - 8px);
-		z-index: -5;
+	// Accent
+	&::before {
+		border-color: $accent;
+		transform: translate(-5%, -5%);
 	}
 
-	//
-
-	// Image
-	img {
-		border-radius: 50%;
+	// Primary
+	&::after {
+		border-color: $primary;
+		transform: translate(5%, 5%);
 	}
 }

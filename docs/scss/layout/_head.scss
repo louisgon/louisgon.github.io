@@ -8,12 +8,24 @@
 .site__header {
 	flex: 0 0 auto;
 	left: 0;
-	padding-bottom: calc(0.5 * var(--doc-padding));
-	padding-top: calc(0.5 * var(--doc-padding));
 	position: sticky;
 	top: 0;
 	width: 100%;
 	z-index: 90;
+
+	// Padding
+	@media (min-width: 60.01em) {
+		padding-bottom: 1.5rem;
+		padding-top: 1.5rem;
+	}
+	@media (max-width: 60em) and (min-width: 30.01em) {
+		padding-bottom: 1.375rem;
+		padding-top: 1.375rem;
+	}
+	@media (max-width: 30em) {
+		padding-bottom: 1.25rem;
+		padding-top: 1.25rem;
+	}
 
 	// After
 	&::after {

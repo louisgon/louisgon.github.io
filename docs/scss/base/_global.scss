@@ -6,6 +6,13 @@
 	// Header
 	--header-size: 6.125rem;
 
+	@media (max-width: 60em) and (min-width: 30.01em) {
+		--header-size: 5.5625rem;
+	}
+	@media (max-width: 30em) {
+		--header-size: 5rem;
+	}
+
 	// Spacing
 	--doc-padding: #{$doc-padding};
 	--doc-spacing: #{$doc-spacing};

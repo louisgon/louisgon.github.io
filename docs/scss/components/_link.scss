@@ -20,22 +20,3 @@ $link: '.link';
 		}
 	}
 }
-
-// Uppercase
-#{$link}__up {
-	border-bottom: 1px solid currentColor;
-	font-size: 1rem;
-	font-weight: 700;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
-
-	@include unify-parent(a) {
-		@include transition('opacity');
-		text-decoration: none;
-
-		// Hover
-		&:hover {
-			opacity: 0.5;
-		}
-	}
-}
