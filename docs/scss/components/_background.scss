@@ -39,7 +39,7 @@
 		// Random
 		@for $i from 1 through 200 {
 			&:nth-child(#{$i}) {
-				animation-delay: math.random(10) * 0.3s;
+				animation-delay: math.random(6) * 0.3s;
 				animation-duration: (math.random(20) + 10) * 1s;
 				left: math.random(100) * 1%;
 				width: (math.random(90) + 10) * 0.1em;

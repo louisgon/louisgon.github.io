@@ -53,7 +53,52 @@
 	// Nav
 	> .accordion__nav {
 		flex: 0 0 auto;
-		width: 12.5rem;
+		width: 15rem;
 		margin-right: var(--doc-padding);
+	}
+}
+
+// Accordion
+.accordion {
+	// Nav
+	&__nav {
+		// Item
+		&__item {
+			border-left: 2px solid rgba($white, 25%);
+		}
+
+		// Button
+		&__button {
+			position: relative;
+			font-size: 1rem;
+			font-weight: 400;
+			padding: 0.75em 1.25em;
+
+			// Border
+			&::before {
+				position: absolute;
+				top: 0;
+				right: 100%;
+				width: 2px;
+				height: 100%;
+				background: $accent;
+			}
+
+			// Active
+			&.is-active {
+				font-weight: 500;
+
+				// Border
+				&::before {
+					content: '';
+					display: block;
+				}
+			}
+		}
+	}
+
+	// Content
+	&__content {
+		display: none;
 	}
 }

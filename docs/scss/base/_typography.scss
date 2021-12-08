@@ -44,13 +44,14 @@ h3,
 h4 {
 	font-family: $fontfamily-serif;
 	font-weight: 400;
-	letter-spacing: -0.02em;
+	letter-spacing: -0.025em;
 	line-height: 1;
 }
 h5,
 h6 {
-	font-weight: 600;
-	letter-spacing: 0.07em;
+	font-weight: 500;
+	letter-spacing: 0.05em;
+	line-height: 1;
 	text-transform: uppercase;
 }
 h1 {
@@ -60,7 +61,7 @@ h1 {
 }
 h2 {
 	@media (min-width: 60.01em) {
-		font-size: 4rem;
+		font-size: 3rem;
 	}
 }
 h3 {
@@ -70,35 +71,17 @@ h3 {
 }
 h4 {
 	@media (min-width: 60.01em) {
-		font-size: 1.75rem;
+		font-size: 2rem;
 	}
 }
 h5 {
 	@media (min-width: 60.01em) {
-		font-size: 1.375rem;
-		line-height: 1.272727272727273;
-	}
-	@media (max-width: 60em) and (min-width: 30.01em) {
-		font-size: 1.1875rem;
-		line-height: 1.157894736842105;
-	}
-	@media (max-width: 30em) {
-		font-size: 1rem;
-		line-height: 1;
+		font-size: 1.25rem;
 	}
 }
 h6 {
 	@media (min-width: 60.01em) {
-		font-size: 1.375rem;
-		line-height: 1.090909090909091;
-	}
-	@media (max-width: 60em) and (min-width: 30.01em) {
-		font-size: 1.125rem;
-		line-height: 1.083333333333333;
-	}
-	@media (max-width: 30em) {
-		font-size: 0.875rem;
-		line-height: 1.071428571428571;
+		font-size: 1rem;
 	}
 }
 
@@ -150,9 +133,8 @@ h6 {
 	ul {
 		display: flex;
 		flex-wrap: wrap;
+		line-height: 1.5;
 		list-style: none;
-		margin-left: -1em;
-		margin-right: -1em;
 		padding: 0;
 
 		// Item
@@ -160,11 +142,10 @@ h6 {
 			align-items: center;
 			display: flex;
 			margin-bottom: 0.25em;
-			padding-left: 1em;
-			padding-right: 1em;
-			width: 50%;
+			width: 100%;
 
 			&::before {
+				align-self: flex-start;
 				background: currentColor;
 				border-radius: 50%;
 				content: '';
@@ -172,7 +153,21 @@ h6 {
 				flex: 0 0 auto;
 				height: 0.375em;
 				margin-right: 0.75em;
+				margin-top: 0.5625em;
 				width: 0.375em;
+			}
+		}
+
+		// Split
+		&.is-split {
+			margin-left: -1em;
+			margin-right: -1em;
+
+			// Item
+			> li {
+				padding-left: 1em;
+				padding-right: 1em;
+				width: 50%;
 			}
 		}
 	}
