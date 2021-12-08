@@ -585,6 +585,9 @@ body {
   font-size: 1rem;
   line-height: 1.5;
   margin: 0;
+  overflow: hidden;
+}
+body.has-loaded {
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -849,6 +852,7 @@ h6 {
 }
 .page__background i {
   animation: bgItem 10s linear 0s infinite;
+  animation-play-state: paused;
   backface-visibility: hidden;
   background: rgba(0, 0, 0, 0.1);
   border-radius: 50%;
@@ -866,1204 +870,1207 @@ h6 {
   padding-bottom: 100%;
 }
 .page__background i:nth-child(1) {
-  animation-delay: 0.6s;
-  animation-duration: 26s;
-  left: 76%;
-  width: 1.3em;
+  animation-delay: 1.2s;
+  animation-duration: 15s;
+  left: 55%;
+  width: 4.8em;
 }
 .page__background i:nth-child(2) {
-  animation-delay: 1.8s;
-  animation-duration: 29s;
-  left: 60%;
-  width: 2.1em;
+  animation-delay: 1.2s;
+  animation-duration: 15s;
+  left: 38%;
+  width: 3.7em;
 }
 .page__background i:nth-child(3) {
-  animation-delay: 0.9s;
-  animation-duration: 18s;
-  left: 26%;
-  width: 4.6em;
+  animation-delay: 1.5s;
+  animation-duration: 22s;
+  left: 74%;
+  width: 6.2em;
 }
 .page__background i:nth-child(4) {
-  animation-delay: 0.6s;
-  animation-duration: 26s;
-  left: 82%;
-  width: 2.3em;
+  animation-delay: 1.5s;
+  animation-duration: 22s;
+  left: 75%;
+  width: 8.5em;
 }
 .page__background i:nth-child(5) {
-  animation-delay: 0.9s;
-  animation-duration: 20s;
-  left: 95%;
-  width: 1.6em;
+  animation-delay: 0.3s;
+  animation-duration: 18s;
+  left: 9%;
+  width: 7.2em;
 }
 .page__background i:nth-child(6) {
-  animation-delay: 0.3s;
-  animation-duration: 27s;
-  left: 2%;
-  width: 1.9em;
+  animation-delay: 1.2s;
+  animation-duration: 12s;
+  left: 40%;
+  width: 2.5em;
 }
 .page__background i:nth-child(7) {
   animation-delay: 0.9s;
-  animation-duration: 12s;
-  left: 61%;
-  width: 4.7em;
+  animation-duration: 30s;
+  left: 88%;
+  width: 5.8em;
 }
 .page__background i:nth-child(8) {
-  animation-delay: 1.8s;
-  animation-duration: 23s;
-  left: 60%;
-  width: 5.3em;
+  animation-delay: 0.6s;
+  animation-duration: 27s;
+  left: 2%;
+  width: 1.4em;
 }
 .page__background i:nth-child(9) {
-  animation-delay: 1.2s;
-  animation-duration: 12s;
-  left: 94%;
-  width: 7.2em;
+  animation-delay: 1.8s;
+  animation-duration: 21s;
+  left: 22%;
+  width: 5.3em;
 }
 .page__background i:nth-child(10) {
-  animation-delay: 0.6s;
+  animation-delay: 1.8s;
   animation-duration: 20s;
-  left: 92%;
-  width: 8.7em;
+  left: 18%;
+  width: 8.4em;
 }
 .page__background i:nth-child(11) {
-  animation-delay: 1.2s;
-  animation-duration: 28s;
-  left: 20%;
-  width: 5em;
+  animation-delay: 0.9s;
+  animation-duration: 17s;
+  left: 67%;
+  width: 9em;
 }
 .page__background i:nth-child(12) {
-  animation-delay: 1.2s;
+  animation-delay: 0.9s;
   animation-duration: 13s;
-  left: 43%;
-  width: 1.6em;
+  left: 82%;
+  width: 4.7em;
 }
 .page__background i:nth-child(13) {
   animation-delay: 1.8s;
-  animation-duration: 15s;
-  left: 96%;
-  width: 9.5em;
+  animation-duration: 23s;
+  left: 37%;
+  width: 3.7em;
 }
 .page__background i:nth-child(14) {
-  animation-delay: 1.5s;
-  animation-duration: 25s;
-  left: 82%;
-  width: 9em;
+  animation-delay: 1.8s;
+  animation-duration: 17s;
+  left: 12%;
+  width: 4.8em;
 }
 .page__background i:nth-child(15) {
-  animation-delay: 0.3s;
-  animation-duration: 29s;
-  left: 22%;
-  width: 8em;
-}
-.page__background i:nth-child(16) {
-  animation-delay: 1.5s;
-  animation-duration: 18s;
-  left: 89%;
-  width: 4.8em;
-}
-.page__background i:nth-child(17) {
-  animation-delay: 0.3s;
-  animation-duration: 23s;
-  left: 62%;
-  width: 2.8em;
-}
-.page__background i:nth-child(18) {
-  animation-delay: 1.8s;
-  animation-duration: 26s;
-  left: 33%;
-  width: 1.5em;
-}
-.page__background i:nth-child(19) {
-  animation-delay: 0.3s;
-  animation-duration: 21s;
-  left: 43%;
+  animation-delay: 0.9s;
+  animation-duration: 14s;
+  left: 98%;
   width: 3.2em;
 }
-.page__background i:nth-child(20) {
+.page__background i:nth-child(16) {
   animation-delay: 0.3s;
-  animation-duration: 19s;
-  left: 37%;
-  width: 4.8em;
+  animation-duration: 12s;
+  left: 78%;
+  width: 3.1em;
+}
+.page__background i:nth-child(17) {
+  animation-delay: 1.5s;
+  animation-duration: 30s;
+  left: 97%;
+  width: 4.3em;
+}
+.page__background i:nth-child(18) {
+  animation-delay: 0.6s;
+  animation-duration: 12s;
+  left: 73%;
+  width: 6.1em;
+}
+.page__background i:nth-child(19) {
+  animation-delay: 1.8s;
+  animation-duration: 30s;
+  left: 84%;
+  width: 6.1em;
+}
+.page__background i:nth-child(20) {
+  animation-delay: 0.9s;
+  animation-duration: 20s;
+  left: 83%;
+  width: 7.5em;
 }
 .page__background i:nth-child(21) {
   animation-delay: 1.5s;
-  animation-duration: 23s;
-  left: 9%;
-  width: 4em;
+  animation-duration: 24s;
+  left: 39%;
+  width: 6.7em;
 }
 .page__background i:nth-child(22) {
   animation-delay: 0.3s;
-  animation-duration: 12s;
-  left: 29%;
-  width: 7.1em;
+  animation-duration: 24s;
+  left: 5%;
+  width: 3.3em;
 }
 .page__background i:nth-child(23) {
-  animation-delay: 0.6s;
-  animation-duration: 24s;
-  left: 99%;
-  width: 7.9em;
+  animation-delay: 1.8s;
+  animation-duration: 22s;
+  left: 54%;
+  width: 2.1em;
 }
 .page__background i:nth-child(24) {
-  animation-delay: 1.8s;
-  animation-duration: 18s;
-  left: 79%;
-  width: 8.3em;
+  animation-delay: 1.2s;
+  animation-duration: 29s;
+  left: 20%;
+  width: 7.4em;
 }
 .page__background i:nth-child(25) {
-  animation-delay: 1.5s;
-  animation-duration: 27s;
-  left: 67%;
-  width: 4.5em;
+  animation-delay: 0.9s;
+  animation-duration: 26s;
+  left: 55%;
+  width: 1.6em;
 }
 .page__background i:nth-child(26) {
   animation-delay: 1.5s;
-  animation-duration: 24s;
-  left: 61%;
-  width: 8.4em;
+  animation-duration: 29s;
+  left: 78%;
+  width: 7.4em;
 }
 .page__background i:nth-child(27) {
-  animation-delay: 0.9s;
-  animation-duration: 12s;
-  left: 27%;
-  width: 4.9em;
+  animation-delay: 1.5s;
+  animation-duration: 17s;
+  left: 95%;
+  width: 8.2em;
 }
 .page__background i:nth-child(28) {
   animation-delay: 1.2s;
-  animation-duration: 30s;
-  left: 59%;
-  width: 6.8em;
+  animation-duration: 18s;
+  left: 11%;
+  width: 1.5em;
 }
 .page__background i:nth-child(29) {
-  animation-delay: 0.6s;
-  animation-duration: 29s;
-  left: 46%;
-  width: 6.3em;
+  animation-delay: 1.5s;
+  animation-duration: 26s;
+  left: 58%;
+  width: 2.5em;
 }
 .page__background i:nth-child(30) {
   animation-delay: 0.3s;
-  animation-duration: 29s;
-  left: 77%;
-  width: 2.4em;
+  animation-duration: 25s;
+  left: 36%;
+  width: 2.7em;
 }
 .page__background i:nth-child(31) {
   animation-delay: 1.2s;
-  animation-duration: 14s;
-  left: 66%;
-  width: 4em;
+  animation-duration: 29s;
+  left: 87%;
+  width: 6em;
 }
 .page__background i:nth-child(32) {
   animation-delay: 0.6s;
-  animation-duration: 25s;
-  left: 58%;
-  width: 7.2em;
+  animation-duration: 17s;
+  left: 18%;
+  width: 2.2em;
 }
 .page__background i:nth-child(33) {
-  animation-delay: 1.5s;
-  animation-duration: 21s;
-  left: 39%;
-  width: 2.1em;
-}
-.page__background i:nth-child(34) {
-  animation-delay: 1.8s;
-  animation-duration: 11s;
-  left: 67%;
+  animation-delay: 0.9s;
+  animation-duration: 30s;
+  left: 50%;
   width: 4.8em;
 }
+.page__background i:nth-child(34) {
+  animation-delay: 1.2s;
+  animation-duration: 29s;
+  left: 32%;
+  width: 6.3em;
+}
 .page__background i:nth-child(35) {
-  animation-delay: 0.9s;
-  animation-duration: 22s;
-  left: 93%;
-  width: 3.9em;
+  animation-delay: 0.3s;
+  animation-duration: 26s;
+  left: 34%;
+  width: 6.4em;
 }
 .page__background i:nth-child(36) {
-  animation-delay: 0.3s;
-  animation-duration: 13s;
-  left: 13%;
-  width: 6.3em;
+  animation-delay: 0.6s;
+  animation-duration: 14s;
+  left: 82%;
+  width: 5.4em;
 }
 .page__background i:nth-child(37) {
   animation-delay: 1.5s;
-  animation-duration: 29s;
-  left: 22%;
-  width: 3.6em;
+  animation-duration: 17s;
+  left: 29%;
+  width: 1.7em;
 }
 .page__background i:nth-child(38) {
-  animation-delay: 0.3s;
-  animation-duration: 24s;
-  left: 100%;
-  width: 8em;
+  animation-delay: 1.8s;
+  animation-duration: 28s;
+  left: 2%;
+  width: 3.7em;
 }
 .page__background i:nth-child(39) {
-  animation-delay: 0.3s;
+  animation-delay: 1.5s;
   animation-duration: 12s;
-  left: 98%;
-  width: 8.4em;
+  left: 55%;
+  width: 6.9em;
 }
 .page__background i:nth-child(40) {
-  animation-delay: 1.8s;
-  animation-duration: 14s;
-  left: 56%;
-  width: 3.5em;
+  animation-delay: 1.2s;
+  animation-duration: 21s;
+  left: 71%;
+  width: 6.3em;
 }
 .page__background i:nth-child(41) {
-  animation-delay: 1.8s;
-  animation-duration: 22s;
-  left: 63%;
-  width: 3.3em;
+  animation-delay: 0.6s;
+  animation-duration: 29s;
+  left: 47%;
+  width: 8.4em;
 }
 .page__background i:nth-child(42) {
-  animation-delay: 1.2s;
-  animation-duration: 11s;
-  left: 99%;
-  width: 5.5em;
+  animation-delay: 0.6s;
+  animation-duration: 28s;
+  left: 46%;
+  width: 9.3em;
 }
 .page__background i:nth-child(43) {
-  animation-delay: 0.6s;
-  animation-duration: 15s;
-  left: 28%;
-  width: 2.1em;
+  animation-delay: 0.9s;
+  animation-duration: 24s;
+  left: 76%;
+  width: 8.4em;
 }
 .page__background i:nth-child(44) {
-  animation-delay: 0.3s;
-  animation-duration: 25s;
-  left: 25%;
-  width: 1.8em;
+  animation-delay: 1.8s;
+  animation-duration: 29s;
+  left: 70%;
+  width: 4.1em;
 }
 .page__background i:nth-child(45) {
   animation-delay: 0.3s;
-  animation-duration: 27s;
-  left: 52%;
-  width: 6.7em;
+  animation-duration: 28s;
+  left: 33%;
+  width: 9.7em;
 }
 .page__background i:nth-child(46) {
-  animation-delay: 0.9s;
-  animation-duration: 11s;
-  left: 8%;
-  width: 7.4em;
+  animation-delay: 0.3s;
+  animation-duration: 14s;
+  left: 36%;
+  width: 7.8em;
 }
 .page__background i:nth-child(47) {
-  animation-delay: 1.8s;
-  animation-duration: 22s;
-  left: 24%;
-  width: 2.5em;
+  animation-delay: 1.2s;
+  animation-duration: 19s;
+  left: 5%;
+  width: 5.5em;
 }
 .page__background i:nth-child(48) {
-  animation-delay: 0.3s;
-  animation-duration: 24s;
-  left: 63%;
-  width: 7.1em;
+  animation-delay: 0.6s;
+  animation-duration: 22s;
+  left: 11%;
+  width: 8.2em;
 }
 .page__background i:nth-child(49) {
-  animation-delay: 0.6s;
-  animation-duration: 15s;
-  left: 49%;
-  width: 5.4em;
+  animation-delay: 1.2s;
+  animation-duration: 11s;
+  left: 29%;
+  width: 4.9em;
 }
 .page__background i:nth-child(50) {
-  animation-delay: 1.8s;
-  animation-duration: 22s;
-  left: 42%;
-  width: 9.6em;
+  animation-delay: 0.9s;
+  animation-duration: 18s;
+  left: 97%;
+  width: 6.8em;
 }
 .page__background i:nth-child(51) {
-  animation-delay: 1.2s;
-  animation-duration: 26s;
-  left: 56%;
-  width: 7.1em;
+  animation-delay: 1.5s;
+  animation-duration: 21s;
+  left: 51%;
+  width: 2.6em;
 }
 .page__background i:nth-child(52) {
   animation-delay: 0.3s;
-  animation-duration: 16s;
-  left: 74%;
-  width: 1.3em;
+  animation-duration: 24s;
+  left: 9%;
+  width: 2.6em;
 }
 .page__background i:nth-child(53) {
-  animation-delay: 1.5s;
-  animation-duration: 21s;
-  left: 50%;
-  width: 5.4em;
+  animation-delay: 0.6s;
+  animation-duration: 14s;
+  left: 82%;
+  width: 6.3em;
 }
 .page__background i:nth-child(54) {
-  animation-delay: 1.2s;
-  animation-duration: 28s;
-  left: 56%;
-  width: 3.3em;
+  animation-delay: 1.5s;
+  animation-duration: 17s;
+  left: 7%;
+  width: 8.8em;
 }
 .page__background i:nth-child(55) {
-  animation-delay: 1.2s;
-  animation-duration: 22s;
-  left: 67%;
-  width: 5.8em;
+  animation-delay: 0.3s;
+  animation-duration: 23s;
+  left: 84%;
+  width: 7em;
 }
 .page__background i:nth-child(56) {
-  animation-delay: 1.2s;
-  animation-duration: 21s;
-  left: 65%;
-  width: 6.1em;
+  animation-delay: 1.8s;
+  animation-duration: 29s;
+  left: 96%;
+  width: 9.1em;
 }
 .page__background i:nth-child(57) {
-  animation-delay: 1.8s;
-  animation-duration: 27s;
-  left: 59%;
-  width: 2.3em;
+  animation-delay: 0.3s;
+  animation-duration: 14s;
+  left: 52%;
+  width: 1.8em;
 }
 .page__background i:nth-child(58) {
-  animation-delay: 0.6s;
-  animation-duration: 22s;
-  left: 94%;
-  width: 9.8em;
+  animation-delay: 1.8s;
+  animation-duration: 30s;
+  left: 87%;
+  width: 1.8em;
 }
 .page__background i:nth-child(59) {
-  animation-delay: 1.8s;
+  animation-delay: 0.9s;
   animation-duration: 26s;
-  left: 7%;
-  width: 7.7em;
-}
-.page__background i:nth-child(60) {
-  animation-delay: 1.8s;
-  animation-duration: 30s;
-  left: 69%;
+  left: 39%;
   width: 8.9em;
 }
+.page__background i:nth-child(60) {
+  animation-delay: 1.2s;
+  animation-duration: 11s;
+  left: 98%;
+  width: 1.1em;
+}
 .page__background i:nth-child(61) {
-  animation-delay: 1.5s;
-  animation-duration: 30s;
-  left: 90%;
-  width: 5.8em;
+  animation-delay: 0.6s;
+  animation-duration: 25s;
+  left: 12%;
+  width: 9.6em;
 }
 .page__background i:nth-child(62) {
   animation-delay: 1.2s;
-  animation-duration: 16s;
-  left: 10%;
-  width: 4.1em;
+  animation-duration: 13s;
+  left: 51%;
+  width: 6.8em;
 }
 .page__background i:nth-child(63) {
-  animation-delay: 0.6s;
-  animation-duration: 17s;
-  left: 35%;
-  width: 7.1em;
+  animation-delay: 1.5s;
+  animation-duration: 19s;
+  left: 50%;
+  width: 1.6em;
 }
 .page__background i:nth-child(64) {
-  animation-delay: 0.9s;
+  animation-delay: 1.5s;
   animation-duration: 23s;
-  left: 80%;
-  width: 6.3em;
+  left: 9%;
+  width: 6.9em;
 }
 .page__background i:nth-child(65) {
-  animation-delay: 0.3s;
-  animation-duration: 20s;
-  left: 66%;
-  width: 6.9em;
+  animation-delay: 1.5s;
+  animation-duration: 26s;
+  left: 84%;
+  width: 7.9em;
 }
 .page__background i:nth-child(66) {
-  animation-delay: 0.3s;
-  animation-duration: 14s;
-  left: 56%;
-  width: 5.1em;
+  animation-delay: 0.9s;
+  animation-duration: 23s;
+  left: 35%;
+  width: 7.2em;
 }
 .page__background i:nth-child(67) {
-  animation-delay: 0.6s;
-  animation-duration: 20s;
-  left: 3%;
-  width: 3.6em;
+  animation-delay: 1.2s;
+  animation-duration: 29s;
+  left: 47%;
+  width: 9.7em;
 }
 .page__background i:nth-child(68) {
-  animation-delay: 1.5s;
-  animation-duration: 15s;
-  left: 93%;
-  width: 6em;
+  animation-delay: 0.3s;
+  animation-duration: 19s;
+  left: 57%;
+  width: 4em;
 }
 .page__background i:nth-child(69) {
-  animation-delay: 0.9s;
-  animation-duration: 29s;
-  left: 82%;
-  width: 5.2em;
-}
-.page__background i:nth-child(70) {
-  animation-delay: 0.3s;
-  animation-duration: 11s;
-  left: 2%;
-  width: 4.5em;
-}
-.page__background i:nth-child(71) {
-  animation-delay: 1.2s;
-  animation-duration: 30s;
-  left: 87%;
-  width: 7.5em;
-}
-.page__background i:nth-child(72) {
-  animation-delay: 1.2s;
-  animation-duration: 21s;
-  left: 88%;
-  width: 2.2em;
-}
-.page__background i:nth-child(73) {
-  animation-delay: 1.5s;
-  animation-duration: 16s;
-  left: 46%;
-  width: 6.9em;
-}
-.page__background i:nth-child(74) {
-  animation-delay: 0.9s;
-  animation-duration: 29s;
-  left: 30%;
-  width: 9.6em;
-}
-.page__background i:nth-child(75) {
-  animation-delay: 0.9s;
-  animation-duration: 24s;
-  left: 69%;
-  width: 4.7em;
-}
-.page__background i:nth-child(76) {
-  animation-delay: 1.2s;
-  animation-duration: 11s;
-  left: 44%;
-  width: 3.5em;
-}
-.page__background i:nth-child(77) {
-  animation-delay: 0.9s;
-  animation-duration: 21s;
-  left: 33%;
-  width: 9.1em;
-}
-.page__background i:nth-child(78) {
-  animation-delay: 0.6s;
-  animation-duration: 15s;
-  left: 74%;
-  width: 8.3em;
-}
-.page__background i:nth-child(79) {
-  animation-delay: 0.3s;
-  animation-duration: 20s;
-  left: 69%;
-  width: 9.3em;
-}
-.page__background i:nth-child(80) {
-  animation-delay: 0.9s;
-  animation-duration: 30s;
-  left: 57%;
-  width: 2.9em;
-}
-.page__background i:nth-child(81) {
   animation-delay: 1.2s;
   animation-duration: 22s;
-  left: 25%;
-  width: 5.3em;
+  left: 10%;
+  width: 1.6em;
+}
+.page__background i:nth-child(70) {
+  animation-delay: 0.6s;
+  animation-duration: 27s;
+  left: 47%;
+  width: 4.2em;
+}
+.page__background i:nth-child(71) {
+  animation-delay: 0.3s;
+  animation-duration: 26s;
+  left: 38%;
+  width: 2.2em;
+}
+.page__background i:nth-child(72) {
+  animation-delay: 1.8s;
+  animation-duration: 21s;
+  left: 4%;
+  width: 4.1em;
+}
+.page__background i:nth-child(73) {
+  animation-delay: 1.2s;
+  animation-duration: 19s;
+  left: 49%;
+  width: 5.1em;
+}
+.page__background i:nth-child(74) {
+  animation-delay: 0.3s;
+  animation-duration: 15s;
+  left: 68%;
+  width: 4.1em;
+}
+.page__background i:nth-child(75) {
+  animation-delay: 0.3s;
+  animation-duration: 18s;
+  left: 27%;
+  width: 4em;
+}
+.page__background i:nth-child(76) {
+  animation-delay: 1.5s;
+  animation-duration: 26s;
+  left: 10%;
+  width: 5.6em;
+}
+.page__background i:nth-child(77) {
+  animation-delay: 1.2s;
+  animation-duration: 14s;
+  left: 92%;
+  width: 9.3em;
+}
+.page__background i:nth-child(78) {
+  animation-delay: 0.3s;
+  animation-duration: 16s;
+  left: 16%;
+  width: 5.7em;
+}
+.page__background i:nth-child(79) {
+  animation-delay: 1.5s;
+  animation-duration: 21s;
+  left: 64%;
+  width: 6.8em;
+}
+.page__background i:nth-child(80) {
+  animation-delay: 0.3s;
+  animation-duration: 19s;
+  left: 99%;
+  width: 9.2em;
+}
+.page__background i:nth-child(81) {
+  animation-delay: 0.9s;
+  animation-duration: 16s;
+  left: 42%;
+  width: 9.5em;
 }
 .page__background i:nth-child(82) {
-  animation-delay: 1.8s;
-  animation-duration: 12s;
-  left: 39%;
-  width: 2.3em;
+  animation-delay: 1.5s;
+  animation-duration: 18s;
+  left: 6%;
+  width: 8.4em;
 }
 .page__background i:nth-child(83) {
   animation-delay: 0.6s;
-  animation-duration: 11s;
-  left: 56%;
-  width: 2.7em;
+  animation-duration: 23s;
+  left: 43%;
+  width: 3.1em;
 }
 .page__background i:nth-child(84) {
-  animation-delay: 1.5s;
-  animation-duration: 11s;
-  left: 60%;
-  width: 4em;
+  animation-delay: 0.3s;
+  animation-duration: 26s;
+  left: 16%;
+  width: 2.5em;
 }
 .page__background i:nth-child(85) {
-  animation-delay: 0.3s;
-  animation-duration: 29s;
-  left: 60%;
-  width: 6.6em;
+  animation-delay: 1.2s;
+  animation-duration: 22s;
+  left: 48%;
+  width: 7.7em;
 }
 .page__background i:nth-child(86) {
-  animation-delay: 0.3s;
-  animation-duration: 27s;
-  left: 100%;
-  width: 1.4em;
+  animation-delay: 0.9s;
+  animation-duration: 30s;
+  left: 91%;
+  width: 8.6em;
 }
 .page__background i:nth-child(87) {
-  animation-delay: 0.9s;
-  animation-duration: 11s;
-  left: 88%;
-  width: 8.3em;
+  animation-delay: 1.5s;
+  animation-duration: 19s;
+  left: 65%;
+  width: 3.7em;
 }
 .page__background i:nth-child(88) {
-  animation-delay: 1.2s;
-  animation-duration: 17s;
-  left: 28%;
-  width: 7.9em;
+  animation-delay: 1.8s;
+  animation-duration: 14s;
+  left: 14%;
+  width: 5.3em;
 }
 .page__background i:nth-child(89) {
-  animation-delay: 1.2s;
-  animation-duration: 19s;
-  left: 48%;
-  width: 1.4em;
+  animation-delay: 0.9s;
+  animation-duration: 23s;
+  left: 88%;
+  width: 6.4em;
 }
 .page__background i:nth-child(90) {
   animation-delay: 1.8s;
-  animation-duration: 22s;
-  left: 28%;
-  width: 3.6em;
+  animation-duration: 24s;
+  left: 91%;
+  width: 6.6em;
 }
 .page__background i:nth-child(91) {
-  animation-delay: 0.9s;
-  animation-duration: 19s;
-  left: 33%;
-  width: 6.7em;
+  animation-delay: 0.3s;
+  animation-duration: 26s;
+  left: 2%;
+  width: 9.3em;
 }
 .page__background i:nth-child(92) {
   animation-delay: 1.8s;
-  animation-duration: 27s;
-  left: 51%;
-  width: 2.7em;
+  animation-duration: 17s;
+  left: 22%;
+  width: 3.8em;
 }
 .page__background i:nth-child(93) {
   animation-delay: 1.8s;
   animation-duration: 29s;
-  left: 86%;
-  width: 8.2em;
+  left: 63%;
+  width: 9.1em;
 }
 .page__background i:nth-child(94) {
-  animation-delay: 0.6s;
-  animation-duration: 26s;
-  left: 60%;
-  width: 2.7em;
-}
-.page__background i:nth-child(95) {
-  animation-delay: 1.2s;
-  animation-duration: 28s;
-  left: 29%;
-  width: 3.5em;
-}
-.page__background i:nth-child(96) {
-  animation-delay: 0.6s;
-  animation-duration: 20s;
-  left: 26%;
-  width: 5.4em;
-}
-.page__background i:nth-child(97) {
-  animation-delay: 1.2s;
-  animation-duration: 13s;
-  left: 44%;
-  width: 1.1em;
-}
-.page__background i:nth-child(98) {
   animation-delay: 1.8s;
-  animation-duration: 11s;
-  left: 17%;
-  width: 9.4em;
-}
-.page__background i:nth-child(99) {
-  animation-delay: 0.9s;
-  animation-duration: 21s;
+  animation-duration: 22s;
   left: 35%;
   width: 8.5em;
 }
-.page__background i:nth-child(100) {
+.page__background i:nth-child(95) {
   animation-delay: 0.9s;
-  animation-duration: 23s;
-  left: 35%;
+  animation-duration: 19s;
+  left: 17%;
+  width: 8.6em;
+}
+.page__background i:nth-child(96) {
+  animation-delay: 1.5s;
+  animation-duration: 14s;
+  left: 41%;
+  width: 1.3em;
+}
+.page__background i:nth-child(97) {
+  animation-delay: 1.5s;
+  animation-duration: 16s;
+  left: 47%;
+  width: 9em;
+}
+.page__background i:nth-child(98) {
+  animation-delay: 1.5s;
+  animation-duration: 14s;
+  left: 14%;
   width: 8.2em;
+}
+.page__background i:nth-child(99) {
+  animation-delay: 1.5s;
+  animation-duration: 11s;
+  left: 19%;
+  width: 7.8em;
+}
+.page__background i:nth-child(100) {
+  animation-delay: 0.6s;
+  animation-duration: 17s;
+  left: 2%;
+  width: 5.8em;
 }
 .page__background i:nth-child(101) {
   animation-delay: 1.2s;
-  animation-duration: 13s;
-  left: 19%;
+  animation-duration: 16s;
+  left: 32%;
   width: 5.6em;
 }
 .page__background i:nth-child(102) {
-  animation-delay: 1.2s;
-  animation-duration: 19s;
-  left: 41%;
-  width: 10em;
+  animation-delay: 0.3s;
+  animation-duration: 14s;
+  left: 57%;
+  width: 2.1em;
 }
 .page__background i:nth-child(103) {
-  animation-delay: 0.3s;
-  animation-duration: 18s;
-  left: 86%;
-  width: 8.1em;
+  animation-delay: 1.8s;
+  animation-duration: 19s;
+  left: 46%;
+  width: 6.3em;
 }
 .page__background i:nth-child(104) {
-  animation-delay: 1.5s;
-  animation-duration: 25s;
-  left: 90%;
-  width: 3.1em;
+  animation-delay: 0.6s;
+  animation-duration: 17s;
+  left: 4%;
+  width: 9.8em;
 }
 .page__background i:nth-child(105) {
-  animation-delay: 0.9s;
-  animation-duration: 15s;
-  left: 47%;
-  width: 9.9em;
+  animation-delay: 0.6s;
+  animation-duration: 29s;
+  left: 75%;
+  width: 4.8em;
 }
 .page__background i:nth-child(106) {
-  animation-delay: 0.6s;
-  animation-duration: 25s;
-  left: 82%;
-  width: 1.2em;
+  animation-delay: 0.3s;
+  animation-duration: 26s;
+  left: 71%;
+  width: 7.8em;
 }
 .page__background i:nth-child(107) {
-  animation-delay: 0.3s;
-  animation-duration: 15s;
-  left: 74%;
-  width: 6.8em;
+  animation-delay: 0.6s;
+  animation-duration: 29s;
+  left: 69%;
+  width: 2.7em;
 }
 .page__background i:nth-child(108) {
-  animation-delay: 0.3s;
-  animation-duration: 29s;
-  left: 1%;
-  width: 5.2em;
+  animation-delay: 1.8s;
+  animation-duration: 19s;
+  left: 94%;
+  width: 6.3em;
 }
 .page__background i:nth-child(109) {
-  animation-delay: 0.6s;
-  animation-duration: 12s;
-  left: 94%;
-  width: 2.9em;
+  animation-delay: 0.3s;
+  animation-duration: 29s;
+  left: 48%;
+  width: 10em;
 }
 .page__background i:nth-child(110) {
-  animation-delay: 1.2s;
-  animation-duration: 27s;
-  left: 78%;
-  width: 1.5em;
+  animation-delay: 0.3s;
+  animation-duration: 28s;
+  left: 93%;
+  width: 2.7em;
 }
 .page__background i:nth-child(111) {
-  animation-delay: 1.2s;
-  animation-duration: 14s;
-  left: 24%;
+  animation-delay: 1.8s;
+  animation-duration: 30s;
+  left: 20%;
   width: 3.8em;
 }
 .page__background i:nth-child(112) {
   animation-delay: 1.5s;
-  animation-duration: 12s;
-  left: 98%;
-  width: 4.4em;
+  animation-duration: 19s;
+  left: 22%;
+  width: 4.9em;
 }
 .page__background i:nth-child(113) {
-  animation-delay: 1.2s;
-  animation-duration: 11s;
-  left: 85%;
-  width: 4.1em;
+  animation-delay: 1.5s;
+  animation-duration: 24s;
+  left: 44%;
+  width: 6.2em;
 }
 .page__background i:nth-child(114) {
-  animation-delay: 1.5s;
-  animation-duration: 19s;
-  left: 54%;
-  width: 4.8em;
+  animation-delay: 0.6s;
+  animation-duration: 25s;
+  left: 12%;
+  width: 5.5em;
 }
 .page__background i:nth-child(115) {
-  animation-delay: 1.8s;
+  animation-delay: 1.2s;
   animation-duration: 28s;
-  left: 71%;
-  width: 4.6em;
+  left: 46%;
+  width: 7.2em;
 }
 .page__background i:nth-child(116) {
   animation-delay: 0.3s;
-  animation-duration: 19s;
-  left: 100%;
-  width: 8.6em;
-}
-.page__background i:nth-child(117) {
-  animation-delay: 1.5s;
-  animation-duration: 25s;
-  left: 50%;
-  width: 2.6em;
-}
-.page__background i:nth-child(118) {
-  animation-delay: 0.6s;
-  animation-duration: 15s;
-  left: 22%;
-  width: 1.9em;
-}
-.page__background i:nth-child(119) {
-  animation-delay: 1.8s;
-  animation-duration: 18s;
-  left: 4%;
-  width: 3.4em;
-}
-.page__background i:nth-child(120) {
-  animation-delay: 1.8s;
-  animation-duration: 11s;
-  left: 16%;
-  width: 6.4em;
-}
-.page__background i:nth-child(121) {
-  animation-delay: 1.5s;
-  animation-duration: 22s;
-  left: 99%;
-  width: 9.4em;
-}
-.page__background i:nth-child(122) {
-  animation-delay: 0.9s;
-  animation-duration: 20s;
-  left: 93%;
-  width: 3em;
-}
-.page__background i:nth-child(123) {
-  animation-delay: 1.5s;
-  animation-duration: 13s;
-  left: 15%;
-  width: 3.3em;
-}
-.page__background i:nth-child(124) {
-  animation-delay: 1.8s;
   animation-duration: 23s;
-  left: 33%;
-  width: 9.4em;
-}
-.page__background i:nth-child(125) {
-  animation-delay: 1.5s;
-  animation-duration: 20s;
-  left: 46%;
-  width: 8.2em;
-}
-.page__background i:nth-child(126) {
-  animation-delay: 1.5s;
-  animation-duration: 20s;
-  left: 96%;
-  width: 8.4em;
-}
-.page__background i:nth-child(127) {
-  animation-delay: 1.8s;
-  animation-duration: 12s;
-  left: 19%;
-  width: 3.3em;
-}
-.page__background i:nth-child(128) {
-  animation-delay: 0.6s;
-  animation-duration: 24s;
-  left: 41%;
-  width: 2.5em;
-}
-.page__background i:nth-child(129) {
-  animation-delay: 0.6s;
-  animation-duration: 13s;
-  left: 67%;
+  left: 78%;
   width: 8em;
 }
-.page__background i:nth-child(130) {
+.page__background i:nth-child(117) {
+  animation-delay: 0.3s;
+  animation-duration: 18s;
+  left: 15%;
+  width: 2.9em;
+}
+.page__background i:nth-child(118) {
+  animation-delay: 0.3s;
+  animation-duration: 25s;
+  left: 75%;
+  width: 5.7em;
+}
+.page__background i:nth-child(119) {
   animation-delay: 0.6s;
+  animation-duration: 11s;
+  left: 65%;
+  width: 6em;
+}
+.page__background i:nth-child(120) {
+  animation-delay: 0.9s;
+  animation-duration: 22s;
+  left: 82%;
+  width: 7em;
+}
+.page__background i:nth-child(121) {
+  animation-delay: 1.2s;
+  animation-duration: 25s;
+  left: 85%;
+  width: 1.2em;
+}
+.page__background i:nth-child(122) {
+  animation-delay: 1.8s;
+  animation-duration: 13s;
+  left: 25%;
+  width: 5.7em;
+}
+.page__background i:nth-child(123) {
+  animation-delay: 0.9s;
+  animation-duration: 26s;
+  left: 56%;
+  width: 1.7em;
+}
+.page__background i:nth-child(124) {
+  animation-delay: 1.5s;
+  animation-duration: 25s;
+  left: 8%;
+  width: 9.3em;
+}
+.page__background i:nth-child(125) {
+  animation-delay: 1.2s;
+  animation-duration: 20s;
+  left: 28%;
+  width: 4.5em;
+}
+.page__background i:nth-child(126) {
+  animation-delay: 0.9s;
+  animation-duration: 14s;
+  left: 21%;
+  width: 5em;
+}
+.page__background i:nth-child(127) {
+  animation-delay: 0.3s;
   animation-duration: 21s;
-  left: 13%;
-  width: 7.2em;
+  left: 88%;
+  width: 8em;
+}
+.page__background i:nth-child(128) {
+  animation-delay: 1.5s;
+  animation-duration: 27s;
+  left: 7%;
+  width: 9.7em;
+}
+.page__background i:nth-child(129) {
+  animation-delay: 1.5s;
+  animation-duration: 14s;
+  left: 21%;
+  width: 2.5em;
+}
+.page__background i:nth-child(130) {
+  animation-delay: 1.8s;
+  animation-duration: 18s;
+  left: 84%;
+  width: 7.7em;
 }
 .page__background i:nth-child(131) {
   animation-delay: 0.3s;
-  animation-duration: 25s;
-  left: 93%;
-  width: 9.3em;
+  animation-duration: 18s;
+  left: 80%;
+  width: 5.9em;
 }
 .page__background i:nth-child(132) {
-  animation-delay: 0.3s;
-  animation-duration: 22s;
-  left: 30%;
-  width: 3.8em;
+  animation-delay: 1.8s;
+  animation-duration: 26s;
+  left: 78%;
+  width: 4.4em;
 }
 .page__background i:nth-child(133) {
-  animation-delay: 1.2s;
-  animation-duration: 16s;
-  left: 34%;
-  width: 5.7em;
+  animation-delay: 0.3s;
+  animation-duration: 27s;
+  left: 39%;
+  width: 3.7em;
 }
 .page__background i:nth-child(134) {
-  animation-delay: 1.5s;
-  animation-duration: 30s;
-  left: 71%;
-  width: 3.9em;
+  animation-delay: 0.9s;
+  animation-duration: 28s;
+  left: 99%;
+  width: 5.9em;
 }
 .page__background i:nth-child(135) {
   animation-delay: 0.3s;
-  animation-duration: 12s;
-  left: 51%;
-  width: 9.4em;
+  animation-duration: 19s;
+  left: 34%;
+  width: 9.8em;
 }
 .page__background i:nth-child(136) {
   animation-delay: 1.2s;
-  animation-duration: 16s;
-  left: 80%;
-  width: 4.9em;
+  animation-duration: 18s;
+  left: 10%;
+  width: 3.2em;
 }
 .page__background i:nth-child(137) {
-  animation-delay: 1.5s;
-  animation-duration: 19s;
-  left: 91%;
-  width: 8.7em;
+  animation-delay: 0.3s;
+  animation-duration: 16s;
+  left: 41%;
+  width: 6.4em;
 }
 .page__background i:nth-child(138) {
-  animation-delay: 0.6s;
-  animation-duration: 21s;
-  left: 42%;
-  width: 8.6em;
+  animation-delay: 0.3s;
+  animation-duration: 12s;
+  left: 85%;
+  width: 7.4em;
 }
 .page__background i:nth-child(139) {
-  animation-delay: 0.9s;
-  animation-duration: 26s;
-  left: 28%;
-  width: 1.3em;
+  animation-delay: 0.6s;
+  animation-duration: 29s;
+  left: 85%;
+  width: 5.9em;
 }
 .page__background i:nth-child(140) {
-  animation-delay: 0.3s;
-  animation-duration: 11s;
-  left: 35%;
-  width: 6.2em;
+  animation-delay: 0.9s;
+  animation-duration: 23s;
+  left: 45%;
+  width: 4.9em;
 }
 .page__background i:nth-child(141) {
-  animation-delay: 1.8s;
-  animation-duration: 28s;
-  left: 98%;
-  width: 4em;
+  animation-delay: 1.2s;
+  animation-duration: 14s;
+  left: 97%;
+  width: 4.2em;
 }
 .page__background i:nth-child(142) {
-  animation-delay: 1.2s;
-  animation-duration: 30s;
-  left: 34%;
-  width: 8.9em;
+  animation-delay: 0.6s;
+  animation-duration: 26s;
+  left: 64%;
+  width: 6.2em;
 }
 .page__background i:nth-child(143) {
-  animation-delay: 1.5s;
-  animation-duration: 14s;
-  left: 25%;
-  width: 7.1em;
+  animation-delay: 1.8s;
+  animation-duration: 30s;
+  left: 44%;
+  width: 9.5em;
 }
 .page__background i:nth-child(144) {
-  animation-delay: 0.6s;
-  animation-duration: 25s;
-  left: 28%;
-  width: 4.8em;
+  animation-delay: 1.5s;
+  animation-duration: 26s;
+  left: 73%;
+  width: 6.6em;
 }
 .page__background i:nth-child(145) {
-  animation-delay: 0.6s;
-  animation-duration: 14s;
-  left: 87%;
-  width: 7.7em;
+  animation-delay: 1.8s;
+  animation-duration: 28s;
+  left: 32%;
+  width: 6.7em;
 }
 .page__background i:nth-child(146) {
-  animation-delay: 0.3s;
-  animation-duration: 25s;
-  left: 41%;
-  width: 9.8em;
+  animation-delay: 0.9s;
+  animation-duration: 20s;
+  left: 8%;
+  width: 3.1em;
 }
 .page__background i:nth-child(147) {
-  animation-delay: 1.8s;
-  animation-duration: 21s;
-  left: 34%;
-  width: 8.7em;
+  animation-delay: 1.5s;
+  animation-duration: 25s;
+  left: 60%;
+  width: 4.8em;
 }
 .page__background i:nth-child(148) {
   animation-delay: 0.3s;
-  animation-duration: 28s;
-  left: 18%;
-  width: 4.1em;
+  animation-duration: 23s;
+  left: 38%;
+  width: 2.1em;
 }
 .page__background i:nth-child(149) {
-  animation-delay: 1.2s;
-  animation-duration: 23s;
-  left: 92%;
-  width: 8.3em;
+  animation-delay: 1.8s;
+  animation-duration: 24s;
+  left: 4%;
+  width: 8.2em;
 }
 .page__background i:nth-child(150) {
-  animation-delay: 0.6s;
-  animation-duration: 21s;
-  left: 29%;
-  width: 4.9em;
+  animation-delay: 1.5s;
+  animation-duration: 24s;
+  left: 76%;
+  width: 2.5em;
 }
 .page__background i:nth-child(151) {
-  animation-delay: 1.2s;
-  animation-duration: 12s;
-  left: 10%;
-  width: 8.8em;
+  animation-delay: 0.6s;
+  animation-duration: 15s;
+  left: 13%;
+  width: 1.6em;
 }
 .page__background i:nth-child(152) {
-  animation-delay: 1.8s;
-  animation-duration: 26s;
-  left: 90%;
-  width: 5em;
+  animation-delay: 0.3s;
+  animation-duration: 13s;
+  left: 22%;
+  width: 8.8em;
 }
 .page__background i:nth-child(153) {
-  animation-delay: 1.5s;
-  animation-duration: 25s;
-  left: 81%;
-  width: 8.1em;
+  animation-delay: 0.9s;
+  animation-duration: 29s;
+  left: 88%;
+  width: 4.1em;
 }
 .page__background i:nth-child(154) {
-  animation-delay: 0.6s;
-  animation-duration: 20s;
-  left: 78%;
-  width: 3.9em;
+  animation-delay: 0.9s;
+  animation-duration: 11s;
+  left: 43%;
+  width: 5.6em;
 }
 .page__background i:nth-child(155) {
-  animation-delay: 1.8s;
-  animation-duration: 16s;
-  left: 90%;
-  width: 2.2em;
+  animation-delay: 0.3s;
+  animation-duration: 15s;
+  left: 99%;
+  width: 3em;
 }
 .page__background i:nth-child(156) {
-  animation-delay: 0.9s;
-  animation-duration: 25s;
-  left: 36%;
-  width: 1.7em;
+  animation-delay: 1.8s;
+  animation-duration: 15s;
+  left: 39%;
+  width: 6.9em;
 }
 .page__background i:nth-child(157) {
-  animation-delay: 1.2s;
-  animation-duration: 27s;
-  left: 68%;
-  width: 7.7em;
+  animation-delay: 0.9s;
+  animation-duration: 12s;
+  left: 38%;
+  width: 3em;
 }
 .page__background i:nth-child(158) {
-  animation-delay: 1.8s;
-  animation-duration: 26s;
-  left: 58%;
-  width: 5.4em;
+  animation-delay: 1.5s;
+  animation-duration: 11s;
+  left: 28%;
+  width: 4.7em;
 }
 .page__background i:nth-child(159) {
-  animation-delay: 1.5s;
-  animation-duration: 12s;
-  left: 39%;
-  width: 9em;
+  animation-delay: 1.8s;
+  animation-duration: 22s;
+  left: 80%;
+  width: 6em;
 }
 .page__background i:nth-child(160) {
-  animation-delay: 1.5s;
-  animation-duration: 15s;
-  left: 25%;
-  width: 2.2em;
+  animation-delay: 1.2s;
+  animation-duration: 19s;
+  left: 94%;
+  width: 4.6em;
 }
 .page__background i:nth-child(161) {
   animation-delay: 0.9s;
-  animation-duration: 25s;
-  left: 92%;
-  width: 6.8em;
+  animation-duration: 22s;
+  left: 59%;
+  width: 6.2em;
 }
 .page__background i:nth-child(162) {
-  animation-delay: 0.3s;
-  animation-duration: 26s;
-  left: 17%;
-  width: 1.7em;
+  animation-delay: 0.9s;
+  animation-duration: 17s;
+  left: 86%;
+  width: 6.4em;
 }
 .page__background i:nth-child(163) {
-  animation-delay: 0.3s;
-  animation-duration: 15s;
-  left: 80%;
-  width: 8.9em;
+  animation-delay: 1.2s;
+  animation-duration: 19s;
+  left: 23%;
+  width: 8em;
 }
 .page__background i:nth-child(164) {
-  animation-delay: 0.9s;
-  animation-duration: 30s;
-  left: 26%;
-  width: 3em;
+  animation-delay: 1.2s;
+  animation-duration: 26s;
+  left: 75%;
+  width: 9.3em;
 }
 .page__background i:nth-child(165) {
-  animation-delay: 0.6s;
-  animation-duration: 12s;
-  left: 60%;
-  width: 3.4em;
+  animation-delay: 1.2s;
+  animation-duration: 14s;
+  left: 57%;
+  width: 5.8em;
 }
 .page__background i:nth-child(166) {
-  animation-delay: 1.2s;
-  animation-duration: 11s;
-  left: 3%;
-  width: 4.6em;
+  animation-delay: 0.3s;
+  animation-duration: 25s;
+  left: 81%;
+  width: 3.4em;
 }
 .page__background i:nth-child(167) {
-  animation-delay: 0.3s;
-  animation-duration: 13s;
-  left: 27%;
-  width: 3.6em;
+  animation-delay: 0.6s;
+  animation-duration: 16s;
+  left: 19%;
+  width: 5.2em;
 }
 .page__background i:nth-child(168) {
-  animation-delay: 0.6s;
-  animation-duration: 30s;
-  left: 24%;
-  width: 3.5em;
+  animation-delay: 0.9s;
+  animation-duration: 20s;
+  left: 57%;
+  width: 3.2em;
 }
 .page__background i:nth-child(169) {
-  animation-delay: 1.5s;
-  animation-duration: 29s;
-  left: 91%;
-  width: 2.1em;
+  animation-delay: 0.9s;
+  animation-duration: 19s;
+  left: 59%;
+  width: 3.4em;
 }
 .page__background i:nth-child(170) {
   animation-delay: 0.3s;
   animation-duration: 30s;
-  left: 18%;
-  width: 9.7em;
+  left: 7%;
+  width: 2.8em;
 }
 .page__background i:nth-child(171) {
-  animation-delay: 0.9s;
-  animation-duration: 28s;
-  left: 94%;
-  width: 7.8em;
+  animation-delay: 0.3s;
+  animation-duration: 17s;
+  left: 54%;
+  width: 3.2em;
 }
 .page__background i:nth-child(172) {
   animation-delay: 1.8s;
-  animation-duration: 18s;
-  left: 57%;
-  width: 7.3em;
+  animation-duration: 30s;
+  left: 89%;
+  width: 7.2em;
 }
 .page__background i:nth-child(173) {
-  animation-delay: 0.6s;
-  animation-duration: 24s;
-  left: 99%;
-  width: 4.3em;
+  animation-delay: 0.3s;
+  animation-duration: 25s;
+  left: 81%;
+  width: 9.5em;
 }
 .page__background i:nth-child(174) {
-  animation-delay: 0.6s;
-  animation-duration: 22s;
-  left: 84%;
-  width: 2.8em;
+  animation-delay: 1.8s;
+  animation-duration: 13s;
+  left: 54%;
+  width: 1.4em;
 }
 .page__background i:nth-child(175) {
-  animation-delay: 1.2s;
-  animation-duration: 22s;
-  left: 5%;
-  width: 5.4em;
+  animation-delay: 0.9s;
+  animation-duration: 21s;
+  left: 65%;
+  width: 4.4em;
 }
 .page__background i:nth-child(176) {
-  animation-delay: 0.9s;
-  animation-duration: 24s;
-  left: 97%;
-  width: 2.9em;
+  animation-delay: 1.5s;
+  animation-duration: 19s;
+  left: 54%;
+  width: 9.1em;
 }
 .page__background i:nth-child(177) {
-  animation-delay: 1.2s;
-  animation-duration: 19s;
-  left: 97%;
-  width: 9.8em;
+  animation-delay: 1.5s;
+  animation-duration: 26s;
+  left: 43%;
+  width: 7.9em;
 }
 .page__background i:nth-child(178) {
-  animation-delay: 1.8s;
+  animation-delay: 0.6s;
   animation-duration: 12s;
-  left: 28%;
-  width: 4.1em;
-}
-.page__background i:nth-child(179) {
-  animation-delay: 0.3s;
-  animation-duration: 14s;
-  left: 27%;
+  left: 94%;
   width: 6.8em;
 }
-.page__background i:nth-child(180) {
+.page__background i:nth-child(179) {
   animation-delay: 0.9s;
-  animation-duration: 13s;
-  left: 15%;
-  width: 5.8em;
+  animation-duration: 16s;
+  left: 24%;
+  width: 2.7em;
+}
+.page__background i:nth-child(180) {
+  animation-delay: 1.5s;
+  animation-duration: 25s;
+  left: 84%;
+  width: 7.7em;
 }
 .page__background i:nth-child(181) {
-  animation-delay: 1.2s;
-  animation-duration: 13s;
-  left: 43%;
-  width: 3.4em;
+  animation-delay: 0.6s;
+  animation-duration: 12s;
+  left: 62%;
+  width: 4em;
 }
 .page__background i:nth-child(182) {
-  animation-delay: 0.3s;
-  animation-duration: 28s;
-  left: 82%;
-  width: 8.5em;
+  animation-delay: 1.5s;
+  animation-duration: 23s;
+  left: 97%;
+  width: 7.7em;
 }
 .page__background i:nth-child(183) {
-  animation-delay: 1.2s;
-  animation-duration: 17s;
-  left: 80%;
-  width: 1.3em;
+  animation-delay: 0.9s;
+  animation-duration: 27s;
+  left: 28%;
+  width: 5.4em;
 }
 .page__background i:nth-child(184) {
-  animation-delay: 0.9s;
-  animation-duration: 24s;
-  left: 86%;
-  width: 3.7em;
+  animation-delay: 1.2s;
+  animation-duration: 21s;
+  left: 74%;
+  width: 2.6em;
 }
 .page__background i:nth-child(185) {
   animation-delay: 1.5s;
-  animation-duration: 23s;
-  left: 56%;
-  width: 8.5em;
+  animation-duration: 13s;
+  left: 34%;
+  width: 4em;
 }
 .page__background i:nth-child(186) {
-  animation-delay: 0.6s;
-  animation-duration: 16s;
-  left: 76%;
-  width: 8.8em;
+  animation-delay: 1.2s;
+  animation-duration: 29s;
+  left: 12%;
+  width: 9.1em;
 }
 .page__background i:nth-child(187) {
   animation-delay: 0.3s;
-  animation-duration: 23s;
-  left: 52%;
-  width: 1.6em;
+  animation-duration: 13s;
+  left: 92%;
+  width: 6.3em;
 }
 .page__background i:nth-child(188) {
-  animation-delay: 1.2s;
-  animation-duration: 17s;
-  left: 41%;
-  width: 2.2em;
+  animation-delay: 0.6s;
+  animation-duration: 16s;
+  left: 55%;
+  width: 5.2em;
 }
 .page__background i:nth-child(189) {
-  animation-delay: 1.5s;
-  animation-duration: 20s;
-  left: 55%;
-  width: 5em;
+  animation-delay: 0.3s;
+  animation-duration: 15s;
+  left: 76%;
+  width: 2em;
 }
 .page__background i:nth-child(190) {
-  animation-delay: 0.3s;
-  animation-duration: 12s;
-  left: 72%;
-  width: 3.4em;
+  animation-delay: 0.6s;
+  animation-duration: 24s;
+  left: 97%;
+  width: 9.3em;
 }
 .page__background i:nth-child(191) {
-  animation-delay: 0.9s;
-  animation-duration: 18s;
-  left: 7%;
-  width: 7.2em;
+  animation-delay: 1.2s;
+  animation-duration: 26s;
+  left: 74%;
+  width: 1.1em;
 }
 .page__background i:nth-child(192) {
-  animation-delay: 0.6s;
-  animation-duration: 13s;
-  left: 17%;
-  width: 4.4em;
+  animation-delay: 1.8s;
+  animation-duration: 12s;
+  left: 56%;
+  width: 2.6em;
 }
 .page__background i:nth-child(193) {
-  animation-delay: 0.9s;
-  animation-duration: 16s;
-  left: 86%;
-  width: 1.7em;
+  animation-delay: 1.2s;
+  animation-duration: 19s;
+  left: 72%;
+  width: 7.7em;
 }
 .page__background i:nth-child(194) {
-  animation-delay: 1.2s;
+  animation-delay: 0.9s;
   animation-duration: 16s;
-  left: 90%;
-  width: 4.9em;
+  left: 21%;
+  width: 6.9em;
 }
 .page__background i:nth-child(195) {
-  animation-delay: 1.2s;
-  animation-duration: 28s;
+  animation-delay: 0.6s;
+  animation-duration: 17s;
   left: 11%;
-  width: 6.4em;
+  width: 3.1em;
 }
 .page__background i:nth-child(196) {
-  animation-delay: 0.3s;
-  animation-duration: 17s;
-  left: 63%;
-  width: 6.7em;
+  animation-delay: 1.8s;
+  animation-duration: 18s;
+  left: 91%;
+  width: 7em;
 }
 .page__background i:nth-child(197) {
-  animation-delay: 0.9s;
-  animation-duration: 30s;
-  left: 21%;
+  animation-delay: 1.8s;
+  animation-duration: 21s;
+  left: 1%;
   width: 9.2em;
 }
 .page__background i:nth-child(198) {
-  animation-delay: 0.3s;
-  animation-duration: 13s;
-  left: 54%;
-  width: 3.7em;
+  animation-delay: 1.5s;
+  animation-duration: 22s;
+  left: 32%;
+  width: 4.4em;
 }
 .page__background i:nth-child(199) {
-  animation-delay: 1.5s;
-  animation-duration: 28s;
-  left: 97%;
-  width: 1.1em;
+  animation-delay: 1.2s;
+  animation-duration: 14s;
+  left: 40%;
+  width: 4em;
 }
 .page__background i:nth-child(200) {
-  animation-delay: 1.2s;
-  animation-duration: 15s;
-  left: 85%;
-  width: 4.9em;
+  animation-delay: 0.3s;
+  animation-duration: 11s;
+  left: 12%;
+  width: 4.6em;
+}
+body.has-loaded .page__background i {
+  animation-play-state: running;
 }
 
 @keyframes bgItem {
@@ -2738,6 +2745,48 @@ a.link__default:hover {
   opacity: 0.5;
 }
 
+.page__loader {
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  will-change: opacity, visibility;
+  align-items: center;
+  background: #0f1d29;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  opacity: 1;
+  position: fixed;
+  top: 0;
+  visibility: visible;
+  width: 100%;
+  z-index: 100;
+}
+body.has-loaded .page__loader {
+  opacity: 0;
+  visibility: hidden;
+}
+body.has-loaded .page__loader .loader__icon {
+  animation-play-state: paused;
+}
+
+.loader__icon {
+  width: 8rem;
+  animation: loaderIcon 2s infinite;
+  transform: rotate(0deg);
+}
+
+@keyframes loaderIcon {
+  0% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 /* Default */
 .nav__default {
   align-items: center;

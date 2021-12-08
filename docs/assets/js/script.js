@@ -28,6 +28,13 @@ if (lg_accordionButtons.length > 0) {
 	});
 }
 
+// Onload
+window.addEventListener('load', function () {
+	setTimeout(function () {
+		document.body.classList.add('has-loaded');
+	}, 2000);
+});
+
 // Generate Random Number
 function randomNumber(min, max) {
 	return Math.random() * (max - min) + min;

@@ -1,0 +1,49 @@
+// Abstracts
+@use '../abstracts/all' as *;
+
+// Page Loader
+.page__loader {
+	@include transition('opacity', 'visibility');
+	align-items: center;
+	background: $dark;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	justify-content: center;
+	left: 0;
+	opacity: 1;
+	position: fixed;
+	top: 0;
+	visibility: visible;
+	width: 100%;
+	z-index: 100;
+
+	// Loaded
+	@at-root body.has-loaded & {
+		opacity: 0;
+		visibility: hidden;
+
+		// Loader Icon
+		.loader__icon {
+			animation-play-state: paused;
+		}
+	}
+}
+
+// Loader Icon
+.loader__icon {
+	width: 8rem;
+	animation: loaderIcon 2s infinite;
+	transform: rotate(0deg);
+}
+@keyframes loaderIcon {
+	0% {
+		transform: rotate(0deg);
+	}
+	75% {
+		transform: rotate(360deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
