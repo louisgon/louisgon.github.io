@@ -64,13 +64,13 @@
 	&__nav {
 		// Item
 		&__item {
-			border-left: 2px solid rgba($light, 10%);
+			border-left: 2px solid rgba($accent, 25%);
 		}
 
 		// Button
 		&__button {
 			@include transition('background-color', 'color');
-			color: $gray;
+			color: rgba($light, 50%);
 			display: inline-flex;
 			font-size: 1rem;
 			font-weight: 400;
@@ -101,8 +101,8 @@
 
 			// Hover
 			&:hover {
-				background-color: rgba($light, 10%);
-				color: $fontcolor;
+				background-color: rgba($accent, 10%);
+				color: $light;
 			}
 		}
 	}

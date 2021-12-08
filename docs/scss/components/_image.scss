@@ -34,29 +34,39 @@
 
 // Avatar Image
 .avatar__image {
-	// Highlight
-	&::before {
-		@include transition('transform');
-		backface-visibility: hidden;
-		border: 2px solid $primary;
-		border-image-slice: 1;
-		border-image-source: linear-gradient(90deg, $accent, $primary);
+	// Background
+	&::before,
+	&::after {
+		border-radius: 50%;
 		content: '';
+		position: absolute;
+		transform: translate(10%, 10%);
+	}
+
+	// Gradient
+	&::before {
+		background: linear-gradient(90deg, $accent, $primary);
 		height: 100%;
 		left: 0;
-		overflow: hidden;
-		position: absolute;
 		top: 0;
-		transform: translate(7.5%, 7.5%);
 		width: 100%;
 		z-index: -10;
 	}
 
-	// Hover
-	&:hover {
-		// Highlight
-		&::before {
-			transform: translate(5%, 5%);
-		}
+	// Overlay
+	&::after {
+		background: $dark;
+		height: calc(100% - 8px);
+		left: 4px;
+		top: 4px;
+		width: calc(100% - 8px);
+		z-index: -5;
+	}
+
+	//
+
+	// Image
+	img {
+		border-radius: 50%;
 	}
 }
