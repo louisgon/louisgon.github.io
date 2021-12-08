@@ -35,19 +35,27 @@ html {
 // Body
 body {
 	background: $dark;
-	border: 0 solid $white;
+	border: 0 solid transparent;
 	color: $fontcolor;
 	cursor: auto;
 	font-family: $fontfamily;
 	font-size: 1rem;
 	line-height: 1.5;
 	margin: 0;
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: scroll;
 
-	// Loaded
-	&.has-loaded {
-		overflow-x: hidden;
-		overflow-y: auto;
+	// Loading
+	&.is-loading {
+		overflow: hidden !important;
+	}
+
+	// Open Nav Links
+	&.open-nav__links {
+		// Mobile
+		@media (max-width: 45em) {
+			overflow: hidden !important;
+		}
 	}
 }
 

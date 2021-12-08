@@ -71,6 +71,20 @@ $grid: '.grid';
 			}
 		}
 
+		// About
+		&--about {
+			margin-bottom: calc(-2 * var(--doc-spacing));
+			margin-left: calc(-2 * var(--doc-spacing));
+			margin-right: calc(-2 * var(--doc-spacing));
+
+			// Item
+			> * {
+				margin-bottom: calc(2 * var(--doc-spacing));
+				padding-left: calc(2 * var(--doc-spacing));
+				padding-right: calc(2 * var(--doc-spacing));
+			}
+		}
+
 		// Work
 		&--work {
 			margin-bottom: calc(-1.875 * var(--doc-spacing));

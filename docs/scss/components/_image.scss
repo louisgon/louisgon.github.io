@@ -60,4 +60,22 @@
 		border-color: $primary;
 		transform: translate(5%, 5%);
 	}
+
+	// Mobile
+	&--mobile {
+		float: right;
+		margin-bottom: 2em;
+		margin-left: 2em;
+
+		// Width
+		@media (min-width: 45.01em) {
+			display: none !important;
+		}
+		@media (min-width: 30.01em) {
+			max-width: 10rem;
+		}
+		@media (max-width: 30em) {
+			max-width: 7.5rem;
+		}
+	}
 }

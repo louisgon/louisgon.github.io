@@ -18,7 +18,6 @@
 	// Items
 	i {
 		animation: bgItem 10s linear 0s infinite;
-		animation-play-state: paused;
 		backface-visibility: hidden;
 		background: rgba($black, 10%);
 		border-radius: 50%;
@@ -47,9 +46,9 @@
 			}
 		}
 
-		// Loaded
-		@at-root body.has-loaded & {
-			animation-play-state: running;
+		// Loading
+		@at-root body.is-loading & {
+			animation-play-state: paused;
 		}
 	}
 }

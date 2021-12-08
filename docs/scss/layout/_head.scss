@@ -8,7 +8,7 @@
 .site__header {
 	flex: 0 0 auto;
 	left: 0;
-	position: sticky;
+	position: fixed;
 	top: 0;
 	width: 100%;
 	z-index: 90;
@@ -27,17 +27,17 @@
 		padding-top: 1.25rem;
 	}
 
-	// After
-	&::after {
-		background: linear-gradient(0deg, rgba($dark, 0%), rgba($dark, 100%));
+	// Background
+	&::before {
 		content: '';
 		display: block;
-		height: 200%;
-		left: 0;
-		pointer-events: none;
 		position: absolute;
 		top: 0;
-		width: 100%;
+		left: 0;
 		z-index: -1;
+		width: 100%;
+		height: 100%;
+		backdrop-filter: blur(0.5rem);
+		background: rgba($dark, 75%);
 	}
 }

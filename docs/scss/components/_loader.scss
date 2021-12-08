@@ -12,15 +12,18 @@
 	justify-content: center;
 	left: 0;
 	opacity: 1;
+	overflow-x: hidden;
+	overflow-y: scroll;
 	position: fixed;
 	top: 0;
 	visibility: visible;
 	width: 100%;
 	z-index: 100;
 
-	// Loaded
-	@at-root body.has-loaded & {
+	// Not Loading
+	@at-root body:not(.is-loading) & {
 		opacity: 0;
+		overflow: hidden;
 		visibility: hidden;
 
 		// Loader Icon
@@ -32,9 +35,19 @@
 
 // Loader Icon
 .loader__icon {
-	width: 8rem;
 	animation: loaderIcon 2s infinite;
 	transform: rotate(0deg);
+
+	// Size
+	@media (min-width: 60.01em) {
+		width: 8rem;
+	}
+	@media (max-width: 60em) and (min-width: 30.01em) {
+		width: 6rem;
+	}
+	@media (max-width: 30em) {
+		width: 4rem;
+	}
 }
 @keyframes loaderIcon {
 	0% {
