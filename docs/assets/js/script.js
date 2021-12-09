@@ -27,7 +27,7 @@ if (lg_accordionButtons.length > 0) {
 					lg_accordion.querySelector('.accordion__content[data-id="' + id + '"]').classList.add('is-active');
 				}
 			},
-			true
+			false
 		);
 	});
 }
@@ -44,7 +44,7 @@ if (lg_navContentLinks.length > 0) {
 					document.body.classList.remove('open-nav__links');
 				}
 			},
-			true
+			false
 		);
 	});
 }
@@ -57,7 +57,7 @@ document.addEventListener(
 			}
 		}
 	},
-	true
+	false
 );
 
 // Nav Toggle
