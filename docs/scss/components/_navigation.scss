@@ -200,7 +200,7 @@ $nav: '.nav';
 		@at-root body.open-nav__links & {
 			opacity: 1;
 			overflow-x: hidden;
-			overflow-y: scroll;
+			overflow-y: auto;
 			visibility: visible;
 		}
 	}
