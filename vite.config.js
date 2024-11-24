@@ -2,7 +2,7 @@ import path, { dirname }  from 'path'
 import glob from 'glob'
 import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
-import twig from 'vite-plugin-twig'
+import twig from '@vituum/vite-plugin-twig'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import viteImagemin from 'vite-plugin-imagemin'
 
