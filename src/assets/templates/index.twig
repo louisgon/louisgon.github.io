@@ -1,0 +1,11 @@
+{% extends './_base.twig' %}
+
+{% block main %}
+  <h1
+    data-module="Hello"
+    data-context="@media (min-width: 1024px) and was @visible"
+  >
+    {{ data[lang].title }}
+  </h1>
+
+{% endblock %}

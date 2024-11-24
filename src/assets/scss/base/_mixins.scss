@@ -1,0 +1,263 @@
+@use "sass:map";
+@use "sass:math";
+
+$min-dpr: (-webkit-min-device-pixel-ratio: 2);
+$min-res: (min-resolution: 2dppx);
+
+/**
+ * Helper mixins
+*/
+
+// Placeholders
+// Usage:
+// @include placeholder;
+@mixin placeholder {
+  $placeholders: ":-webkit-input" ":-moz" "-moz" "-ms-input";
+
+  @each $placeholder in $placeholders {
+    &:#{"" + $placeholder}-placeholder {
+      @content;
+    }
+  }
+}
+
+// Mediaqueries
+// Usage:
+// @include mixin(lg);
+@mixin mq($mq-breakpoint, $mq-breakpoints: $breakpoints) {
+  $mq-media-query: "screen and";
+
+  @if $mq-breakpoint == landscape or $mq-breakpoint == portrait {
+    $mq-media-query: "#{$mq-media-query} (orientation: #{$mq-breakpoint})";
+  } @else if $mq-breakpoint == retina {
+    $mq-media-query: "#{$mq-media-query} #{$min-dpr}," + "#{$mq-media-query} #{$min-res}";
+  } @else {
+    // If $mq-breakpoint is a key that exists in
+    // $mq-breakpoints, get and use the value
+    @if map.has-key($mq-breakpoints, $mq-breakpoint) {
+      $mq-breakpoint: map.get($mq-breakpoints, $mq-breakpoint);
+    }
+
+    $mq-media-query: "#{$mq-media-query} (min-width: #{$mq-breakpoint})";
+  }
+
+  @media #{$mq-media-query} {
+    @content;
+  }
+}
+
+// Force element to have full viewport width
+// Usage:
+// @include full-width;
+@mixin full-width {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+// Reset full width mixin
+// Usage:
+// @include reset-full-width;
+@mixin reset-full-width {
+  width: auto;
+  left: 0;
+  right: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+// Clamp text with ellipsis at n lines
+// Usage:
+// @include clamp(3);
+@mixin clamp($nb) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: box;
+  line-clamp: #{$nb};
+  -webkit-line-clamp: #{$nb};
+  -webkit-box-orient: vertical;
+}
+
+// This mixin can be used to set the object-fit:
+// Usage:
+// @include object-fit(contain) ;
+// or object-fit and object-position:
+// @include object-fit(cover, top);
+@mixin object-fit($fit: cover, $position: null) {
+  object-fit: $fit;
+
+  @if $position {
+    object-position: $position;
+    font-family: "object-fit: #{$fit}; object-position: #{$position}";
+  } @else {
+    font-family: "object-fit: #{$fit}";
+  }
+}
+
+// Keep aspect ratio
+// Usage:
+// @include aspect-ratio(16, 9);
+@mixin aspect-ratio($x, $y, $pseudo: false) {
+  $padding: #{($y / $x) * 100 + '%'};
+
+  @if $pseudo {
+    &::before {
+      content: "";
+      display: block;
+      position: relative;
+      width: 100%;
+      padding-top: $padding;
+    }
+  } @else {
+    position: relative;
+    padding-top: $padding;
+  }
+}
+
+// Triangle with CSS
+// Usage
+// @include (#fff, 'down', 10px);
+@mixin triangle($color, $direction, $size: 6px, $position: absolute, $round: false) {
+  content: "";
+  display: block;
+  position: $pos;
+  width: 0;
+  height: 0;
+
+  @if $round {
+    border-radius: 3px;
+  }
+
+  @if $direction == down {
+    border-left: $size solid transparent;
+    border-right: $size solid transparent;
+    border-top: $size solid $color;
+    margin-top: 0 - math.round(math.div($size, 2.5));
+  } @else if $direction == up {
+    border-left: $size solid transparent;
+    border-right: $size solid transparent;
+    border-bottom: $size solid $color;
+    margin-bottom: 0 - math.round(math.div($size, 2.5));
+  } @else if $direction == right {
+    border-top: $size solid transparent;
+    border-bottom: $size solid transparent;
+    border-left: $size solid $color;
+    margin-right: -$size;
+  } @else if  $direction == left {
+    border-top: $size solid transparent;
+    border-bottom: $size solid transparent;
+    border-right: $size solid $color;
+    margin-left: -$size;
+  }
+}
+
+// Overlay using box shadow
+// Usage:
+// @include(500px, set-color(dark), 0.3);
+@mixin overlay($size, $color: set-color(black), $opacity: 0.5) {
+  $shadow: rgba($color, $opacity);
+
+  box-shadow: 0 0 0 $size inset $shadow;
+}
+
+// Declare a font face
+// Usage:
+// @include(Roboto, ../fonts/roboto-v29-latin-regular, 900);
+@mixin declare-font-face($font-family, $font-filename, $font-weight: 400, $font-style: normal, $font-stretch: normal) {
+  @font-face {
+    font-family: "#{$font-family}";
+    font-style: $font-style;
+    font-weight: $font-weight;
+    font-stretch: $font-stretch;
+    src:
+      local("#{$font-family}"),
+      url("#{$font-filename}.woff2") format("woff2"),
+      url("#{$font-filename}.woff") format("woff");
+    font-display: swap;
+    unicode-range: U+0-10FFFF;
+  }
+}
+
+// Screen reader
+// Usage:
+// @include sr-only;
+@mixin sr-only($focusable: false) {
+  position: absolute;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(1px, 1px, 1px, 1px) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: none !important;
+
+  @if $focusable {
+    &:focus,
+    &:active {
+      width: auto !important;
+      height: auto !important;
+      margin: auto !important;
+      overflow: visible !important;
+      clip: auto !important;
+      clip-path: none !important;
+      white-space: normal !important;
+    }
+  }
+}
+
+// Hide element scrollbar
+// Usage:
+// @include hideScrollBar;
+@mixin hide-scroll-bar {
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+
+  &::-webkit-scrollbar {
+    width: 0; /* For Chrome, Safari, and Opera */
+  }
+}
+
+// Media query for retina screen
+// Usage:
+// @include retina-bg {
+//    background-image: url(....);
+// }
+@mixin retina-bg {
+  @media #{$min-dpr}, #{$min-res} {
+    @content;
+  }
+}
+
+// Center an element with specific position
+// Usage:
+// @include center(absolute);
+@mixin center($position) {
+  position: $position;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+// Define a square
+// Usage:
+// @include square(rem(20px))
+@mixin square($size) {
+  width: $size;
+  height: $size;
+}
+
+// Set image (for example) as a cover
+// Usage:
+// @include cover;
+@mixin cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  @include object-fit(cover);
+}

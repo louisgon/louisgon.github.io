@@ -1,0 +1,67 @@
+@use "sass:map";
+
+/**
+ * Variables
+*/
+
+/* Breakpoints */
+$bp-helper: "true";
+$breakpoints: (
+  xs: rem(360px),
+  sm: rem(480px),
+  md: rem(768px),
+  lg: rem(1024px),
+  xl: rem(1280px),
+  2xl: rem(1440px),
+);
+
+/* Fluid grid setup */
+$grid-inner-gutters: (
+  xs: rem(8px),
+  2xl: rem(20px),
+);
+$grid-outer-gutters: (
+  xs: rem(20px),
+  2xl: rem(50px),
+);
+$grid-columns: 12;
+$grid-container-width: rem(1024px);
+
+/* Typography */
+$font-base: roboto, sans-serif;
+$font-heading: roboto, sans-serif;
+$base-font-size: 1rem;
+$base-line-height: 1.4;
+$heading-line-height: 1.2;
+
+/* Fluid sizing min and max sizes */
+$pfs-min: map.get($breakpoints, xs);
+$pfs-max: map.get($breakpoints, 2xl);
+
+/* Z-indexes */
+$z-indexes: (
+  header,
+  footer,
+  main,
+  helper,
+);
+
+/* Colour palette */
+
+/* Use set-color function */
+$colors: (
+  black: (
+    base: #000
+  ),
+  white: (
+    base: #fff
+  ),
+  main: (
+    light: #63ccff,
+    base: #039be5,
+    dark: #006db3,
+  ),
+);
+
+/* Components */
+$loading-dimensions: 3.125rem;
