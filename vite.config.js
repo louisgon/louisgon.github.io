@@ -3,9 +3,11 @@ import { ViteMinifyPlugin } from 'vite-plugin-minify'
 import fs from 'node:fs'
 import twig from '@vituum/vite-plugin-twig'
 import path from 'node:path'
+import sassGlobImports from 'vite-plugin-sass-glob-import'
 import viteImagemin from 'vite-plugin-imagemin'
 import vituum from 'vituum'
 
+import { animateIn, base64Decode, base64Encode, classList, htmlAttr } from './helpers.js'
 import packageData from './package.json'
 
 export default defineConfig({
@@ -17,8 +19,8 @@ export default defineConfig({
     outDir: './dist',
     rollupOptions: {
       input: [
-        './src/view/**/*.{twig,html}',
         './src/js/*.js',
+        './src/view/**/*.{twig,html}',
       ],
       output: {
         entryFileNames: 'js/[hash].js',
@@ -39,6 +41,15 @@ export default defineConfig({
       },
     },
   },
+  css: {
+    devSourcemap: true,
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler',
+        silenceDeprecations: ['mixed-decls'],
+      },
+    },
+  },
   plugins: [
     vituum({
       pages: {
@@ -46,9 +57,12 @@ export default defineConfig({
       },
     }),
     twig({
-      root: './src',
+      functions: getTwigFunctions(),
       globals: getTwigGlobals(),
+      namespaces: getTwigNamespaces(),
+      root: './src',
     }),
+    sassGlobImports(),
     viteImagemin({
       gifsicle: {
         optimizationLevel: 1,
@@ -93,39 +107,58 @@ export default defineConfig({
     port: 3000,
     host: true,
   },
-  resolve: {
-    alias: {
-      '@': path.resolve(process.cwd(), 'src'),
-    },
-  },
   server: {
     port: 5173,
     host: false,
   },
 })
 
-function getTwigGlobals() {
-  const data = {
-    APP_NAME: packageData.name,
-    APP_NAME_FORMATTED: packageData.name.replace(/[^a-z]+/gi, ' ').replace(/(^\w|\s\w)/g, (m) => m.toUpperCase()),
-    APP_VERSION: packageData.version,
-    APP_AUTHOR: packageData.author,
-    APP_REPOSITORY: packageData.repository?.url,
-    APP_DESCRIPTION: packageData.description,
-    APP_KEYWORDS: packageData.keywords,
-  };
+function getTwigFunctions() {
+  return {
+    animateIn,
+    base64Decode,
+    base64Encode,
+    classList,
+    htmlAttr
+  }
+}
 
+function getTwigGlobals() {
+  const data = {}
   const dataFolder = path.join(process.cwd(), 'src', 'data')
+
   const dataFiles = fs.readdirSync(dataFolder).filter((file) => file.endsWith('.json')) || []
 
   dataFiles.forEach((file) => {
     const filePath = path.join(process.cwd(), 'src', 'data', file)
+
     const fileContent = fs.readFileSync(filePath, 'utf8') || '{}'
+
     const fileData = JSON.parse(fileContent)
+
     const fileName = file.replace('.json', '').replace(/[\s-]+/g, '_').replace(/[^a-z_]+/g, '').replace(/(_)./g, (s) => s.slice(-1).toUpperCase())
 
     data[fileName] = fileData
   });
 
   return data
+}
+
+function getTwigNamespaces() {
+  const namespaceList = [
+    'assets',
+    'components',
+    'layouts',
+    'objects',
+    'partials',
+    'svgs',
+    'templates'
+  ]
+
+  return namespaceList.reduce((acc, namespace) => {
+    return {
+        ...acc,
+        [namespace]: `./src/includes/${namespace}`
+    }
+  }, {})
 }

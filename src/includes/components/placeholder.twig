@@ -1,0 +1,15 @@
+{# Passed Variables #}
+{% set items = items|default(2) %}
+
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  name: 'placeholder',
+} %}
+  {% block content %}
+    <div class="c-placeholder__items">
+      {% for i in 1..items %}
+        <div class="c-placeholder__item" data-animate-in="fadeY"></div>
+      {% endfor %}
+    </div>
+  {% endblock %}
+{% endembed %}

@@ -1,0 +1,21 @@
+{% include '@components/hero.twig' with {
+  align: 'center',
+  ctas: [
+    {
+      href: '/about',
+      label: 'Learn More',
+    },
+    {
+      href: '/experience',
+      label: 'Experience',
+      modifiers: ['secondary'],
+    }
+  ],
+  description: 'I\'m a passionate self-taught web developer',
+  title: 'Hi! I\'m Louis Gonzalez. A Web Developer.',
+  titleStyle: 'super',
+} only %}
+
+{% include '@components/placeholder.twig' with {
+  items: 20,
+} only %}

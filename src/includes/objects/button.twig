@@ -1,0 +1,23 @@
+{# Passed Variables #}
+{% set appearance = appearance|default('solid') %}
+{% set classes = classes|default('') %}
+{% set href = href|default('') %}
+{% set label = label|default('') %}
+{% set modifiers = modifiers|default(['solid']) %}
+
+{# Computed Variables #}
+{% set tag = href ? 'a' : 'button' %}
+
+{# HTML #}
+<{{ tag }} {{ htmlAttr({
+  class: {
+    classes: classes,
+    name: 'o-button',
+    modifiers: modifiers|merge([appearance]),
+  },
+  href: href,
+}) }}>
+  {% if label %}
+    <span class="o-button__label">{{ label }}</span>
+  {% endif %}
+</{{ tag }}>

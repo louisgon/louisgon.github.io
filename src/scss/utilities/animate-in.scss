@@ -1,0 +1,114 @@
+.u-animate-in {
+  --animate-in-delay: 0.15s;
+  --animate-in-distance: 6rem;
+  --animate-in-duration: 0.45s;
+
+  animation-duration: var(--animate-in-duration);
+  animation-delay: var(--animate-in-delay);
+  animation-fill-mode: forwards;
+  animation-play-state: paused;
+  animation-timing-function: ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.u-animate-in--visible {
+  animation-play-state: running;
+  pointer-events: auto;
+}
+
+// animations
+.u-animate-in--fade {
+  animation-name: animateInFade;
+}
+
+.u-animate-in--fade-down {
+  animation-name: animateInFadeDown;
+}
+
+.u-animate-in--fade-left {
+  animation-name: animateInFadeLeft;
+}
+
+.u-animate-in--fade-right {
+  animation-name: animateInFadeRight;
+}
+
+.u-animate-in--fade-up {
+  animation-name: animateInFadeUp;
+}
+
+.u-animate-in--fade-zoom {
+  animation-name: animateInFadeZoom;
+}
+
+// keyframes
+@keyframes animateInFade {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes animateInFadeDown {
+  0% {
+    transform: translate3d(0, calc(var(--animate-in-distance) * -1), 0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes animateInFadeLeft {
+  0% {
+    transform: translate3d(calc(var(--animate-in-distance) * -1), 0, 0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes animateInFadeRight {
+  0% {
+    transform: translate3d(var(--animate-in-distance), 0, 0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes animateInFadeUp {
+  0% {
+    transform: translate3d(0, var(--animate-in-distance), 0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes animateInFadeZoom {
+  0% {
+    transform: scale3d(0, 0, 1);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}

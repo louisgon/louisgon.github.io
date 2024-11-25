@@ -1,0 +1,30 @@
+@use '../defines/breakpoints';
+@use '../defines/vars';
+
+:root {
+  --page-footer-height: 11.125rem;
+  --page-gutter: 2rem;
+  --page-header-height: 3.125rem;
+  --page-header-height-padding: 4rem;
+  --page-nav-height: 3.5rem;
+  --page-nav-padding: 2rem;
+
+  --page-nav-position-top: calc((var(--page-header-height) - var(--page-nav-height)) * 0.5 - var(--page-nav-padding) + var(--page-header-height-padding));
+
+  @include breakpoints.media-lg-min {
+    --page-gutter: 4rem;
+  }
+
+  @include breakpoints.media-xl-min {
+    --page-gutter: 6rem;
+  }
+}
+
+html {
+  font-family: vars.$font-primary;
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}

@@ -10,7 +10,11 @@
     "lint:sass": "stylelint ./src/scss/**/*.scss"
   },
   "dependencies": {
-    "reseter.css": "^2.0.0"
+    "cash-dom": "^8.1.5",
+    "gsap": "^3.12.5",
+    "lodash": "^4.17.21",
+    "sanitize.css": "^13.0.0",
+    "vite-plugin-sass-glob-import": "^4.0.0"
   },
   "devDependencies": {
     "@vituum/vite-plugin-twig": "^1.1.0",
@@ -19,8 +23,8 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.31.0",
-    "postcss": "^8.4.47",
-    "sass": "^1.81.0",
+    "postcss": "^8.4.49",
+    "sass-embedded": "^1.81.0",
     "stylelint": "^16.10.0",
     "stylelint-config-clean-order": "^6.1.0",
     "stylelint-config-standard-scss": "^13.1.0",

@@ -1,0 +1,28 @@
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  containerType: 'full',
+  name: 'footer',
+  tag: 'footer',
+} only %}
+  {% block content %}
+    <div class="c-footer__inner">
+      <div class="c-footer__inner-left">
+        <a class="c-footer__logo" href="/" data-animate-in="fadeLeft">
+          {% include '@svgs/logo.svg' %}
+        </a>
+
+        <span class="c-footer__text">This website was built with Vite &amp; Twig. Designed in Figma and coded in Visual Studio Code by yours truly.</span>
+      </div>
+
+      <div class="c-footer__inner-right">
+        <nav class="c-footer__social" aria-label="Footer Social Links">
+          {% for footerSocialItem in footerSocialItems %}
+            <a class="{{ classList({
+              name: 'c-footer__social-link',
+            }) }}" href="{{ footerSocialItem.href }}" data-animate-in="fadeRight" aria-label="{{ footerSocialItem.label }}"></a>
+          {% endfor %}
+        </nav>
+      </div>
+    </div>
+  {% endblock %}
+{% endembed %}

@@ -1,0 +1,53 @@
+{
+  "bodyData": {
+    "fetch": {
+      "/": {
+        "name": "Home",
+        "slug": "home",
+        "url": "/"
+      },
+      "/about": {
+        "name": "About",
+        "slug": "about",
+        "url": "/about"
+      },
+      "/experience": {
+        "name": "Experience",
+        "slug": "experience",
+        "url": "/experience"
+      },
+      "/projects": {
+        "name": "Projects",
+        "slug": "projects",
+        "url": "/projects"
+      }
+    }
+  },
+  "navItems": [
+    {
+      "id": "home",
+      "name": "Home",
+      "href": "/"
+    },
+    {
+      "id": "about",
+      "name": "About",
+      "href": "/about"
+    },
+    {
+      "id": "experience",
+      "name": "Experience",
+      "href": "/experience"
+    },
+    {
+      "id": "projects",
+      "name": "Projects",
+      "href": "/projects"
+    },
+    {
+      "id": "contact",
+      "name": "Contact",
+      "href": "https://google.com"
+    }
+  ]
+}

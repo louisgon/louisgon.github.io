@@ -1,0 +1,48 @@
+{# Passed Variables #}
+{% set bodyData = bodyData|default({}) %}
+{% set navItems = navItems|default([]) %}
+{% set page = page|default('') %}
+
+{# HTML #}
+<body {{ htmlAttr({
+  class: 'l-body',
+  data: {
+    page: 'loading',
+    theme: 'dark',
+  },
+  module: 'Body',
+}) }}>
+  {% include '@components/header.twig' %}
+
+  {% include '@components/nav.twig' with {
+    items: navItems,
+    page: page,
+  } only %}
+
+  <main class="l-body__main">
+    {% include '@partials/page/' ~ page ~ '.twig' ignore missing %}
+  </main>
+
+  {% include '@components/footer.twig' %}
+
+  {% include '@components/cursor.twig' %}
+
+  {% include '@components/trigger.twig' with {
+    type: 'nav',
+  } only %}
+
+  {% include '@components/trigger.twig' with {
+    type: 'top-of-page',
+  } only %}
+
+  <div class="l-body__loader">
+    {% include '@objects/spinner.twig' with {
+      classes: 'l-body__loader-spinner',
+    } only %}
+  </div>
+
+  {% include '@partials/script-json.twig' with {
+    classes: 'l-body__data',
+    data: bodyData,
+  } only %}
+</body>

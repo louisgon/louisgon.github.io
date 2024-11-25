@@ -1,0 +1,38 @@
+{# Passed Variables #}
+{% set aria = aria|default({}) %}
+{% set classes = classes|default('') %}
+{% set containerType = containerType|default('') %}
+{% set data = data|default({}) %}
+{% set modifiers = modifiers|default([]) %}
+{% set module = module|default('') %}
+{% set name = name|default('unknown') %}
+{% set tag = tag|default('section') %}
+
+{# Computed Variables #}
+{% set containerContent %}
+  {% block content %}{% endblock %}
+{% endset %}
+
+{# HTML #}
+<{{ htmlAttr({
+  aria: aria,
+  class: {
+    classes: {
+      name: 'c-' ~ name,
+      modifiers: modifiers,
+    },
+    name: 'l-component',
+  },
+  data: data,
+  module: module,
+  tag: tag,
+}) }}>
+  {% embed '@layouts/container.twig' with {
+    containerContent: containerContent,
+    type: containerType,
+  } only %}
+    {% block content %}
+      {{ containerContent }}
+    {% endblock %}
+  {% endembed %}
+</{{ tag }}>

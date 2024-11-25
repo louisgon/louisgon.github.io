@@ -1,0 +1,20 @@
+{# Passed Variables #}
+{% set animateIn = animateIn|default('') %}
+{% set classes = classes|default('') %}
+{% set content = content|default('') %}
+{% set modifiers = modifiers|default([]) %}
+{% set style = style|default('body') %}
+{% set tag = tag|default('div') %}
+
+{# HTML #}
+<{{ htmlAttr({
+  animateIn: animateIn,
+  class: {
+    classes: classes,
+    modifiers: modifiers|merge([style]),
+    name: 'o-text',
+  },
+  tag: tag,
+}) }}>
+  {{ content }}
+</{{ tag }}>

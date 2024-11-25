@@ -1,0 +1,70 @@
+{# Passed Variables #}
+{% set align = align|default('left') %}
+{% set ctas = ctas|default([]) %}
+{% set description = description|default('') %}
+{% set descriptionStyle = descriptionStyle|default('subtitle') %}
+{% set image = image|default({}) %}
+{% set title = title|default('') %}
+{% set titleStyle = titleStyle|default('h1') %}
+
+{# Computed Variables #}
+{% set headingIndex = 1 %}
+
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  modifiers: [align],
+  name: 'hero',
+} %}
+  {% block content %}
+    <div class="c-hero__inner">
+      <div class="c-hero__content">
+        {% if title %}
+          {% include '@objects/text.twig' with {
+            animateIn: 'fadeY',
+            classes: 'c-hero__title',
+            content: title,
+            style: titleStyle,
+            tag: 'h' ~ headingIndex,
+          } only %}
+
+          {% set headingIndex = headingIndex + 1 %}
+        {% endif %}
+
+        {% if description %}
+          {% include '@objects/text.twig' with {
+            animateIn: 'fadeY',
+            classes: 'c-hero__description',
+            content: description,
+            style: descriptionStyle,
+            tag: 'h' ~ headingIndex,
+          } only %}
+
+          {% set headingIndex = headingIndex + 1 %}
+        {% endif %}
+
+        {% if ctas %}
+          <div class="c-hero__ctas" {{ animateIn('fadeY') }}>
+            {% for cta in ctas %}
+              {% include '@objects/button.twig' with {
+                classes: 'c-hero__cta',
+                href: cta.href|default('/'),
+                label: cta.label|default(''),
+                modifiers: cta.modifiers|default([]),
+              } only %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      {% if image|length %}
+        {% include '@objects/image.twig' with {
+          image: image|merge({
+            animateIn: 'fadeY',
+            classes: 'c-hero__image',
+            modifiers: ['rounded-full', 'square'],
+          }),
+        } only %}
+      {% endif %}
+    </div>
+  {% endblock %}
+{% endembed %}

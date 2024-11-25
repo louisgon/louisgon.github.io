@@ -1,0 +1,93 @@
+@use '../defines/mixins';
+@use '../defines/vars';
+
+.c-nav {
+  --nav-items-gap: 0.5rem;
+  --nav-items-height: 2.5rem;
+
+  align-items: center;
+  left: 0;
+  display: flex;
+  padding-block: var(--page-nav-padding);
+  pointer-events: none;
+  position: absolute;
+  top: var(--page-nav-position-top);
+  width: 100%;
+  z-index: vars.$z-index-nav;
+}
+
+.c-nav--sticky {
+  position: fixed;
+  top: 0;
+}
+
+.c-nav__bar {
+  align-items: center;
+  backdrop-filter: blur(0rem);
+  background: rgba(var(--color-background), 0);
+  border-radius: calc(var(--page-nav-height) * 0.5);
+  display: flex;
+  height: var(--page-nav-height);
+  margin-inline: auto;
+  padding-inline: var(--nav-items-gap);
+  transition: backdrop-filter 0.3s ease, background-color 0.3s ease;
+  width: fit-content;
+
+  .c-nav--sticky & {
+    background-color: rgba(var(--color-background), 0.5);
+    backdrop-filter: blur(1rem);
+  }
+}
+
+.c-nav__bar-inner {
+  position: relative;
+}
+
+.c-nav__items {
+  align-items: center;
+  display: flex;
+  gap: var(--nav-items-gap);
+  height: var(--nav-items-height);
+  margin: 0;
+}
+
+.c-nav__link {
+  @include mixins.focus-ring;
+
+  align-items: center;
+  border-radius: 9999rem;
+  color: rgb(var(--color-primary));
+  display: flex;
+  font-size: 1.125rem;
+  font-weight: vars.$font-primary-weight-regular;
+  line-height: 1.25rem;
+  height: var(--nav-items-height);
+  padding-inline: 1rem;
+  pointer-events: auto;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  width: fit-content;
+}
+
+.c-nav__bar-indicator {
+  --nav-bar-indicator-x: 0;
+  --nav-bar-indicator-scale: 1;
+
+  background-color: rgba(var(--color-primary), 0.1);
+  border-radius: calc(var(--nav-items-height) * 0.5);
+  height: var(--nav-items-height);
+  left: 0;
+  position: absolute;
+  top: 0;
+  transform: translate3d(var(--nav-bar-indicator-x), 0, 0) scale3d(var(--nav-bar-indicator-scale), var(--nav-bar-indicator-scale), 1);
+  width: 0;
+  z-index: -1;
+
+  .c-nav:has(.c-nav__link:active) & {
+    --nav-bar-indicator-scale: 0.9;
+  }
+}
+
+.c-nav__bar-indicator--started {
+  transition: background-color 0.3s ease, transform 0.3s ease, width 0.3s ease;
+}

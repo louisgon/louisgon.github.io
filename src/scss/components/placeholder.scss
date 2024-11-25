@@ -1,0 +1,16 @@
+.c-placeholder {
+  background: rgba(var(--color-primary), 0.1);
+  border-radius: 2rem;
+  padding: 4rem 0;
+}
+
+.c-placeholder__items {
+  display: grid;
+  gap: 1rem;
+}
+
+.c-placeholder__item {
+  background: rgb(var(--color-primary), 0.1);
+  height: 5rem;
+  transition: background-color 0.3s ease;
+}

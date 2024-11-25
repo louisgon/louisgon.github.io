@@ -1,0 +1,9 @@
+{# Passed Variables #}
+{% set classes = classes|default('') %}
+{% set data = data|default({}) %}
+
+{# HTML #}
+<script {{ htmlAttr({
+  class: classes,
+  type: 'application/ld+json',
+}) }}>{{ base64Encode(data|json_encode) }}</script>

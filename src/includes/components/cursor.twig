@@ -1,0 +1,13 @@
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  aria: {
+    hidden: true,
+  },
+  hasContainer: false,
+  module: 'Cursor',
+  name: 'cursor',
+} %}
+  {% block content %}
+    <div class="c-cursor__inner"></div>
+  {% endblock %}
+{% endembed %}

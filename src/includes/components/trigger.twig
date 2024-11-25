@@ -1,0 +1,18 @@
+{# Passed Variables #}
+{% set type = type|default('') %}
+
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  aria: {
+    hidden: true,
+  },
+  data: {
+    type: type,
+  },
+  modifiers: [type],
+  module: 'Trigger',
+  name: 'trigger',
+} only %}
+  {% block content %}
+  {% endblock %}
+{% endembed %}
