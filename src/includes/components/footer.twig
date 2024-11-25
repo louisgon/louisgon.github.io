@@ -1,9 +1,28 @@
+{# Computed Variables #}
+{% set socialItems = [
+  {
+    href: 'https://github.com/louisgon',
+    icon: 'github',
+    label: 'GitHub',
+  },
+  {
+    href: 'https://twitter.com/louisgon',
+    icon: 'twitter',
+    label: 'Twitter',
+  },
+  {
+    href: 'https://www.linkedin.com/in/lougon/',
+    icon: 'linkedin',
+    label: 'LinkedIn',
+  },
+] %}
+
 {# HTML #}
 {% embed '@layouts/component.twig' with {
   containerType: 'full',
   name: 'footer',
   tag: 'footer',
-} only %}
+} %}
   {% block content %}
     <div class="c-footer__inner">
       <div class="c-footer__inner-left">
@@ -16,10 +35,11 @@
 
       <div class="c-footer__inner-right">
         <nav class="c-footer__social" aria-label="Footer Social Links">
-          {% for footerSocialItem in footerSocialItems %}
+          {% for socialItem in socialItems %}
             <a class="{{ classList({
               name: 'c-footer__social-link',
-            }) }}" href="{{ footerSocialItem.href }}" data-animate-in="fadeRight" aria-label="{{ footerSocialItem.label }}"></a>
+            }) }}" href="{{ socialItem.href }}" data-animate-in="fadeRight" aria-label="{{ socialItem.label }}">
+            </a>
           {% endfor %}
         </nav>
       </div>
