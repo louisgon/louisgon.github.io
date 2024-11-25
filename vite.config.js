@@ -44,10 +44,6 @@ export default defineConfig({
       pages: {
         dir: './src/view',
       },
-      imports: {
-        paths: ['./src/scss/*/**', './src/js/*/**'],
-        filenamePattern: { '+.css': 'src/scss', '+.js': 'src/js' },
-      },
     }),
     twig({
       root: './src',
