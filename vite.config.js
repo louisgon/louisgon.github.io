@@ -1,18 +1,42 @@
-import { defineConfig } from 'vite';
-import vituum from 'vituum';
-import twig from '@vituum/vite-plugin-twig';
-import viteImagemin from 'vite-plugin-imagemin';
-import { ViteMinifyPlugin } from 'vite-plugin-minify';
-import fs from 'node:fs';
-import path from 'node:path';
-import packageData from './package.json';
+import { defineConfig } from 'vite'
+import { ViteMinifyPlugin } from 'vite-plugin-minify'
+import fs from 'node:fs'
+import twig from '@vituum/vite-plugin-twig'
+import path from 'node:path'
+import viteImagemin from 'vite-plugin-imagemin'
+import vituum from 'vituum'
 
-const isDocs = process.argv.includes('--docs');
+import packageData from './package.json'
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      '@': path.resolve(process.cwd(), 'src'),
+  base: '/',
+  build: {
+    assetsInlineLimit: 0,
+    emptyOutDir: true,
+    modulePreload: false,
+    outDir: './dist',
+    rollupOptions: {
+      input: [
+        './src/view/**/*.{twig,html}',
+        './src/js/*.js',
+      ],
+      output: {
+        entryFileNames: 'js/[hash].js',
+        chunkFileNames: 'js/[hash].js',
+        assetFileNames: (assetInfo) => {
+          let extType = assetInfo.name.split('.').pop()
+
+          if (/jpe?g|png|svg|gif|webp|ico/i.test(extType)) {
+            extType = 'img'
+          }
+
+          if (/woff?2|ttf|eot/i.test(extType)) {
+            extType = 'font'
+          }
+
+          return `${extType}/[hash][extname]`
+        },
+      },
     },
   },
   plugins: [
@@ -21,8 +45,8 @@ export default defineConfig({
         dir: './src/view',
       },
       imports: {
-        paths: ['./src/sass/*/**', './src/js/*/**'],
-        filenamePattern: { '+.css': 'src/sass', '+.js': 'src/js' },
+        paths: ['./src/scss/*/**', './src/js/*/**'],
+        filenamePattern: { '+.css': 'src/scss', '+.js': 'src/js' },
       },
     }),
     twig({
@@ -68,47 +92,21 @@ export default defineConfig({
       minifyJS: true,
       removeComments: true,
     }),
-    htmlHandleDocsBase(),
   ],
-  base: isDocs ? `/${packageData.name}/` : '/',
-  build: {
-    outDir: isDocs ? './docs' : './dist',
-    emptyOutDir: true,
-    assetsInlineLimit: 0,
-    modulePreload: false,
-    rollupOptions: {
-      input: [
-        './src/view/**/*.{twig,html}',
-        './src/js/*.js',
-      ],
-      output: {
-        entryFileNames: 'js/[hash].js',
-        chunkFileNames: 'js/[hash].js',
-        assetFileNames: (assetInfo) => {
-          let extType = assetInfo.name.split('.').pop();
-
-          if (/jpe?g|png|svg|gif|webp|ico/i.test(extType)) {
-            extType = 'img';
-          }
-
-          if (/woff?2|ttf|eot/i.test(extType)) {
-            extType = 'font';
-          }
-
-          return `${extType}/[hash][extname]`;
-        },
-      },
+  preview: {
+    port: 3000,
+    host: true,
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(process.cwd(), 'src'),
     },
   },
   server: {
     port: 5173,
     host: false,
   },
-  preview: {
-    port: 3000,
-    host: true,
-  },
-});
+})
 
 function getTwigGlobals() {
   const data = {
@@ -121,40 +119,17 @@ function getTwigGlobals() {
     APP_KEYWORDS: packageData.keywords,
   };
 
-  const dataFolder = path.join(process.cwd(), 'src', 'data');
-  const dataFiles = fs.readdirSync(dataFolder).filter((file) => file.endsWith('.json')) || [];
+  const dataFolder = path.join(process.cwd(), 'src', 'data')
+  const dataFiles = fs.readdirSync(dataFolder).filter((file) => file.endsWith('.json')) || []
 
   dataFiles.forEach((file) => {
-    const filePath = path.join(process.cwd(), 'src', 'data', file);
-    const fileContent = fs.readFileSync(filePath, 'utf8') || '{}';
-    const fileData = JSON.parse(fileContent);
-    const fileName = file.replace('.json', '').replace(/[\s-]+/g, '_').replace(/[^a-z_]+/g, '').replace(/(_)./g, (s) => s.slice(-1).toUpperCase());
+    const filePath = path.join(process.cwd(), 'src', 'data', file)
+    const fileContent = fs.readFileSync(filePath, 'utf8') || '{}'
+    const fileData = JSON.parse(fileContent)
+    const fileName = file.replace('.json', '').replace(/[\s-]+/g, '_').replace(/[^a-z_]+/g, '').replace(/(_)./g, (s) => s.slice(-1).toUpperCase())
 
-    data[fileName] = fileData;
+    data[fileName] = fileData
   });
 
-  return data;
-}
-
-function htmlHandleDocsBase() {
-  if (!isDocs) {
-    return false;
-  }
-
-  return {
-    name: 'html-transform',
-    transformIndexHtml: (html) => {
-      const docsBase = `/${packageData.name}`;
-
-      const modifiedHtml = html.replace(/href=["']([^"']+)["']/gi, (match, href) => {
-        if (!href || !href?.length || href.startsWith(docsBase) || href.startsWith('http') || href.startsWith('www')) {
-          return match;
-        }
-
-        return href.startsWith('/') ? `href="${docsBase}${href}"` : `href="${docsBase}/${href}"`;
-      });
-
-      return modifiedHtml;
-    },
-  };
+  return data
 }

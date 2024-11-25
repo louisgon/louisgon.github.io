@@ -4,8 +4,10 @@
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+dist
 node_modules
 vendor
+!src/scss/vendor
 .DS_Store
 .pnp.*
 .vite
