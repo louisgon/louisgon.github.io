@@ -1,0 +1,61 @@
+@use '../defines/breakpoints';
+@use '../defines/vars';
+
+.o-text {
+  margin: 0;
+  padding: 0;
+}
+
+.o-text--body {
+  font-size: 1.5rem;
+  font-weight: vars.$font-primary-weight-regular;
+  line-height: 1.5;
+}
+
+.o-text--h1 {
+  font-size: 2rem;
+  font-weight: vars.$font-primary-weight-bold;
+  line-height: 1;
+  text-transform: uppercase;
+
+  @include breakpoints.media-md-min {
+    font-size: 3rem;
+  }
+
+  @include breakpoints.media-lg-min {
+    font-size: 4rem;
+  }
+}
+
+.o-text--subtitle {
+  line-height: 1.25;
+  font-size: 1.25rem;
+  font-weight: vars.$font-primary-weight-medium;
+
+  @include breakpoints.media-xs-min {
+    font-size: 1.5rem;
+  }
+
+  @include breakpoints.media-lg-min {
+    font-size: 2rem;
+  }
+}
+
+.o-text--super {
+  font-size: 2rem;
+  font-weight: vars.$font-primary-weight-bold;
+  line-height: 1;
+  text-transform: uppercase;
+
+  @include breakpoints.media-sm-min {
+    font-size: 3rem;
+  }
+
+  @include breakpoints.media-md-min {
+    font-size: 4rem;
+  }
+
+  @include breakpoints.media-lg-min {
+    font-size: 5rem;
+  }
+}

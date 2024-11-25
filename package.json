@@ -1,62 +1,43 @@
 {
-  "name": "vite-frontend-starter",
-  "private": true,
-  "version": "1.0.0",
+  "name": "portfolio",
+  "version": "2.0.0",
+  "author": "github.com/louisgon",
+  "description": "",
   "type": "module",
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "last 15 versions",
+    "not dead"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite --emptyOutDir build",
-    "prod": "node scripts/webp.js && vite --emptyOutDir build",
+    "dev": "vite dev",
+    "build": "vite build",
     "preview": "vite preview",
-    "webp": "node scripts/webp.js",
-    "lint:sass": "stylelint '**/*.scss'",
-    "lint:sass:fix": "stylelint '**/*.scss' --fix",
-    "lint:js": "ts-standard 'src/assets/js/**/*.ts'",
-    "lint:js:fix": "ts-standard --fix 'src/assets/js/**/*.ts'",
-    "lint:fix": "yarn lint:sass:fix && yarn lint:js:fix",
-    "test": "playwright test"
-  },
-  "standard": {
-    "globals": [
-      "IntersectionObserver"
-    ]
-  },
-  "ts-standard": {
-    "project": "./tsconfig.json",
-    "ignore": [
-      "dist",
-      "src/assets/js/tests/**/*.ts"
-    ]
+    "lint:js": "eslint --ext .js,.jsx,.cjs,.mjs --ignore-path .gitignore ./",
+    "lint:sass": "stylelint ./src/sass/**/*.{sass,scss}"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
     "@vituum/vite-plugin-twig": "^1.1.0",
-    "autoprefixer": "^10.4.20",
-    "chalk": "^5.3.0",
-    "critical": "^7.2.1",
-    "fast-glob": "^3.3.2",
-    "html-minifier-terser": "^7.2.0",
-    "imagemin": "^9.0.0",
-    "imagemin-webp": "^8.0.0",
-    "postcss": "^8.4.49",
-    "purgecss": "^7.0.2",
-    "sass": "^1.81.0",
-    "stylelint": "^16.10.0",
-    "stylelint-config-standard-scss": "^13.1.0",
-    "terser": "^5.36.0",
-    "ts-standard": "^12.0.2",
-    "typescript": "^5.7.2",
-    "vite": "^5.4.11",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.29.1",
+    "sass": "^1.70.0",
+    "stylelint": "^16.2.0",
+    "stylelint-config-clean-order": "^5.4.1",
+    "stylelint-config-standard-scss": "^13.0.0",
+    "stylelint-scss": "^6.1.0",
     "vite-plugin-imagemin": "^0.6.1",
-    "vite-plugin-svg-icons": "^2.0.1"
+    "vite-plugin-minify": "^1.5.2",
+    "vituum": "^1.1.0"
   },
   "dependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
-    "conditioner-core": "^2.3.3",
-    "core-js": "^3.39.0",
-    "lazysizes": "^5.3.2",
-    "regenerator-runtime": "^0.14.1"
+    "reseter.css": "^2.0.0"
   },
-  "packageManager": "yarn@4.5.2"
+  "packageManager": "yarn@4.5.1"
 }
