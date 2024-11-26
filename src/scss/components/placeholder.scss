@@ -1,7 +1,8 @@
 .c-placeholder {
   background: rgba(var(--color-primary), 0.1);
-  border-radius: 2rem;
-  padding: 4rem 0;
+  border-radius: 2.5rem;
+  padding: 5rem 0;
+  transition: background-color 0.3s ease;
 }
 
 .c-placeholder__items {
@@ -11,6 +12,7 @@
 
 .c-placeholder__item {
   background: rgb(var(--color-primary), 0.1);
+  border-radius: 2.5rem;
   height: 5rem;
   transition: background-color 0.3s ease;
 }
