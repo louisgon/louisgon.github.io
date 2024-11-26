@@ -6,4 +6,4 @@
 <script {{ htmlAttr({
   class: classes,
   type: 'application/ld+json',
-}) }}>{{ base64Encode(data|json_encode) }}</script>
+}) }}>{{ base64(data) }}</script>

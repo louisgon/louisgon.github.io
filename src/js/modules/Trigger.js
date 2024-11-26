@@ -1,4 +1,5 @@
 import $ from 'cash-dom'
+import { camelCase } from 'lodash'
 
 import ModuleFactory from '../utils/ModuleFactory'
 
@@ -19,13 +20,13 @@ export default class Trigger {
   doTriggerHidden ({ type }) {
     this.visible = false
 
-    App.trigger(Trigger.events.hidden, { type })
+    App.trigger(Trigger.events[camelCase(type)].hidden)
   }
 
   doTriggerVisible ({ type }) {
     this.visible = true
 
-    App.trigger(Trigger.events.visible, { type })
+    App.trigger(Trigger.events[camelCase(type)].visible)
   }
 
   handleObserver ({ entries }) {
@@ -44,8 +45,14 @@ export default class Trigger {
 }
 
 Trigger.events = {
-  hidden: 'triggerHidden',
-  visible: 'triggerVisible',
+  nav: {
+    hidden: 'triggerNavHidden',
+    visible: 'triggerNavVisible',
+  },
+  topOfPage: {
+    hidden: 'triggerTopOfPageHidden',
+    visible: 'triggerTopOfPageVisible',
+  }
 }
 
 Trigger.moduleName = 'Trigger'

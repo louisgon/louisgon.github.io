@@ -1,0 +1,13 @@
+{# Passed Variables #}
+{% set classes = classes|default('') %}
+{% set name = name|default('') %}
+{% set modifiers = modifiers|default([]) %}
+
+{# HTML #}
+<div class="{{ classList({
+  classes: classes,
+  name: 'o-icon',
+  modifiers: modifiers,
+}) }}">
+  {{ iconSvg(name, 'o-icon__svg') }}
+</div>

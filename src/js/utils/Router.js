@@ -13,8 +13,6 @@ export default class Router {
 
       const fetchPartial = $div.find('[data-fetch-page]').html()
 
-      console.log(url)
-
       if (!fetchPartial) {
         return null
       }

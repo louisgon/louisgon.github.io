@@ -34,19 +34,18 @@ export default class Body {
     this.$links = this.$container.find('a')
     this.$loader = this.$container.find(Body.selectors.loader)
     this.$main = this.$container.find(Body.selectors.main)
-
-    this.$topOfPageTrigger = ModuleFactory.get({ moduleName: Trigger.moduleName }).filter(`[data-type="${Trigger.types.topOfPage}"]`).first()
   }
 
   constructEvents () {
     this.$container.on('click', 'a', (e) => this.handleLinkClick({ e }))
 
-    App.on('popstate', (e) => this.handlePopState({ e }))
+    App
+      .on('popstate', (e) => this.handlePopState({ e }))
+      .on(Trigger.events.topOfPage.hidden, () => this.handleTopOfPageTrigger({ visible: false }))
+      .on(Trigger.events.topOfPage.visible, () => this.handleTopOfPageTrigger({ visible: true }))
   }
 
   constructParams () {
-    console.log(this.$data)
-
     this.data = JSON.parse(atob(this.$data.text()) || '{}')
   }
 
@@ -95,7 +94,7 @@ export default class Body {
 
     const pageUpdateIndex = this.pageUpdates
 
-    const topOfPage = this.$topOfPageTrigger[0][Trigger.moduleName].visible
+    const topOfPage = this.topOfPageTriggerVisible
 
     if (this.pageUpdates !== pageUpdateIndex) {
       return
@@ -140,13 +139,7 @@ export default class Body {
 
   async doTopOfPageTriggerVisible () {
     return new Promise((resolve) => {
-      App.on(Trigger.events.visible, (e, data) => {
-        if (data.type !== Trigger.types.topOfPage) {
-          return
-        }
-
-        resolve()
-      })
+      App.on(Trigger.events.topOfPage.visible, () => resolve())
     })
   }
 
@@ -171,6 +164,10 @@ export default class Body {
     const url = new URL(e.target.location.href)
 
     this.doPageUpdate({ urlPathName: url.pathname || '/', popState: true })
+  }
+
+  handleTopOfPageTrigger ({ visible}) {
+    this.topOfPageTriggerVisible = visible
   }
 }
 

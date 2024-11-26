@@ -43,13 +43,18 @@
         {% endif %}
 
         {% if ctas %}
-          <div class="c-hero__ctas" {{ animateIn('fadeY') }}>
+          <div {{ htmlAttr({
+            animateIn: 'fadeY',
+            class: 'c-hero__ctas'
+          }) }}>
             {% for cta in ctas %}
               {% include '@objects/button.twig' with {
                 classes: 'c-hero__cta',
                 href: cta.href|default('/'),
+                icon: 'arrow-right',
                 label: cta.label|default(''),
                 modifiers: cta.modifiers|default([]),
+                style: 'solid',
               } only %}
             {% endfor %}
           </div>

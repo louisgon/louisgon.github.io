@@ -1,7 +1,7 @@
 import $ from 'cash-dom'
 
-import ModuleFactory from '../utils/ModuleFactory'
 import Body from './Body'
+import ModuleFactory from '../utils/ModuleFactory'
 import Trigger from './Trigger'
 
 export default class Nav {
@@ -31,8 +31,8 @@ export default class Nav {
 
     App
       .on(Body.events.linkClickPageUpdate, (e, data) => this.handleBodyLinkClickPageUpdate({ urlPathName: data.urlPathName }))
-      .on(Trigger.events.hidden, (e, data) => this.handleNavTriggerHidden({ type: data.type || '' }))
-      .on(Trigger.events.visible, (e, data) => this.handleNavTriggerVisible({ type: data.type || '' }))
+      .on(Trigger.events.nav.hidden, () => this.handleNavTriggerHidden())
+      .on(Trigger.events.nav.visible, () => this.handleNavTriggerVisible())
   }
 
   doBarIndicatorMove ({ $link }) {
@@ -115,19 +115,11 @@ export default class Nav {
     this.doBarIndicatorMove({ $link: $link })
   }
 
-  handleNavTriggerHidden ({ type }) {
-    if (type !== Trigger.types.nav) {
-      return
-    }
-
+  handleNavTriggerHidden () {
     this.$container.addClass(Nav.classes.sticky)
   }
 
-  handleNavTriggerVisible ({ type }) {
-    if (type !== Trigger.types.nav) {
-      return
-    }
-
+  handleNavTriggerVisible () {
     this.$container.removeClass(Nav.classes.sticky)
   }
 }

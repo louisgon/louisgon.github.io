@@ -32,6 +32,23 @@
   width: 100%;
 }
 
+// button styles
+.o-button--icon-control {
+  padding: 0.75rem;
+  border-radius: 1.5rem;
+
+  &::before {
+    background: rgb(var(--color-primary), 0.1);
+    background-clip: content-box;
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    position: absolute;
+    transform: scale3d(var(--header-theme-scale), var(--header-theme-scale), 1);
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  }
+}
+
 .o-button--solid {
   --button-background-color: var(--color-blue);
   --button-color: rgb(var(--color-background));
@@ -66,8 +83,11 @@
 }
 
 .o-button__icon {
-  background: currentcolor;
-  display: block;
-  height: 1em;
-  width: 1em;
+  .o-button--icon-control & {
+    width: 1.5rem;
+  }
+
+  .o-button--solid & {
+    width: 1.5rem;
+  }
 }

@@ -27,19 +27,18 @@
 
   {% include '@components/cursor.twig' %}
 
-  {% include '@components/trigger.twig' with {
-    type: 'nav',
-  } only %}
-
-  {% include '@components/trigger.twig' with {
-    type: 'top-of-page',
-  } only %}
-
   <div class="l-body__loader">
     {% include '@objects/spinner.twig' with {
       classes: 'l-body__loader-spinner',
     } only %}
   </div>
+
+  {% for trigger in ['nav', 'top-of-page'] %}
+    {% include '@components/trigger.twig' with {
+      classes: 'l-body__trigger',
+      type: trigger,
+    } only %}
+  {% endfor %}
 
   {% include '@partials/script-json.twig' with {
     classes: 'l-body__data',

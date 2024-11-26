@@ -1,23 +1,46 @@
 {# Passed Variables #}
-{% set appearance = appearance|default('solid') %}
+{% set animateIn = animateIn|default('') %}
+{% set aria = aria|default({}) %}
 {% set classes = classes|default('') %}
 {% set href = href|default('') %}
+{% set icon = icon|default('') %}
 {% set label = label|default('') %}
-{% set modifiers = modifiers|default(['solid']) %}
+{% set modifiers = modifiers|default([]) %}
+{% set style = style|default('') %}
+{% set target = target|default('') %}
 
 {# Computed Variables #}
-{% set tag = href ? 'a' : 'button' %}
+{% set icon_only_styles = ['icon', 'icon-control'] %}
+
+{% if href %}
+  {% set tag = 'a' %}
+  {% set target = target|default('_self') %}
+{% else %}
+  {% set tag = 'button' %}
+  {% set target = '' %}
+{% endif %}
 
 {# HTML #}
-<{{ tag }} {{ htmlAttr({
+<{{ htmlAttr({
+  animateIn: animateIn,
+  aria: aria,
   class: {
     classes: classes,
     name: 'o-button',
-    modifiers: modifiers|merge([appearance]),
+    modifiers: modifiers|merge([style]),
   },
   href: href,
+  tag: tag,
+  target: target,
 }) }}>
-  {% if label %}
+  {% if icon %}
+    {% include '@objects/icon.twig' with {
+      classes: 'o-button__icon',
+      name: icon,
+    } only %}
+  {% endif %}
+
+  {% if label and style not in icon_only_styles %}
     <span class="o-button__label">{{ label }}</span>
   {% endif %}
 </{{ tag }}>

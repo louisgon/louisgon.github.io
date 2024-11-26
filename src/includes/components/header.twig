@@ -8,7 +8,7 @@
   {% block content %}
     <div class="c-header__inner">
       <a class="c-header__logo" href="/" data-animate-in="fadeLeft">
-        {% include '@svgs/logo.svg' %}
+        {% include '@icons/logo.svg' %}
       </a>
 
       <button class="c-header__theme" role="switch" aria-checked="true" aria-label="Use Dark Theme" data-animate-in="fadeRight">
@@ -17,7 +17,7 @@
             modifiers: [themeIcon],
             name: 'c-header__theme-icon',
           }) }}">
-            {% include '@svgs/' ~ themeIcon ~ '.svg' %}
+            {% include '@icons/' ~ themeIcon ~ '.svg' %}
           </div>
         {% endfor %}
       </button>

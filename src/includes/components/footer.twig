@@ -26,20 +26,36 @@
   {% block content %}
     <div class="c-footer__inner">
       <div class="c-footer__inner-left">
-        <a class="c-footer__logo" href="/" data-animate-in="fadeLeft">
-          {% include '@svgs/logo.svg' %}
-        </a>
+        {% include '@objects/button.twig' with {
+          animateIn: 'fadeLeft',
+          classes: 'c-footer__logo',
+          href: '/',
+          icon: 'logo',
+        } only %}
 
-        <span class="c-footer__text">This website was built with Vite &amp; Twig. Designed in Figma and coded in Visual Studio Code by yours truly.</span>
+        {% include '@objects/text.twig' with {
+          animateIn: 'fade',
+          classes: 'c-footer__text',
+          content: 'This website was built with Vite &amp; Twig. Designed in Figma and coded in Visual Studio Code by yours truly.',
+          style: 'caption',
+          tag: 'span',
+        } only %}
       </div>
 
       <div class="c-footer__inner-right">
         <nav class="c-footer__social" aria-label="Footer Social Links">
           {% for socialItem in socialItems %}
-            <a class="{{ classList({
-              name: 'c-footer__social-link',
-            }) }}" href="{{ socialItem.href }}" data-animate-in="fadeRight" aria-label="{{ socialItem.label }}">
-            </a>
+            {% include '@objects/button.twig' with {
+              animateIn: 'fadeRight',
+              aria: {
+                label: socialItem.label,
+              },
+              classes: 'c-footer__social-link',
+              href: socialItem.href,
+              icon: socialItem.icon,
+              style: 'icon-control',
+              target: '_blank',
+            } only %}
           {% endfor %}
         </nav>
       </div>

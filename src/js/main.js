@@ -1,5 +1,5 @@
 // App core setup
-import './app'
+import './App'
 
 // modules (sort by priority)
 import './modules/Body'

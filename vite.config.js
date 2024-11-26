@@ -7,8 +7,10 @@ import sassGlobImports from 'vite-plugin-sass-glob-import'
 import viteImagemin from 'vite-plugin-imagemin'
 import vituum from 'vituum'
 
-import { animateIn, base64Decode, base64Encode, classList, htmlAttr } from './helpers.js'
-import packageData from './package.json'
+import base64 from './helpers/base64.js'
+import classList from './helpers/classList.js'
+import htmlAttr from './helpers/htmlAttr.js'
+import iconSvg from './helpers/iconSvg.js'
 
 export default defineConfig({
   base: '/',
@@ -115,11 +117,10 @@ export default defineConfig({
 
 function getTwigFunctions() {
   return {
-    animateIn,
-    base64Decode,
-    base64Encode,
+    base64,
     classList,
-    htmlAttr
+    htmlAttr,
+    iconSvg,
   }
 }
 
@@ -148,10 +149,10 @@ function getTwigNamespaces() {
   const namespaceList = [
     'assets',
     'components',
+    'icons',
     'layouts',
     'objects',
     'partials',
-    'svgs',
     'templates'
   ]
 

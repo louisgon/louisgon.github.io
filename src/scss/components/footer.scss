@@ -22,36 +22,26 @@
 .c-footer__logo {
   @include mixins.focus-ring;
 
-  --header-logo-color: var(--color-primary);
-  --header-logo-color-opacity: 1;
-  --header-logo-scale: 1;
+  --footer-logo-color: var(--color-primary);
+  --footer-logo-color-opacity: 1;
+  --footer-logo-scale: 1;
 
   color: rgb(var(--header-logo-color), var(--header-logo-color-opacity));
-  display: block;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.3s ease;
+  transform: scale3d(var(--header-logo-scale), var(--header-logo-scale), 1);
   width: 2.5rem;
-
-  &:hover {
-    --header-logo-color-opacity: 0.5;
-  }
 
   &:active {
     --header-logo-scale: 0.9;
   }
 
-  svg {
-    color: inherit;
-    display: block;
-    transform: scale3d(var(--header-logo-scale), var(--header-logo-scale), 1);
-    transition: transform 0.3s ease;
-    width: 100%;
+  &:hover {
+    --header-logo-color-opacity: 0.5;
   }
 }
 
 .c-footer__text {
   color: rgb(var(--color-primary), 0.5);
-  font-weight: vars.$font-primary-weight-regular;
-  font-size: .75rem;
 }
 
 .c-footer__nav-link {
@@ -69,10 +59,4 @@
   gap: 1rem;
 }
 
-.c-footer__social-link {
-  aspect-ratio: 1;
-  background: rgb(var(--color-primary));
-  display: block;
-  border-radius: 50%;
-  width: 3rem;
-}
+.c-footer__social-link {}
