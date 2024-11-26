@@ -1,4 +1,3 @@
-// focus ring
 @mixin focus-ring {
   &:focus-visible {
     outline: 0.125rem solid rgb(var(--color-blue));

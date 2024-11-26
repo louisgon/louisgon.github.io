@@ -20,24 +20,7 @@
 }
 
 .c-footer__logo {
-  @include mixins.focus-ring;
-
-  --footer-logo-color: var(--color-primary);
-  --footer-logo-color-opacity: 1;
-  --footer-logo-scale: 1;
-
-  color: rgb(var(--header-logo-color), var(--header-logo-color-opacity));
-  transition: color 0.3s ease, transform 0.3s ease;
-  transform: scale3d(var(--header-logo-scale), var(--header-logo-scale), 1);
   width: 2.5rem;
-
-  &:active {
-    --header-logo-scale: 0.9;
-  }
-
-  &:hover {
-    --header-logo-color-opacity: 0.5;
-  }
 }
 
 .c-footer__text {

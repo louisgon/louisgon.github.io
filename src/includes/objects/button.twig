@@ -10,13 +10,13 @@
 {% set target = target|default('') %}
 
 {# Computed Variables #}
-{% set icon_only_styles = ['icon', 'icon-control'] %}
+{% set icon_only_style = style in ['icon', 'icon-control'] %}
 
 {% if href %}
   {% set tag = 'a' %}
   {% set target = target|default('_self') %}
 {% else %}
-  {% set tag = 'button' %}
+  {% set tag = tag|default('button') %}
   {% set target = '' %}
 {% endif %}
 
@@ -27,20 +27,22 @@
   class: {
     classes: classes,
     name: 'o-button',
-    modifiers: modifiers|merge([style]),
+    modifiers: modifiers|merge([
+      style
+    ]),
   },
   href: href,
   tag: tag,
   target: target,
 }) }}>
+  {% if label and not icon_only_style %}
+    <span class="o-button__label">{{ label }}</span>
+  {% endif %}
+
   {% if icon %}
     {% include '@objects/icon.twig' with {
       classes: 'o-button__icon',
       name: icon,
     } only %}
-  {% endif %}
-
-  {% if label and style not in icon_only_styles %}
-    <span class="o-button__label">{{ label }}</span>
   {% endif %}
 </{{ tag }}>

@@ -37,19 +37,11 @@
   width: 2.5rem;
 
   &:hover {
-    --header-logo-color-opacity: 0.5;
+    --header-logo-color: var(--color-blue);
   }
 
   &:active {
     --header-logo-scale: 0.9;
-  }
-
-  svg {
-    color: inherit;
-    display: block;
-    transform: scale3d(var(--header-logo-scale), var(--header-logo-scale), 1);
-    transition: transform 0.3s ease;
-    width: 100%;
   }
 }
 
@@ -61,15 +53,14 @@
   align-items: center;
   background: none;
   border: 0;
-  border-radius: 50%;
+  border-radius: 1.5rem;
   cursor: pointer;
   display: grid;
-  height: 3rem;
   isolation: isolate;
   justify-content: center;
+  padding: 0.75rem;
   place-content: center;
   position: relative;
-  width: 3rem;
 
   &::before {
     background: rgb(var(--color-primary), 0.1);
@@ -79,11 +70,7 @@
     inset: 0;
     position: absolute;
     transform: scale3d(var(--header-theme-scale), var(--header-theme-scale), 1);
-    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-  }
-
-  &:hover {
-    --header-theme-background-color: transparent;
+    transition: background-color 0.3s ease, transform 0.3s ease;
   }
 
   &:active {
@@ -100,15 +87,12 @@
   grid-area: 1 / 1;
   transform: scale3d(var(--header-theme-icon-scale), var(--header-theme-icon-scale), 1);
   transition: color 0.3s ease, transform 0.3s ease;
-
-  svg {
-    display: block;
-    height: 1.5rem;
-    width: 1.5rem;
-  }
+  width: 1.5rem;
+  aspect-ratio: 1;
+  pointer-events: none;
 
   .c-header__theme:hover & {
-    --header-theme-icon-opacity: 0.5;
+    --header-theme-icon-color: var(--color-blue);
   }
 }
 

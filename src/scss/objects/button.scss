@@ -8,16 +8,17 @@
   --button-background-color-alpha: 1;
   --button-border-color: transparent;
   --button-border-width: 0;
-  --button-color: rgb(var(--color-primary));
+  --button-color: var(--color-primary);
+  --button-color-alpha: 1;
   --button-scale: 1;
 
   --button-background: rgb(var(--button-background-color), var(--button-background-color-alpha));
 
   align-items: center;
   background: var(--button-background);
-  background: none;
   border: var(--button-border-width) solid var(--button-border-color);
-  color: var(--button-color);
+  background: none;
+  color: rgba(var(--button-color), var(--button-color-alpha));
   display: flex;
   font-weight: vars.$font-primary-weight-bold;
   gap: 0.5rem;
@@ -25,7 +26,16 @@
   justify-content: center;
   position: relative;
   text-decoration: none;
+  transition: color 0.3s ease;
   width: fit-content;
+
+  &:hover {
+    --button-color: var(--color-blue);
+  }
+}
+
+.o-button--icon-left {
+  flex-direction: row-reverse;
 }
 
 .o-button--full {
@@ -33,29 +43,9 @@
 }
 
 // button styles
-.o-button--icon-control {
-  padding: 0.75rem;
-  border-radius: 1.5rem;
-
-  &::before {
-    background: rgb(var(--color-primary), 0.1);
-    background-clip: content-box;
-    border-radius: inherit;
-    content: '';
-    inset: 0;
-    position: absolute;
-    transform: scale3d(var(--header-theme-scale), var(--header-theme-scale), 1);
-    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-  }
-}
-
+.o-button--icon-control,
 .o-button--solid {
-  --button-background-color: var(--color-blue);
-  --button-color: rgb(var(--color-background));
-
   background: none;
-  border-radius: 1.5rem;
-  padding: 0.75rem 2rem;
   transition: color 0.3s ease;
 
   &::before {
@@ -68,6 +58,26 @@
     transition: background-color 0.3s ease, transform 0.3s ease;
     z-index: -1;
   }
+}
+
+.o-button--icon-control {
+  --button-background-color: var(--color-primary);
+  --button-background-color-alpha: 0.1;
+
+  padding: 0.75rem;
+  border-radius: 1.5rem;
+
+  &:active {
+    --button-scale: 0.9;
+  }
+}
+
+.o-button--solid {
+  --button-background-color: var(--color-blue);
+  --button-color: var(--color-background);
+
+  border-radius: 1.5rem;
+  padding: 0.75rem 2rem;
 
   &:active {
     --button-scale: 0.9;

@@ -13,12 +13,13 @@
 
       <button class="c-header__theme" role="switch" aria-checked="true" aria-label="Use Dark Theme" data-animate-in="fadeRight">
         {% for themeIcon in ['moon', 'sun'] %}
-          <div class="{{ classList({
-            modifiers: [themeIcon],
-            name: 'c-header__theme-icon',
-          }) }}">
-            {% include '@icons/' ~ themeIcon ~ '.svg' %}
-          </div>
+          {% include '@objects/icon.twig' with {
+            classes: classList({
+              modifiers: [themeIcon],
+              name: 'c-header__theme-icon',
+            }),
+            name: themeIcon,
+          } only %}
         {% endfor %}
       </button>
     </div>
