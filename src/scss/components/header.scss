@@ -74,7 +74,7 @@
   aspect-ratio: 1;
   pointer-events: none;
 
-  .c-header__theme:hover & {
+  .c-header__theme-toggle:hover & {
     --header-theme-toggle-icon-color: var(--color-blue);
   }
 }
