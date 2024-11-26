@@ -67,6 +67,10 @@
   text-decoration: none;
   transition: color 0.3s ease;
   width: fit-content;
+
+  &:hover {
+    color: rgb(var(--color-blue));
+  }
 }
 
 .c-nav__bar-indicator {

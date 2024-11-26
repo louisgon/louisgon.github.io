@@ -18,14 +18,14 @@
   --color-background: var(--color-black-wash);
   --color-blue: var(--color-blue-light);
   --color-green: var(--color-green-light);
-  --color-menu: var(--color-black);
+  --color-orange: var(--color-orange-light);
   --color-primary: var(--color-white-wash);
 
   &:has(body[data-theme='light']) {
     --color-background: var(--color-white-wash);
     --color-blue: var(--color-blue-dark);
     --color-green: var(--color-green-dark);
-    --color-menu: var(--color-white);
+    --color-orange: var(--color-orange-dark);
     --color-primary: var(--color-black-wash);
   }
 }
