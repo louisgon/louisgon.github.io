@@ -4,6 +4,24 @@ import { camelCase } from 'lodash'
 import ModuleFactory from '../utils/ModuleFactory'
 
 export default class Trigger {
+  static name = 'Trigger'
+  static values = {
+    events: {
+      nav: {
+        hidden: 'triggerNavHidden',
+        visible: 'triggerNavVisible',
+      },
+      topOfPage: {
+        hidden: 'triggerTopOfPageHidden',
+        visible: 'triggerTopOfPageVisible',
+      }
+    },
+    types: {
+      nav: 'nav',
+      topOfPage: 'top-of-page',
+    }
+  }
+
   constructor ({ $container }) {
     this.$container = $container
     this.visible = false
@@ -20,13 +38,13 @@ export default class Trigger {
   doTriggerHidden ({ type }) {
     this.visible = false
 
-    App.trigger(Trigger.events[camelCase(type)].hidden)
+    App.trigger(Trigger.values.events[camelCase(type)].hidden)
   }
 
   doTriggerVisible ({ type }) {
     this.visible = true
 
-    App.trigger(Trigger.events[camelCase(type)].visible)
+    App.trigger(Trigger.values.events[camelCase(type)].visible)
   }
 
   handleObserver ({ entries }) {
@@ -44,22 +62,4 @@ export default class Trigger {
   }
 }
 
-Trigger.events = {
-  nav: {
-    hidden: 'triggerNavHidden',
-    visible: 'triggerNavVisible',
-  },
-  topOfPage: {
-    hidden: 'triggerTopOfPageHidden',
-    visible: 'triggerTopOfPageVisible',
-  }
-}
-
-Trigger.moduleName = 'Trigger'
-
-Trigger.types = {
-  nav: 'nav',
-  topOfPage: 'top-of-page',
-}
-
-ModuleFactory.init({ Module: Trigger, moduleName: Trigger.moduleName })
+ModuleFactory.init({ Module: Trigger })

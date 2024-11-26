@@ -5,6 +5,20 @@ import ModuleFactory from '../utils/ModuleFactory'
 import Trigger from './Trigger'
 
 export default class Nav {
+  static name = 'Nav'
+  static values = {
+    classes: {
+      barIndicatorStarted: 'c-nav__bar-indicator--started',
+      linkActive: 'c-nav__link--active',
+      sticky: 'c-nav--sticky',
+    },
+    selectors: {
+      barIndicator: '.c-nav__bar-indicator',
+      link: '.c-nav__link',
+      trigger: '.c-nav-trigger',
+    }
+  }
+
   constructor ({ $container }) {
     this.$container = $container
     this.linkMouseLeaveTimoutDuration = 150
@@ -17,22 +31,21 @@ export default class Nav {
   }
 
   constructElements () {
-    this.$barIndicator = this.$container.find(Nav.selectors.barIndicator)
-    this.$body = $('body')
-    this.$link = this.$container.find(Nav.selectors.link)
+    this.$barIndicator = this.$container.find(Nav.values.selectors.barIndicator)
+    this.$link = this.$container.find(Nav.values.selectors.link)
 
-    this.$linkActive = this.$link.filter(`.${Nav.classes.linkActive}`)
+    this.$linkActive = this.$link.filter(`.${Nav.values.classes.linkActive}`)
   }
 
   constructEvents () {
     this.$container
-      .on('mouseenter', Nav.selectors.link, (e) => this.handleLinkMouseEnter({ e }))
-      .on('mouseleave', Nav.selectors.link, (e) => this.handleLinkMouseLeave({ e }))
+      .on('mouseenter', Nav.values.selectors.link, (e) => this.handleLinkMouseEnter({ e }))
+      .on('mouseleave', Nav.values.selectors.link, (e) => this.handleLinkMouseLeave({ e }))
 
     App
-      .on(Body.events.linkClickPageUpdate, (e, data) => this.handleBodyLinkClickPageUpdate({ urlPathName: data.urlPathName }))
-      .on(Trigger.events.nav.hidden, () => this.handleNavTriggerHidden())
-      .on(Trigger.events.nav.visible, () => this.handleNavTriggerVisible())
+      .on(Body.values.events.linkClickPageUpdate, (e, data) => this.handleBodyLinkClickPageUpdate({ urlPathName: data.urlPathName }))
+      .on(Trigger.values.events.nav.hidden, () => this.handleNavTriggerHidden())
+      .on(Trigger.values.events.nav.visible, () => this.handleNavTriggerVisible())
   }
 
   doBarIndicatorMove ({ $link }) {
@@ -58,7 +71,7 @@ export default class Nav {
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        this.$barIndicator.addClass(Nav.classes.barIndicatorStarted)
+        this.$barIndicator.addClass(Nav.values.classes.barIndicatorStarted)
       })
     })
   }
@@ -116,26 +129,12 @@ export default class Nav {
   }
 
   handleNavTriggerHidden () {
-    this.$container.addClass(Nav.classes.sticky)
+    this.$container.addClass(Nav.values.classes.sticky)
   }
 
   handleNavTriggerVisible () {
-    this.$container.removeClass(Nav.classes.sticky)
+    this.$container.removeClass(Nav.values.classes.sticky)
   }
 }
 
-Nav.classes = {
-  barIndicatorStarted: 'c-nav__bar-indicator--started',
-  linkActive: 'c-nav__link--active',
-  sticky: 'c-nav--sticky',
-}
-
-Nav.moduleName = 'Nav'
-
-Nav.selectors = {
-  barIndicator: '.c-nav__bar-indicator',
-  link: '.c-nav__link',
-  trigger: '.c-nav-trigger',
-}
-
-ModuleFactory.init({ Module: Nav, moduleName: Nav.moduleName })
+ModuleFactory.init({ Module: Nav })

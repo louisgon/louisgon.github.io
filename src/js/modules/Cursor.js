@@ -5,6 +5,15 @@ import { debounce } from 'lodash'
 import ModuleFactory from '../utils/ModuleFactory'
 
 export default class Cursor {
+  static name = 'Cursor'
+  static values = {
+    classes: {
+      clicking: 'c-cursor--clicking',
+      hover: 'c-cursor--hovering',
+      visible: 'c-cursor--visible',
+    }
+  }
+
   constructor ({ $container }) {
     this.$container = $container
     this.cursorVisible = false
@@ -22,7 +31,7 @@ export default class Cursor {
   }
 
   doCursorHide () {
-    this.$container.removeClass(Cursor.classes.visible)
+    this.$container.removeClass(Cursor.values.classes.visible)
 
     this.cursorVisible = false
   }
@@ -34,7 +43,7 @@ export default class Cursor {
   }
 
   doCursorShow () {
-    this.$container.addClass(Cursor.classes.visible)
+    this.$container.addClass(Cursor.values.classes.visible)
 
     this.cursorVisible = true
   }
@@ -51,17 +60,17 @@ export default class Cursor {
       return
     }
 
-    this.$container.addClass(Cursor.classes.clicking)
+    this.$container.addClass(Cursor.values.classes.clicking)
   }
 
   handleMouseHover ({ event }) {
     if (this.getTargetClickableState({ $target: $(event.target) })) {
-      this.$container.addClass(Cursor.classes.hover)
+      this.$container.addClass(Cursor.values.classes.hover)
 
       return
     }
 
-    this.$container.removeClass(Cursor.classes.hover)
+    this.$container.removeClass(Cursor.values.classes.hover)
   }
 
   handleMouseLeave ({ event }) {
@@ -94,16 +103,8 @@ export default class Cursor {
   }
 
   handleMouseUp () {
-    this.$container.removeClass(Cursor.classes.clicking)
+    this.$container.removeClass(Cursor.values.classes.clicking)
   }
 }
 
-Cursor.classes = {
-  clicking: 'c-cursor--clicking',
-  hover: 'c-cursor--hovering',
-  visible: 'c-cursor--visible',
-}
-
-Cursor.moduleName = 'Cursor'
-
-ModuleFactory.init({ Module: Cursor, moduleName: Cursor.moduleName })
+ModuleFactory.init({ Module: Cursor })

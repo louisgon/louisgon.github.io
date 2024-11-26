@@ -1,10 +1,27 @@
-import AnimateIn from "../utils/AnimateIn"
-import ModuleFactory from "../utils/ModuleFactory"
-import Router from "../utils/Router"
+import AnimateIn from '../utils/AnimateIn'
+import ModuleFactory from '../utils/ModuleFactory'
+import Router from '../utils/Router'
 import Transitioner from '../utils/Transitioner'
 import Trigger from './Trigger'
 
 export default class Body {
+  static name = 'Body'
+  static values = {
+    classes: {
+      loaderVisible: 'l-body__loader--visible',
+      ready: 'l-body--ready',
+    },
+    events: {
+      linkClickPageUpdate: 'bodyLinkClickPageUpdate',
+    },
+    selectors: {
+      data: '.l-body__data',
+      inner: '.l-body__inner',
+      loader: '.l-body__loader',
+      main: '.l-body__main',
+    },
+  }
+
   constructor ({ $container }) {
     this.$container = $container
     this.host = window.location.host
@@ -22,7 +39,7 @@ export default class Body {
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        this.$container.addClass(Body.classes.ready)
+        this.$container.addClass(Body.values.classes.ready)
 
         App.trigger(AnimateIn.events.start)
       })
@@ -30,19 +47,21 @@ export default class Body {
   }
 
   constructElements () {
-    this.$data = this.$container.find(Body.selectors.data)
+    this.$data = this.$container.find(Body.values.selectors.data)
+    this.$inner = this.$container.find(Body.values.selectors.inner)
     this.$links = this.$container.find('a')
-    this.$loader = this.$container.find(Body.selectors.loader)
-    this.$main = this.$container.find(Body.selectors.main)
+    this.$loader = this.$container.find(Body.values.selectors.loader)
+    this.$main = this.$container.find(Body.values.selectors.main)
   }
 
   constructEvents () {
-    this.$container.on('click', 'a', (e) => this.handleLinkClick({ e }))
+    this.$container
+      .on('click', 'a', (e) => this.handleLinkClick({ e }))
 
     App
       .on('popstate', (e) => this.handlePopState({ e }))
-      .on(Trigger.events.topOfPage.hidden, () => this.handleTopOfPageTrigger({ visible: false }))
-      .on(Trigger.events.topOfPage.visible, () => this.handleTopOfPageTrigger({ visible: true }))
+      .on(Trigger.values.events.topOfPage.hidden, () => this.handleTopOfPageTrigger({ visible: false }))
+      .on(Trigger.values.events.topOfPage.visible, () => this.handleTopOfPageTrigger({ visible: true }))
   }
 
   constructParams () {
@@ -64,7 +83,7 @@ export default class Body {
   doLoaderHide () {
     Transitioner.doHide({ $element: this.$loader })
 
-    this.$loader.removeClass(Body.classes.loaderVisible)
+    this.$loader.removeClass(Body.values.classes.loaderVisible)
 
     this.loaderVisible = false
   }
@@ -72,7 +91,7 @@ export default class Body {
   doLoaderShow () {
     Transitioner.doShow({ $element: this.$loader, displayValue: 'flex' })
 
-    this.$loader.addClass(Body.classes.loaderVisible)
+    this.$loader.addClass(Body.values.classes.loaderVisible)
 
     this.loaderVisible = true
   }
@@ -108,7 +127,7 @@ export default class Body {
       return
     }
 
-    App.trigger(Body.events.linkClickPageUpdate, { urlPathName })
+    App.trigger(Body.values.events.linkClickPageUpdate, { urlPathName })
 
     await this.doLoaderStart({ topOfPage })
 
@@ -128,7 +147,7 @@ export default class Body {
       requestAnimationFrame(() => {
         this.doLoaderHide()
 
-        App.trigger(AnimateIn.events.start)
+        this.$container.trigger(AnimateIn.events.start)
       })
     })
   }
@@ -139,13 +158,11 @@ export default class Body {
 
   async doTopOfPageTriggerVisible () {
     return new Promise((resolve) => {
-      App.on(Trigger.events.topOfPage.visible, () => resolve())
+      App.on(Trigger.values.events.topOfPage.visible, () => resolve())
     })
   }
 
   handleLinkClick ({ e }) {
-    App.on()
-
     const url = new URL(e.currentTarget.href)
 
     const host = url.host
@@ -171,21 +188,4 @@ export default class Body {
   }
 }
 
-Body.classes = {
-  loaderVisible: 'l-body__loader--visible',
-  ready: 'l-body--ready',
-}
-
-Body.events = {
-  linkClickPageUpdate: 'bodyLinkClickPageUpdate',
-}
-
-Body.moduleName = 'Body'
-
-Body.selectors = {
-  data: '.l-body__data',
-  loader: '.l-body__loader',
-  main: '.l-body__main',
-}
-
-ModuleFactory.init({ Module: Body, moduleName: Body.moduleName })
+ModuleFactory.init({ Module: Body })

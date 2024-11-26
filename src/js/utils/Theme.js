@@ -3,9 +3,9 @@ export default class Theme {
     return localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
   }
 
-  static set ({ $body, theme }) {
+  static set ({ $container, theme = 'light' }) {
     localStorage.setItem('theme', theme)
 
-    $body.attr('data-theme', theme)
+    $container.attr('data-theme', theme)
   }
 }

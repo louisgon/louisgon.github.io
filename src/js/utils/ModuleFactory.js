@@ -3,10 +3,9 @@ import $ from 'cash-dom'
 export default class ModuleFactory {
   static init ({
     Module,
-    moduleName,
     waitForLoad = false
   } = {}) {
-    const doAttach = () => ModuleFactory.doAttach({ Module, moduleName })
+    const doAttach = () => ModuleFactory.doAttach({ Module })
 
     if (waitForLoad) {
       App.on('load', doAttach)
@@ -17,7 +16,13 @@ export default class ModuleFactory {
     doAttach()
   }
 
-  static doAttach ({ Module, moduleName }) {
+  static doAttach ({ Module }) {
+    const moduleName = Module.name || ''
+
+    if (!moduleName) {
+      return
+    }
+
     const $containers = ModuleFactory.get({ moduleName })
 
     if (!$containers.length) {

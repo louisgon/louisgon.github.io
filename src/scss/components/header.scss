@@ -28,10 +28,10 @@
   width: 2.5rem;
 }
 
-.c-header__theme {
+.c-header__theme-toggle {
   @include mixins.focus-ring;
 
-  --header-theme-scale: 1;
+  --header-theme-toggle-scale: 1;
 
   align-items: center;
   background: none;
@@ -52,44 +52,44 @@
     content: '';
     inset: 0;
     position: absolute;
-    transform: scale3d(var(--header-theme-scale), var(--header-theme-scale), 1);
+    transform: scale3d(var(--header-theme-toggle-scale), var(--header-theme-toggle-scale), 1);
     transition: background-color 0.3s ease, transform 0.3s ease;
   }
 
   &:active {
-    --header-theme-scale: 0.9;
+    --header-theme-toggle-scale: 0.9;
   }
 }
 
-.c-header__theme-icon {
-  --header-theme-icon-color: var(--color-primary);
-  --header-theme-icon-opacity: 1;
-  --header-theme-icon-scale: 1;
+.c-header__theme-toggle-icon {
+  --header-theme-toggle-icon-color: var(--color-primary);
+  --header-theme-toggle-icon-opacity: 1;
+  --header-theme-toggle-icon-scale: 1;
 
-  color: rgb(var(--header-theme-icon-color), var(--header-theme-icon-opacity));
+  color: rgb(var(--header-theme-toggle-icon-color), var(--header-theme-toggle-icon-opacity));
   grid-area: 1 / 1;
-  transform: scale3d(var(--header-theme-icon-scale), var(--header-theme-icon-scale), 1);
+  transform: scale3d(var(--header-theme-toggle-icon-scale), var(--header-theme-toggle-icon-scale), 1);
   transition: color 0.3s ease, transform 0.3s ease;
   width: 1.5rem;
   aspect-ratio: 1;
   pointer-events: none;
 
   .c-header__theme:hover & {
-    --header-theme-icon-color: var(--color-blue);
+    --header-theme-toggle-icon-color: var(--color-blue);
   }
 }
 
-.c-header__theme-icon--moon {
+.c-header__theme-toggle-icon--moon {
   [data-theme='light'] & {
-    --header-theme-icon-opacity: 0;
-    --header-theme-icon-scale: 0;
+    --header-theme-toggle-icon-opacity: 0;
+    --header-theme-toggle-icon-scale: 0;
   }
 }
 
-.c-header__theme-icon--sun {
+.c-header__theme-toggle-icon--sun {
   [data-theme='dark'] & {
-    --header-theme-icon-opacity: 0;
-    --header-theme-icon-scale: 0;
+    --header-theme-toggle-icon-opacity: 0;
+    --header-theme-toggle-icon-scale: 0;
   }
 }
 

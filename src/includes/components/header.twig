@@ -14,12 +14,12 @@
         icon: 'logo',
       } only %}
 
-      <button class="c-header__theme" role="switch" aria-checked="true" aria-label="Use Dark Theme" data-animate-in="fadeRight">
+      <button class="c-header__theme-toggle" role="switch" aria-checked="true" aria-label="Use Dark Theme" data-animate-in="fadeRight">
         {% for themeIcon in ['moon', 'sun'] %}
           {% include '@objects/icon.twig' with {
             classes: classList({
               modifiers: [themeIcon],
-              name: 'c-header__theme-icon',
+              name: 'c-header__theme-toggle-icon',
             }),
             name: themeIcon,
           } only %}

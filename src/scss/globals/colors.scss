@@ -13,19 +13,20 @@
   --color-orange-dark: 223, 112, 32;
   --color-orange-light: 229, 140, 77;
   --color-red: 204, 51, 51;
+}
 
-  // themed colors
+[data-theme='dark'] {
   --color-background: var(--color-black-wash);
   --color-blue: var(--color-blue-light);
   --color-green: var(--color-green-light);
   --color-orange: var(--color-orange-light);
   --color-primary: var(--color-white-wash);
+}
 
-  &:has(body[data-theme='light']) {
-    --color-background: var(--color-white-wash);
-    --color-blue: var(--color-blue-dark);
-    --color-green: var(--color-green-dark);
-    --color-orange: var(--color-orange-dark);
-    --color-primary: var(--color-black-wash);
-  }
+[data-theme='light'] {
+  --color-background: var(--color-white-wash);
+  --color-blue: var(--color-blue-dark);
+  --color-green: var(--color-green-dark);
+  --color-orange: var(--color-orange-dark);
+  --color-primary: var(--color-black-wash);
 }
