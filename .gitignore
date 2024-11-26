@@ -1,3 +1,4 @@
+.local
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
