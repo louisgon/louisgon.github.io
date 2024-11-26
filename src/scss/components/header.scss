@@ -25,24 +25,7 @@
 }
 
 .c-header__logo {
-  @include mixins.focus-ring;
-
-  --header-logo-color: var(--color-primary);
-  --header-logo-color-opacity: 1;
-  --header-logo-scale: 1;
-
-  color: rgb(var(--header-logo-color), var(--header-logo-color-opacity));
-  display: block;
-  transition: color 0.3s ease;
   width: 2.5rem;
-
-  &:hover {
-    --header-logo-color: var(--color-blue);
-  }
-
-  &:active {
-    --header-logo-scale: 0.9;
-  }
 }
 
 .c-header__theme {

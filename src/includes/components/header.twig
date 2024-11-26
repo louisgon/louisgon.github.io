@@ -7,9 +7,12 @@
 } %}
   {% block content %}
     <div class="c-header__inner">
-      <a class="c-header__logo" href="/" data-animate-in="fadeLeft">
-        {% include '@icons/logo.svg' %}
-      </a>
+      {% include '@objects/button.twig' with {
+        animateIn: 'fadeLeft',
+        classes: 'c-header__logo',
+        href: '/',
+        icon: 'logo',
+      } only %}
 
       <button class="c-header__theme" role="switch" aria-checked="true" aria-label="Use Dark Theme" data-animate-in="fadeRight">
         {% for themeIcon in ['moon', 'sun'] %}
