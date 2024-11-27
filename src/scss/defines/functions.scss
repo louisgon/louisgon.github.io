@@ -1,0 +1,44 @@
+@use 'sass:math';
+@use './vars';
+
+@function decimal-round($number, $decimals: 0) {
+  $n: 1;
+
+  @if $decimals > 0 {
+    @for $i from 1 through $decimals {
+      $n: $n * 10;
+    }
+  }
+
+  @return math.div(math.round($number * $n), $n);
+}
+
+@function fluid-clamp($min-size, $max-size, $min-breakpoint: vars.$width-content-min, $max-breakpoint: vars.$width-content-max, $unit: vw) {
+  $slope: math.div($max-size - $min-size, $max-breakpoint - $min-breakpoint);
+
+  $slope-to-unit: decimal-round($slope * 100, 2);
+  $intercept-rem: decimal-round($min-size - $slope * $min-breakpoint, 2);
+
+  @return clamp(#{$min-size}, #{$slope-to-unit}#{$unit} + #{$intercept-rem}, #{$max-size});
+}
+
+
+@function inverted-radius($radius, $background-color, $direction: 'bottom-right') {
+  $circle-position: 0 0;
+
+  @if $direction == 'top-left' {
+    $circle-position: 100% 100%;
+  } @else if $direction == 'top-right' {
+    $circle-position: 0 100%;
+  } @else if $direction == 'bottom-left' {
+    $circle-position: 100% 0;
+  }
+
+  @return radial-gradient(circle at #{$circle-position}, transparent $radius, $background-color calc($radius + 1px))
+}
+
+@function px-to-rem($px) {
+  $rems: math.div($px, vars.$rem-value) * 1rem;
+
+  @return $rems;
+}

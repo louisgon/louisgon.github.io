@@ -1,10 +1,12 @@
 :root {
   --color-black: 0, 0, 0;
   --color-black-wash: 20, 27, 31;
+  --color-black-wash-alt: 10, 14, 16;
   --color-gray-dark: 51, 68, 77;
   --color-gray-light: 194, 207, 214;
   --color-white: 255, 255, 255;
   --color-white-wash: 224, 231, 235;
+  --color-white-wash-alt: 240, 243, 245;
 
   --color-blue-dark: 20, 129, 184;
   --color-blue-light: 71, 180, 235;
@@ -17,16 +19,22 @@
 
 [data-theme='dark'] {
   --color-background: var(--color-black-wash);
+  --color-background-alt: var(--color-black-wash-alt);
   --color-blue: var(--color-blue-light);
   --color-green: var(--color-green-light);
+  --color-grey: var(--color-gray-light);
   --color-orange: var(--color-orange-light);
   --color-primary: var(--color-white-wash);
+  --color-theme: var(--color-black);
 }
 
 [data-theme='light'] {
   --color-background: var(--color-white-wash);
+  --color-background-alt: var(--color-white-wash-alt);
   --color-blue: var(--color-blue-dark);
   --color-green: var(--color-green-dark);
+  --color-grey: var(--color-gray-dark);
   --color-orange: var(--color-orange-dark);
   --color-primary: var(--color-black-wash);
+  --color-theme: var(--color-white);
 }

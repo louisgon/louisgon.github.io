@@ -1,10 +1,12 @@
 @use '../defines/breakpoints';
+@use '../defines/functions';
 @use '../defines/vars';
 
 .o-text {
   --text-color: var(--color-primary);
+  --text-color-alpha: 1;
 
-  color: rgb(var(--text-color));
+  color: rgb(var(--text-color), var(--text-color-alpha));
   margin: 0;
   padding: 0;
   transition: color 0.3s ease;
@@ -12,6 +14,7 @@
   a {
     border-bottom: 2px solid rgb(var(--text-color));
     color: rgb(var(--text-color));
+    font-style: italic;
     text-decoration: none;
     transition: border-color 0.3s ease, color 0.3s ease;
 
@@ -22,7 +25,7 @@
 }
 
 .o-text--body {
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: vars.$font-primary-weight-regular;
   line-height: 1.5;
 }
@@ -48,36 +51,21 @@
   }
 }
 
-.o-text--subtitle {
-  line-height: 1.25;
+.o-text--overline {
   font-size: 1.25rem;
   font-weight: vars.$font-primary-weight-medium;
+  line-height: 1;
+  text-transform: uppercase;
+}
 
-  @include breakpoints.media-xs-min {
-    font-size: 1.5rem;
-  }
-
-  @include breakpoints.media-lg-min {
-    font-size: 2rem;
-  }
+.o-text--subtitle {
+  line-height: 1.25;
+  font-size: functions.fluid-clamp(1.25rem, 2.5rem);
+  font-weight: vars.$font-primary-weight-regular;
 }
 
 .o-text--super {
-  font-size: 2.5rem;
+  font-size: functions.fluid-clamp(2rem, 5rem);
   font-weight: vars.$font-primary-weight-bold;
   line-height: 1;
-  text-transform: uppercase;
-
-  @include breakpoints.media-sm-min {
-    font-size: 3.5rem;
-  }
-
-  @include breakpoints.media-md-min {
-    font-size: 4rem;
-  }
-
-  @include breakpoints.media-lg-min {
-    font-size: 4.5rem;
-  }
 }
-

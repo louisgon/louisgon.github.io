@@ -1,11 +1,8 @@
 @use '../defines/breakpoints';
+@use '../defines/functions';
 
 .c-hero {
-  --hero-padding: 8rem;
-
-  background: rgb(var(--color-background));
-  padding-block: calc(var(--page-header-height) + var(--page-header-height-padding) + var(--hero-padding)) var(--hero-padding);
-  transition: background-color 0.3s ease;
+  padding-block: functions.fluid-clamp(3rem, 6rem);
 }
 
 .c-hero--center {
@@ -36,11 +33,7 @@
   gap: 2rem;
 }
 
-.c-hero__divider {}
-
-.c-hero__description {}
-
-.c-hero__ctas {
+.c-hero__buttons {
   display: flex;
   gap: 2rem;
 

@@ -9,6 +9,11 @@ export default function classList (args = '') {
 
   const name = object['name'] ?? ''
 
+  // background
+  const background = (object['background'] ?? '')
+    ? `u-bg-${object['background']}`
+    : ''
+
   // blocks
   const block = (object['block'] ?? '')
     ? getBlockClasses(object['block'])
@@ -48,7 +53,7 @@ export default function classList (args = '') {
     : []
 
   // merge classes
-  return [classes, name, block, ...modifiers, ...scopes, spacing, ...utilities, ...vendors, ...scripts]
+  return [classes, name, block, ...modifiers, ...scopes, background, spacing, ...utilities, ...vendors, ...scripts]
     .filter(Boolean)
     .join(' ')
 }
@@ -90,6 +95,10 @@ function getUtilityBreakpointClasses (object, prefix) {
 
   // get object
   object = getObject(object)
+
+  if (typeof object === 'number' || typeof object === 'string') {
+    return `u-${prefix}-${object}`
+  }
 
   // base
   let base = (object['base'] ?? '') !== ''

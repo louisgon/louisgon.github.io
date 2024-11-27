@@ -40,9 +40,9 @@
   {% endif %}
 
   {% if icon %}
-    {% include '@objects/icon.twig' with {
+    {% include '@objects/svg.twig' with {
       classes: 'o-button__icon',
-      name: icon,
+      name: 'icons/' ~ icon,
     } only %}
   {% endif %}
 </{{ tag }}>

@@ -1,0 +1,19 @@
+$font-dir: '/src/fonts';
+
+// Noto Sans
+@font-face {
+  font-display: swap;
+  font-family: 'Noto Sans';
+  font-stretch: 75% 125%;
+  font-style: normal;
+  font-weight: 100% 900%;
+  src: url('#{$font-dir}/NotoSans[wdth,wght].woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-stretch: 75% 125%;
+  font-style: italic;
+  font-weight: 100% 900%;
+  src: url('#{$font-dir}/NotoSans-Italic[wdth,wght].woff2') format('woff2');
+}

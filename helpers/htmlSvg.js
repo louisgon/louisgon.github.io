@@ -3,8 +3,8 @@ import { JSDOM } from 'jsdom'
 
 import classList from './classList'
 
-export default function iconSvg (name = '', classes = '') {
-  const svgPath = `./src/includes/icons/${name}.svg`
+export default function htmlSvg (name = '', classes = '') {
+  const svgPath = `./src/includes/svgs/${name}.svg`
 
   return fs.existsSync(svgPath)
     ? cleanSvg(fs.readFileSync(svgPath, 'utf8'), classes)

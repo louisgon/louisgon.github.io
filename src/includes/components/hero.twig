@@ -1,6 +1,6 @@
 {# Passed Variables #}
 {% set align = align|default('left') %}
-{% set ctas = ctas|default([]) %}
+{% set buttons = buttons|default([]) %}
 {% set description = description|default('') %}
 {% set descriptionStyle = descriptionStyle|default('subtitle') %}
 {% set image = image|default({}) %}
@@ -12,6 +12,7 @@
 
 {# HTML #}
 {% embed '@layouts/component.twig' with {
+  background: 'theme',
   modifiers: [align],
   name: 'hero',
 } %}
@@ -42,18 +43,18 @@
           {% set headingIndex = headingIndex + 1 %}
         {% endif %}
 
-        {% if ctas %}
+        {% if buttons %}
           <div {{ htmlAttr({
             animateIn: 'fadeY',
-            class: 'c-hero__ctas'
+            class: 'c-hero__buttons'
           }) }}>
-            {% for cta in ctas %}
+            {% for button in buttons %}
               {% include '@objects/button.twig' with {
-                classes: 'c-hero__cta',
-                href: cta.href|default('/'),
+                classes: 'c-hero__button',
+                href: button.href|default('/'),
                 icon: 'arrow-right',
-                label: cta.label|default(''),
-                modifiers: cta.modifiers|default([]),
+                label: button.label|default(''),
+                modifiers: button.modifiers|default([]),
                 style: 'solid',
               } only %}
             {% endfor %}

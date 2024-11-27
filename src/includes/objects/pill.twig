@@ -1,13 +1,15 @@
 {# Passed Variables #}
 {% set classes = classes|default('') %}
-{% set name = name|default('') %}
+{% set label = label|default('') %}
 {% set modifiers = modifiers|default([]) %}
 
 {# HTML #}
 <div class="{{ classList({
   classes: classes,
-  name: 'o-icon',
+  name: 'o-pill',
   modifiers: modifiers,
 }) }}">
-  {{ iconSvg(name, 'o-icon__svg') }}
+  <div class="o-pill__label">
+    {{ label }}
+  </div>
 </div>

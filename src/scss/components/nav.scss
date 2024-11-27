@@ -1,3 +1,4 @@
+@use '../defines/breakpoints';
 @use '../defines/mixins';
 @use '../defines/vars';
 
@@ -14,6 +15,12 @@
   top: var(--page-nav-position-top);
   width: 100%;
   z-index: vars.$z-index-nav;
+
+  display: none;
+
+  @include breakpoints.media-md-min {
+    display: flex;
+  }
 }
 
 .c-nav--sticky {
@@ -59,7 +66,7 @@
   color: rgb(var(--color-primary));
   display: flex;
   font-size: 1.125rem;
-  font-weight: vars.$font-primary-weight-regular;
+  font-weight: vars.$font-primary-weight-semibold;
   line-height: 1.25rem;
   height: var(--nav-items-height);
   padding-inline: 1rem;

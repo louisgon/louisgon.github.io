@@ -16,12 +16,12 @@
 
       <button class="c-header__theme-toggle" role="switch" aria-checked="true" aria-label="Use Dark Theme" data-animate-in="fadeRight">
         {% for themeIcon in ['moon', 'sun'] %}
-          {% include '@objects/icon.twig' with {
+          {% include '@objects/svg.twig' with {
             classes: classList({
               modifiers: [themeIcon],
               name: 'c-header__theme-toggle-icon',
             }),
-            name: themeIcon,
+            name: 'icons/' ~ themeIcon,
           } only %}
         {% endfor %}
       </button>

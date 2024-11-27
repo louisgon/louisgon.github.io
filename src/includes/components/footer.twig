@@ -25,40 +25,36 @@
 } %}
   {% block content %}
     <div class="c-footer__inner">
-      <div class="c-footer__inner-left">
-        {% include '@objects/button.twig' with {
-          animateIn: 'fadeLeft',
-          classes: 'c-footer__logo',
-          href: '/',
-          icon: 'logo',
-        } only %}
+      {% include '@objects/text.twig' with {
+        animateIn: 'fadeLeft',
+        classes: 'c-footer__info',
+        content: 'This website was built using Vite and Twig. Coded in VSCode, designed in Figma.',
+      } only %}
 
+      <div {{ htmlAttr({
+        animateIn: 'fadeRight',
+        class: 'c-footer__social',
+      }) }}>
         {% include '@objects/text.twig' with {
-          animateIn: 'fade',
-          classes: 'c-footer__text',
-          content: 'This website was built using Vite &amp; Twig. Designed in Figma, coded in Visual Studio Code by yours truly.',
-          style: 'caption',
-          tag: 'span',
+          classes: 'c-footer__social-label',
+          content: 'Social Links',
         } only %}
-      </div>
 
-      <div class="c-footer__inner-right">
-        <nav class="c-footer__social" aria-label="Footer Social Links">
+        <nav class="c-footer__social-links" aria-label="Footer Social Links">
           {% for socialItem in socialItems %}
             {% include '@objects/button.twig' with {
-              animateIn: 'fadeRight',
               aria: {
                 label: socialItem.label,
               },
               classes: 'c-footer__social-link',
               href: socialItem.href,
               icon: socialItem.icon,
+              modifiers: ['white'],
               style: 'icon-control',
               target: '_blank',
             } only %}
           {% endfor %}
         </nav>
-      </div>
     </div>
   {% endblock %}
 {% endembed %}

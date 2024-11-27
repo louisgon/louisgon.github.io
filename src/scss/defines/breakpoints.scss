@@ -1,17 +1,19 @@
 @use './vars';
 
+$px-to-rem: px-to-rem(1);
+
 // min props
-$width-media-xs-min: 23.4375rem;
+$width-media-xs-min: vars.$width-content-min;
 $width-media-sm-min: 30rem;
 $width-media-md-min: 48rem;
 $width-media-lg-min: 64rem;
 $width-media-xl-min: vars.$width-content-max;
 
 // max props
-$width-media-xs-max: $width-media-sm-min - vars.$pixel-to-rem;
-$width-media-sm-max: $width-media-md-min - vars.$pixel-to-rem;
-$width-media-md-max: $width-media-lg-min - vars.$pixel-to-rem;
-$width-media-lg-max: $width-media-xl-min - vars.$pixel-to-rem;
+$width-media-xs-max: $width-media-sm-min - $px-to-rem;
+$width-media-sm-max: $width-media-md-min - $px-to-rem;
+$width-media-md-max: $width-media-lg-min - $px-to-rem;
+$width-media-lg-max: $width-media-xl-min - $px-to-rem;
 
 // media queries
 @mixin media-xs-min {

@@ -1,0 +1,8 @@
+@use '../defines/functions';
+
+.c-intro {
+  display: grid;
+  align-items: center;
+  min-height: calc(100dvh - var(--page-header-height) - var(--page-footer-height));
+  padding-block: functions.fluid-clamp(2rem, 4rem);
+}

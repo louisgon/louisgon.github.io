@@ -73,6 +73,10 @@
   }
 }
 
+.o-button--icon-control.o-button--white {
+  // --button-background-color: var(--color-white);
+}
+
 .o-button--solid {
   --button-background-color: var(--color-blue);
   --button-color: var(--color-background);

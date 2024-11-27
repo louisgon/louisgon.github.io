@@ -13,9 +13,12 @@
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
-    <link rel="stylesheet" href="/src/scss/main.scss">
+    {# Preload fonts #}
+    <link rel="preload" href="/src/scss/fonts.scss" as="style" />
 
-    <script type="module" src="/src/js/main.js" defer></script>
+    {# Stylesheets #}
+    <link rel="stylesheet" href="/src/scss/fonts.scss">
+    <link rel="stylesheet" href="/src/scss/main.scss">
   </head>
 
   {% include '@layouts/body.twig' with constants|merge({

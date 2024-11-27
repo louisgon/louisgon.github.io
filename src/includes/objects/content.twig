@@ -1,0 +1,25 @@
+{# Passed Variables #}
+{% set items = items|default([]) %}
+{% set name = name|default('') %}
+{% set modifiers = modifiers|default([]) %}
+
+{# HTML #}
+<div class="{{ classList({
+  classes: classes,
+  name: 'o-content',
+  modifiers: modifiers,
+}) }}">
+  {% for item in items %}
+    {% set itemData = item.data|default({}) %}
+    {% set itemType = item.type|default('') %}
+
+    {% include '@objects/' ~ item.type ~ '.twig' with itemData|merge({
+      classes: classList({
+        classes: itemData.classes|default(''),
+        name: 'o-content__item',
+        modifiers: [item.type],
+        spacing: item.spacing|default({}),
+      }),
+    }) only %}
+  {% endfor %}
+</div>

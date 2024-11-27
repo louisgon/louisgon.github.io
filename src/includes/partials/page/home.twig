@@ -1,21 +1,55 @@
-{% include '@components/hero.twig' with {
-  align: 'center',
-  ctas: [
+{% include '@components/intro.twig' with {
+  contentItems: [
     {
-      href: '/about',
-      label: 'Learn More',
+      type: 'pill',
+      data: {
+        label: 'Welcome',
+      },
     },
     {
-      href: '/experience',
-      label: 'Experience',
-      modifiers: ['secondary'],
+      type: 'text',
+      data: {
+        content: 'My name is',
+        style: 'subtitle',
+      },
+      spacing: {
+        mt: 8,
+      }
+    },
+    {
+      type: 'text',
+      data: {
+        content: 'Louis Gonzalez',
+        style: 'super',
+        tag: 'h1',
+      },
+      spacing: {
+        mt: 2,
+      }
+    },
+    {
+      type: 'text',
+      data: {
+        content: 'Self-taught developer creating websites since 2010. Currently working at <a href="https://www.goodfolks.com/" target="_blank">GOODFOLKS</a>.',
+        style: 'subtitle',
+        tag: 'h2',
+      },
+      spacing: {
+        mt: 6,
+      }
+    },
+    {
+      type: 'button',
+      data: {
+        href: '/about',
+        icon: 'arrow-right',
+        label: 'Learn More',
+        modifiers: ['secondary'],
+        style: 'solid',
+      },
+      spacing: {
+        mt: 8,
+      }
     }
   ],
-  description: 'Self-taught, currently working at <a href="https://www.goodfolks.com/" target="_blank">GOODFOLKS</a>.',
-  title: 'I\'m Louis Gonzalez, a web developer based in Texas.',
-  titleStyle: 'super',
-} only %}
-
-{% include '@components/placeholder.twig' with {
-  items: 20,
 } only %}

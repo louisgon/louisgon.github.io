@@ -1,5 +1,6 @@
 {# Passed Variables #}
 {% set aria = aria|default({}) %}
+{% set background = background|default('') %}
 {% set classes = classes|default('') %}
 {% set containerType = containerType|default('') %}
 {% set data = data|default({}) %}
@@ -17,6 +18,7 @@
 <{{ htmlAttr({
   aria: aria,
   class: {
+    background: background,
     classes: {
       name: 'c-' ~ name,
       modifiers: modifiers,

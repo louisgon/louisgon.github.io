@@ -3,12 +3,11 @@
 @use '../defines/vars';
 
 .c-header {
+  background: rgb(var(--color-background));
   color: rgb(var(--color-primary));
-  left: 0;
-  padding-block: var(--page-header-height-padding);
-  position: absolute;
-  top: 0;
-  width: 100%;
+  padding-block: var(--page-header-padding-block);
+  position: relative;
+  transition: background-color 0.3s ease;
   z-index: vars.$z-index-header;
 }
 
@@ -16,7 +15,7 @@
   align-items: center;
   display: flex;
   gap: 2rem;
-  height: var(--page-header-height);
+  height: var(--page-header-inner-height);
   justify-content: space-between;
 
   @include breakpoints.media-lg-min {

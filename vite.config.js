@@ -10,8 +10,12 @@ import vituum from 'vituum'
 import base64 from './helpers/base64'
 import classList from './helpers/classList'
 import htmlAttr from './helpers/htmlAttr'
-import iconSvg from './helpers/iconSvg'
+import htmlSvg from './helpers/htmlSvg'
 
+// Get root directory
+const rootDir = process.cwd()
+
+// Vite config
 export default defineConfig({
   base: '/',
   build: {
@@ -120,18 +124,18 @@ function getTwigFunctions() {
     base64,
     classList,
     htmlAttr,
-    iconSvg,
+    htmlSvg,
   }
 }
 
 function getTwigGlobals() {
   const data = {}
-  const dataFolder = path.join(process.cwd(), 'src', 'data')
+  const dataFolder = path.join(rootDir, 'src', 'data')
 
   const dataFiles = fs.readdirSync(dataFolder).filter((file) => file.endsWith('.json')) || []
 
   dataFiles.forEach((file) => {
-    const filePath = path.join(process.cwd(), 'src', 'data', file)
+    const filePath = path.join(rootDir, 'src', 'data', file)
 
     const fileContent = fs.readFileSync(filePath, 'utf8') || '{}'
 
@@ -146,20 +150,20 @@ function getTwigGlobals() {
 }
 
 function getTwigNamespaces() {
-  const namespaceList = [
+  const list = [
     'assets',
     'components',
     'icons',
     'layouts',
     'objects',
     'partials',
-    'templates'
+    'templates',
   ]
 
-  return namespaceList.reduce((acc, namespace) => {
+  return list.reduce((acc, namespace) => {
     return {
-        ...acc,
-        [namespace]: `./src/includes/${namespace}`
+      ...acc,
+      [namespace]: `./src/includes/${namespace}`
     }
-  }, {})
+  })
 }
