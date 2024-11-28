@@ -1,5 +1,5 @@
 @use '../defines/breakpoints';
-@use '../defines/functions';
+@use '../defines/typography';
 @use '../defines/vars';
 
 .o-text {
@@ -24,48 +24,27 @@
   }
 }
 
+// Typography styles
 .o-text--body {
-  font-size: 1rem;
-  font-weight: vars.$font-primary-weight-regular;
-  line-height: 1.5;
+  @include typography.body;
 }
 
 .o-text--caption {
-  font-size: 0.75rem;
-  font-weight: vars.$font-primary-weight-regular;
-  line-height: 1.5;
+  @include typography.caption;
 }
 
 .o-text--h1 {
-  font-size: 2rem;
-  font-weight: vars.$font-primary-weight-bold;
-  line-height: 1;
-  text-transform: uppercase;
-
-  @include breakpoints.media-md-min {
-    font-size: 3rem;
-  }
-
-  @include breakpoints.media-lg-min {
-    font-size: 4rem;
-  }
+  @include typography.h1;
 }
 
 .o-text--overline {
-  font-size: 1.25rem;
-  font-weight: vars.$font-primary-weight-medium;
-  line-height: 1;
-  text-transform: uppercase;
+  @include typography.overline;
 }
 
 .o-text--subtitle {
-  line-height: 1.25;
-  font-size: functions.fluid-clamp(1.25rem, 2.5rem);
-  font-weight: vars.$font-primary-weight-regular;
+  @include typography.subtitle;
 }
 
 .o-text--super {
-  font-size: functions.fluid-clamp(2rem, 5rem);
-  font-weight: vars.$font-primary-weight-bold;
-  line-height: 1;
+  @include typography.super;
 }

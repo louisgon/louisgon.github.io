@@ -22,7 +22,6 @@
   @return clamp(#{$min-size}, #{$slope-to-unit}#{$unit} + #{$intercept-rem}, #{$max-size});
 }
 
-
 @function inverted-radius($radius, $background-color, $direction: 'bottom-right') {
   $circle-position: 0 0;
 

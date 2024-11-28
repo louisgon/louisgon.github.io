@@ -1,0 +1,19 @@
+{# Computed Variables #}
+{% set wysiwygContent %}
+  {% block content %}{% endblock %}
+{% endset %}
+
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  name: 'article',
+} %}
+  {% block content %}
+    {% embed '@layouts/wysiwyg.twig' with {
+      wysiwygContent: wysiwygContent,
+    } only %}
+      {% block content %}
+        {{ wysiwygContent }}
+      {% endblock %}
+    {% endembed %}
+  {% endblock %}
+{% endembed %}

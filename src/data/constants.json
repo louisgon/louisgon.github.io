@@ -20,6 +20,11 @@
         "name": "Projects",
         "slug": "projects",
         "url": "/projects"
+      },
+      "/contact": {
+        "name": "Contact",
+        "slug": "contact",
+        "url": "/contact"
       }
     }
   },
@@ -47,7 +52,7 @@
     {
       "id": "contact",
       "name": "Contact",
-      "href": "https://google.com"
+      "href": "/contact"
     }
   ]
 }
