@@ -1,19 +1,17 @@
 {# Passed Variables #}
 {% set animateIn = animateIn|default('') %}
 {% set classes = classes|default('') %}
-{% set label = label|default('') %}
 {% set modifiers = modifiers|default([]) %}
+{% set src = src|default('') %}
 
 {# HTML #}
 <div {{ htmlAttr({
   animateIn: animateIn,
   class: {
     classes: classes,
-    name: 'o-pill',
     modifiers: modifiers,
+    name: 'o-image',
   },
 }) }}>
-  <div class="o-pill__label">
-    {{ label }}
-  </div>
+  <img class="o-image__image" src="src/images/{{ src }}" />
 </div>

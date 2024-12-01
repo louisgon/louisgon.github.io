@@ -2,16 +2,38 @@
 @use 'sanitize.css/sanitize.css';
 
 // globals
-@use 'globals/*';
+@use 'globals/base';
+@use 'globals/colors';
+@use 'globals/keyframes';
 
 // layouts
-@use 'layouts/*';
+@use 'layouts/body';
+@use 'layouts/component';
+@use 'layouts/container';
 
 // objects
-@use 'objects/*';
+@use 'objects/button';
+@use 'objects/divider';
+@use 'objects/image';
+@use 'objects/pill';
+@use 'objects/spinner';
+@use 'objects/svg';
+@use 'objects/text';
 
 // components
-@use 'components/*';
+@use 'components/cursor';
+@use 'components/flex';
+@use 'components/footer';
+@use 'components/header';
+@use 'components/hero';
+@use 'components/intro';
+@use 'components/nav';
+@use 'components/overview';
+@use 'components/placeholder';
+@use 'components/trigger';
 
 // utilities
-@use 'utilities/*';
+@use 'utilities/animate-in';
+@use 'utilities/background';
+@use 'utilities/margin';
+@use 'utilities/padding';

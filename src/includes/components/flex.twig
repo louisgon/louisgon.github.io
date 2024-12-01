@@ -1,0 +1,54 @@
+{# Passed Variables #}
+{% set containContent = containContent ?? true %}
+{% set containImage = containImage ?? true %}
+{% set contentItems = contentItems|default([]) %}
+{% set contentSpacingType = contentSpacingType|default('') %}
+{% set image = image|default({}) %}
+{% set modifiers = modifiers|default([]) %}
+
+{# Computed Variables #}
+{% set containerType = '' %}
+{% set is_smart = contentItems|length and image|length %}
+
+{% if is_smart %}
+  {% set containerType = 'none' %}
+  {% set modifiers = modifiers|merge([
+    'smart',
+    containContent ? 'contain-content' : '',
+    containImage ? 'contain-image' : '',
+  ]) %}
+{% endif %}
+
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  containerType: containerType,
+  modifiers: modifiers,
+  name: 'flex',
+} %}
+  {% block content %}
+    <div class="c-flex__inner">
+      {% if contentItems|length %}
+        <div class="c-flex__content">
+          {% include '@objects/content.twig' with {
+            animateIn: is_smart ? 'fadeLeft' : 'fade',
+            classes: 'c-flex__content-inner',
+            items: contentItems,
+            spacingType: contentSpacingType,
+          } only %}
+        </div>
+      {% endif %}
+
+      {% if image|length %}
+        <div class="c-flex__image">
+          {% include '@objects/image.twig' with image|merge({
+            animateIn: 'fadeRight',
+            classes: 'c-flex__image-inner',
+            modifiers: [
+              'rounded',
+            ],
+          }) only %}
+        </div>
+      {% endif %}
+    </div>
+  {% endblock %}
+{% endembed %}

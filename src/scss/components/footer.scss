@@ -30,7 +30,7 @@
 }
 
 .c-footer__info {
-  max-width: 28rem;
+  max-width: 22rem;
   text-align: center;
 
   @include breakpoints.media-md-min {
@@ -46,10 +46,6 @@
   align-items: center;
   display: flex;
   gap: 1rem;
-}
-
-.c-footer__social-label {
-
 }
 
 .c-footer__social-links {

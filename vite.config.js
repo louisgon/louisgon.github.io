@@ -3,7 +3,6 @@ import { ViteMinifyPlugin } from 'vite-plugin-minify'
 import fs from 'node:fs'
 import twig from '@vituum/vite-plugin-twig'
 import path from 'node:path'
-import sassGlobImports from 'vite-plugin-sass-glob-import'
 import viteImagemin from 'vite-plugin-imagemin'
 import vituum from 'vituum'
 
@@ -68,7 +67,6 @@ export default defineConfig({
       namespaces: getTwigNamespaces(),
       root: './src',
     }),
-    sassGlobImports(),
     viteImagemin({
       gifsicle: {
         optimizationLevel: 1,

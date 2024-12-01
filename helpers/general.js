@@ -1,3 +1,14 @@
+export function ensureProperty (property, type) {
+  switch (type) {
+    case 'object':
+      return typeof property === 'object' && property !== null
+    case 'string':
+      return typeof property === 'string' && property !== ''
+    default:
+      return false
+  }
+}
+
 export function getArrayWithPrefix (array, prefix) {
   return array
     .filter(Boolean)
@@ -69,17 +80,6 @@ export function getObjectWithNestedKeys (object, key) {
   }
 
   return object
-}
-
-export function getPropertyValidation (property, type) {
-  switch (type) {
-    case 'object':
-      return typeof property === 'object' && property !== null
-    case 'string':
-      return typeof property === 'string' && property !== ''
-    default:
-      return false
-  }
 }
 
 export function getStringKebabCase (string) {

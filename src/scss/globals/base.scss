@@ -5,6 +5,7 @@
 :root {
   --page-footer-height: 11.125rem;
 
+  --page-content-max-width: vars.$width-content-max;
   --page-footer-inner-height: 3.5rem;
   --page-gutter: #{functions.fluid-clamp(2rem, 4rem)};
   --page-header-padding-block: #{functions.fluid-clamp(2rem, 4rem)};

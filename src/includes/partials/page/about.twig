@@ -1,40 +1,74 @@
-{% include '@components/hero.twig' with {
-  title: 'About Me',
+{% include '@components/flex.twig' with {
+  background: 'theme',
+  contentItems: [
+    {
+      type: 'text',
+      data: {
+        content: 'About Me',
+        style: 'h2',
+        tag: 'h1',
+      },
+    },
+  ],
+  spacingOptions: {
+    pb: 'md',
+    pt: 'md',
+  },
 } only %}
 
-{% embed '@components/article.twig' with {
-} %}
-  {% block content %}
-    <h2>Hello, I'm Louis Gonzalez!</h2>
-
-    <h3>Web developer based in Texas.</h3>
-
-    <h1>Heading 1</h1>
-
-    <h2>Heading 2</h2>
-
-    <h3>Heading 3</h3>
-
-    <h4>Heading 4</h4>
-
-    <h5>Heading 5</h5>
-
-    <h6>Heading 6</h6>
-
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut orci laoreet, condimentum ligula eu, ultricies ligula. Vestibulum vitae urna est. Duis lectus augue, egestas sodales rhoncus vel, hendrerit eget ante. Quisque ligula arcu, finibus sit amet gravida id, porttitor a lectus. Vestibulum euismod tortor ligula, euismod viverra elit tincidunt quis. Proin feugiat libero mauris, bibendum pulvinar ipsum imperdiet et. Nulla pharetra vehicula tellus vel tempor. Maecenas sodales malesuada erat, sed bibendum neque tempus in. Morbi euismod sem tincidunt congue rhoncus. Fusce suscipit, diam id euismod condimentum, massa massa volutpat metus, sed fringilla neque ligula vel massa. Cras vel bibendum mauris, quis consequat felis. Etiam a vestibulum justo. Vestibulum risus risus, fermentum sit amet nulla quis, eleifend facilisis felis. Nunc elementum urna sit amet elementum sollicitudin.
-    </p>
-
-    <ul>
-      <li>Item 1</li>
-      <li>Item 2</li>
-      <li>Item 3</li>
-    </ul>
-
-    <ol>
-      <li>Item 1</li>
-      <li>Item 2</li>
-      <li>Item 3</li>
-    </ol>
-  {% endblock %}
-{% endembed %}
+{% include '@components/flex.twig' with {
+  contentItems: [
+    {
+      type: 'text',
+      data: {
+        content: 'Hello!',
+        style: 'subtitle',
+      },
+      spacingOptions: {
+        mt: 3,
+      },
+    },
+    {
+      type: 'text',
+      data: {
+        content: 'I\'m Louis Gonzalez.',
+        style: 'h2',
+        tag: 'h4',
+      },
+      spacingOptions: {
+        mt: 1,
+      },
+    },
+    {
+      type: 'text',
+      data: {
+        content: 'Web developer based in Texas.',
+        style: 'subtitle',
+        tag: 'h2',
+      },
+      spacingOptions: {
+        mt: 2,
+      }
+    },
+    {
+      type: 'button',
+      data: {
+        href: '/experience',
+        icon: 'arrow-right',
+        label: 'Learn More',
+        modifiers: ['secondary'],
+        style: 'solid',
+      },
+      spacingOptions: {
+        mt: 4,
+      }
+    }
+  ],
+  image: {
+    src: 'me.jpg',
+  },
+  spacingOptions: {
+    pb: 'lg',
+    pt: 'lg',
+  },
+} only %}

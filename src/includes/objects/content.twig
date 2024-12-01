@@ -1,7 +1,9 @@
 {# Passed Variables #}
+{% set animateIn = animateIn|default('fadeY') %}
 {% set items = items|default([]) %}
 {% set name = name|default('') %}
 {% set modifiers = modifiers|default([]) %}
+{% set spacingType = spacingType|default('content') %}
 
 {# HTML #}
 <div class="{{ classList({
@@ -14,11 +16,15 @@
     {% set itemType = item.type|default('') %}
 
     {% include '@objects/' ~ item.type ~ '.twig' with itemData|merge({
+      animateIn: item.animateIn|default(animateIn),
       classes: classList({
         classes: itemData.classes|default(''),
         name: 'o-content__item',
         modifiers: [item.type],
-        spacing: item.spacing|default({}),
+        spacing: {
+          options: item.spacingOptions|default({}),
+          type: item.spacingType|default(spacingType),
+        },
       }),
     }) only %}
   {% endfor %}

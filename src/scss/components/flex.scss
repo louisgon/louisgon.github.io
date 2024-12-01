@@ -1,0 +1,81 @@
+@use '../defines/breakpoints';
+@use '../defines/vars';
+
+.c-flex__inner {
+  .c-flex--smart & {
+    --flex-inner-content-offset: 10rem;
+    --flex-inner-gap: 2rem;
+
+    display: flex;
+    gap: var(--flex-inner-gap);
+
+    @include breakpoints.media-md-min {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  .c-flex--smart.c-flex--flip & {
+    @include breakpoints.media-md-min {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+.c-flex__content {
+  .c-flex--smart & {
+    flex-shrink: 0;
+    width: calc(50% + var(--flex-inner-content-offset) - var(--flex-inner-gap));
+    padding-inline: var(--page-gutter);
+  }
+
+  .c-flex--smart.c-flex--flip & {
+    padding-left: 0;
+  }
+
+  .c-flex--smart:not(.c-flex--flip) & {
+    padding-right: 0;
+  }
+}
+
+.c-flex__content-inner {
+  .c-flex--smart.c-flex--contain-content & {
+    max-width: calc(vars.$width-content-max / 2 - var(--flex-inner-gap) + var(--flex-inner-content-offset));
+  }
+
+  .c-flex--smart.c-flex--flip & {
+    margin-right: auto;
+  }
+
+  .c-flex--smart:not(.c-flex--flip) & {
+    margin-left: auto;
+  }
+}
+
+.c-flex__image {
+  .c-flex--smart & {
+    flex-grow: 1;
+  }
+
+  .c-flex--smart.c-flex--flip & {
+    padding-right: 0;
+  }
+
+  .c-flex--smart:not(.c-flex--flip) & {
+    padding-left: 0;
+  }
+}
+
+.c-flex__image-inner {
+  .c-flex--smart.c-flex--contain-image & {
+    max-width: calc(vars.$width-content-max / 2 - var(--flex-inner-content-offset));
+  }
+
+  .c-flex--smart.c-flex--flip & {
+    margin-left: auto;
+  }
+
+  .c-flex--smart:not(.c-flex--flip) & {
+    margin-right: auto;
+  }
+}

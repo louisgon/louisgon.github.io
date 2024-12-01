@@ -37,14 +37,30 @@
   @include typography.h1;
 }
 
+.o-text--h2 {
+  @include typography.h2;
+}
+
+.o-text--h3 {
+  @include typography.h3;
+}
+
+.o-text--h4 {
+  @include typography.h4;
+}
+
+.o-text--h5 {
+  @include typography.h5;
+}
+
+.o-text--h6 {
+  @include typography.h6;
+}
+
 .o-text--overline {
   @include typography.overline;
 }
 
 .o-text--subtitle {
   @include typography.subtitle;
-}
-
-.o-text--super {
-  @include typography.super;
 }

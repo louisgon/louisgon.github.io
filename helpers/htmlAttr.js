@@ -1,4 +1,4 @@
-import { getObject, getObjectSortedByKeys, getObjectWithNestedKeys, getPropertyValidation } from './general'
+import { ensureProperty, getObject, getObjectSortedByKeys, getObjectWithNestedKeys } from './general'
 import classList from './classList'
 
 export default function htmlAttr (args = {}) {
@@ -19,7 +19,7 @@ export default function htmlAttr (args = {}) {
   object['tag'] = object['tag'] || ''
 
   // parse tag and ensure it's a string
-  if (getPropertyValidation(object['tag'], 'string')) {
+  if (ensureProperty(object['tag'], 'string')) {
     tag = object['tag']
   }
 
@@ -27,7 +27,7 @@ export default function htmlAttr (args = {}) {
   delete object['tag']
 
   // parse aria if object
-  if (getPropertyValidation(object['aria'], 'object')) {
+  if (ensureProperty(object['aria'], 'object')) {
     object = getObjectWithNestedKeys(object, 'aria')
   }
 
@@ -35,12 +35,12 @@ export default function htmlAttr (args = {}) {
   delete object['aria']
 
   // parse class list if object
-  if (getPropertyValidation(object['class'], 'object')) {
+  if (ensureProperty(object['class'], 'object')) {
     object['class'] = classList(object['class'])
   }
 
   // parse animateIn and add to data attribute
-  if (getPropertyValidation(object['animateIn'], 'string')) {
+  if (ensureProperty(object['animateIn'], 'string')) {
     object['data']['animateIn'] = object['animateIn']
   }
 
@@ -48,7 +48,7 @@ export default function htmlAttr (args = {}) {
   delete object['animateIn']
 
   // parse module and add to data attribute, needs to be before data parsing
-  if (getPropertyValidation(object['module'], 'string')) {
+  if (ensureProperty(object['module'], 'string')) {
     object['data']['module'] = object['module']
   }
 
@@ -56,7 +56,7 @@ export default function htmlAttr (args = {}) {
   delete object['module']
 
   // parse data if object
-  if (getPropertyValidation(object['data'], 'object')) {
+  if (ensureProperty(object['data'], 'object')) {
     object = getObjectWithNestedKeys(object, 'data')
   }
 
@@ -64,7 +64,7 @@ export default function htmlAttr (args = {}) {
   delete object['data']
 
   // parse style if object
-  if (getPropertyValidation(object['style'], 'object')) {
+  if (ensureProperty(object['style'], 'object')) {
     object['style'] = getCssVariables(object['style'])
   }
 

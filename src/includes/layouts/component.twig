@@ -7,6 +7,7 @@
 {% set modifiers = modifiers|default([]) %}
 {% set module = module|default('') %}
 {% set name = name|default('unknown') %}
+{% set spacingOptions = spacingOptions|default({}) %}
 {% set tag = tag|default('section') %}
 
 {# Computed Variables #}
@@ -24,6 +25,10 @@
       modifiers: modifiers,
     },
     name: 'l-component',
+    spacing: {
+      type: 'block',
+      options: spacingOptions,
+    },
   },
   data: data,
   module: module,

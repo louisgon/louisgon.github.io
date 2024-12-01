@@ -1,6 +1,6 @@
-import { getArrayWithPrefix, getObject } from './general'
+import { ensureProperty, getArrayWithPrefix, getObject } from './general'
 
-export default function classList (args = '') {
+export default function classList (args = '', debug = false) {
   if (typeof args !== 'object') {
     return typeof args === 'string' ? args : ''
   }
@@ -19,38 +19,38 @@ export default function classList (args = '') {
     ? getBlockClasses(object['block'])
     : ''
 
-  // classes (check if string or )
-  const classes = typeof object['classes'] === 'string' || typeof object['classes'] === null
-    ? object['classes']
-    : classList(object['classes'])
+  // classes
+  const classes = ensureProperty(object['classes'], 'object', 'classes')
+    ? classList(object['classes'], true)
+    : object['classes']
 
   // modifiers
-  const modifiers = (object['modifiers'] ?? '')
+  const modifiers = ensureProperty(object['modifiers'], 'object')
     ? getArrayWithPrefix(object['modifiers'] ?? [], `${name}--`)
     : []
 
   // scopes
-  const scopes = (object['scopes'] ?? '')
+  const scopes = ensureProperty(object['scopes'], 'object')
     ? getArrayWithPrefix(object['scopes'], 's-')
     : []
 
+  // scripts
+  const scripts = ensureProperty(object['scripts'], 'object')
+    ? getArrayWithPrefix(object['scripts'], 'js-')
+    : []
+
   // spacing
-  const spacing = (object['spacing'] ?? '')
+  const spacing = ensureProperty(object['spacing'], 'object')
     ? getSpacingClasses(object['spacing'])
     : ''
 
   // utilities
-  const utilities = (object['utilities'] ?? '')
+  const utilities = ensureProperty(object['utilities'], 'object')
     ? getUtilityClasses(object['utilities'])
     : []
 
   // vendors
   const vendors = object['vendors'] ?? []
-
-  // scripts
-  const scripts = (object['scripts'] ?? '')
-    ? getArrayWithPrefix(object['scripts'], 'js-')
-    : []
 
   // merge classes
   return [classes, name, block, ...modifiers, ...scopes, background, spacing, ...utilities, ...vendors, ...scripts]
@@ -64,30 +64,23 @@ function getSpacingClasses (object) {
   // get object
   object = getObject(object)
 
-  // margin top
-  let margin_top = (object['mt'] ?? '') !== ''
-    ? getUtilityBreakpointClasses(object['mt'], 'mt')
-    : ''
+  const options = getObject(object['options'] ?? [])
+  const type = object['type'] ?? 'content'
 
-  // padding top
-  let padding_top = (object['pt'] ?? '') !== ''
-    ? getUtilityBreakpointClasses(object['pt'], 'pt')
-    : ''
+  if (!Object.keys(options).length) {
+    return ''
+  }
 
-  // padding top
-  let padding_bottom = (object['pb'] ?? '') !== ''
-    ? getUtilityBreakpointClasses(object['pb'], 'pb')
-    : ''
+  // loop through options
+  for (let key in options) {
+    if (!options.hasOwnProperty(key) || options[key] === '') {
+      continue
+    }
 
-  // margin top
-  let margin_bottom = (object['mb'] ?? '') !== ''
-    ? getUtilityBreakpointClasses(object['mb'], 'mb')
-    : ''
+    classes.push(`u-${key}-${type}-${options[key]}`)
+  }
 
-  // merge classes
-  return [margin_top, padding_top, padding_bottom, margin_bottom]
-    .filter(Boolean)
-    .join(' ')
+  return classes.filter(Boolean).join(' ')
 }
 
 function getUtilityBreakpointClasses (object, prefix) {

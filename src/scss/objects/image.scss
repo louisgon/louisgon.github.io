@@ -1,18 +1,18 @@
+@use '../defines/functions';
+
 .o-image {
   display: block;
-  height: auto;
-  object-fit: cover;
   width: 100%;
-}
-
-.o-image--rounded-full {
-  border-radius: 9999rem;
+  overflow: hidden;
 }
 
 .o-image--rounded {
-  border-radius: 0.5rem;
+  border-radius: functions.fluid-clamp(1rem, 2rem);
 }
 
-.o-image--square {
-  aspect-ratio: 1;
+.o-image__image {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }

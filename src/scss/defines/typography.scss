@@ -61,9 +61,3 @@
   font-weight: vars.$font-primary-weight-regular;
   line-height: 1.25;
 }
-
-@mixin super {
-  font-size: functions.fluid-clamp(2rem, 5rem);
-  font-weight: vars.$font-primary-weight-bold;
-  line-height: 1;
-}

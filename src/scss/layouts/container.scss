@@ -5,12 +5,17 @@
 }
 
 .l-container__inner {
-  margin: 0 auto;
+  margin-inline: auto;
   max-width: calc(vars.$width-content-max + var(--page-gutter) * 2);
-  padding: 0 var(--page-gutter);
+  padding-inline: var(--page-gutter);
   width: 100%;
 
   .l-container--full & {
     max-width: 100%;
+  }
+
+  .l-container--none & {
+    max-width: 100%;
+    padding-inline: 0;
   }
 }
