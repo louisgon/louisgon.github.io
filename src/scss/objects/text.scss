@@ -29,6 +29,10 @@
   @include typography.body;
 }
 
+.o-text--body-lg {
+  @include typography.body-lg;
+}
+
 .o-text--caption {
   @include typography.caption;
 }
@@ -63,4 +67,8 @@
 
 .o-text--subtitle {
   @include typography.subtitle;
+}
+
+.o-text--title {
+  @include typography.title;
 }

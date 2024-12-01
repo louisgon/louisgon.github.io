@@ -3,7 +3,7 @@
 
 .c-flex__inner {
   .c-flex--smart & {
-    --flex-inner-content-offset: 10rem;
+    --flex-inner-content-offset: 3.75rem;
     --flex-inner-gap: 2rem;
 
     display: flex;
@@ -25,8 +25,8 @@
 .c-flex__content {
   .c-flex--smart & {
     flex-shrink: 0;
-    width: calc(50% + var(--flex-inner-content-offset) - var(--flex-inner-gap));
     padding-inline: var(--page-gutter);
+    width: calc(50% + var(--flex-inner-content-offset) - var(--flex-inner-gap));
   }
 
   .c-flex--smart.c-flex--flip & {
@@ -55,6 +55,7 @@
 .c-flex__image {
   .c-flex--smart & {
     flex-grow: 1;
+    padding-inline: var(--page-gutter);
   }
 
   .c-flex--smart.c-flex--flip & {

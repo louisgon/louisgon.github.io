@@ -7,6 +7,12 @@
   line-height: 1.5;
 }
 
+@mixin body-lg {
+  font-size: 1.125rem;
+  font-weight: vars.$font-primary-weight-regular;
+  line-height: 1.5;
+}
+
 @mixin caption {
   font-size: 0.75rem;
   font-weight: vars.$font-primary-weight-regular;
@@ -57,6 +63,11 @@
 }
 
 @mixin subtitle {
+  font-size: functions.fluid-clamp(1rem, 2rem);
+  line-height: 1.25;
+}
+
+@mixin title {
   font-size: functions.fluid-clamp(1.25rem, 2.5rem);
   font-weight: vars.$font-primary-weight-regular;
   line-height: 1.25;
