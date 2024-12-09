@@ -1,0 +1,76 @@
+{# Passed Variables #}
+{% set align = align|default('left') %}
+{% set buttons = buttons|default([]) %}
+{% set description = description|default('') %}
+{% set descriptionStyle = descriptionStyle|default('subtitle') %}
+{% set image = image|default({}) %}
+{% set title = title|default('') %}
+{% set titleStyle = titleStyle|default('h1') %}
+
+{# Computed Variables #}
+{% set headingIndex = 1 %}
+
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  background: 'theme',
+  modifiers: [align],
+  name: 'hero',
+} %}
+  {% block content %}
+    <div class="c-hero__inner">
+      <div class="c-hero__content">
+        {% if title %}
+          {% include '@objects/text.twig' with {
+            animateIn: 'fadeY',
+            classes: 'c-hero__title',
+            content: title,
+            style: titleStyle,
+            tag: 'h' ~ headingIndex,
+          } only %}
+
+          {% set headingIndex = headingIndex + 1 %}
+        {% endif %}
+
+        {% if description %}
+          {% include '@objects/text.twig' with {
+            animateIn: 'fadeY',
+            classes: 'c-hero__description',
+            content: description,
+            style: descriptionStyle,
+            tag: 'h' ~ headingIndex,
+          } only %}
+
+          {% set headingIndex = headingIndex + 1 %}
+        {% endif %}
+
+        {% if buttons %}
+          <div {{ htmlAttr({
+            animateIn: 'fadeY',
+            class: 'c-hero__buttons'
+          }) }}>
+            {% for button in buttons %}
+              {% include '@objects/button.twig' with {
+                classes: 'c-hero__button',
+                href: button.href|default('/'),
+                icon: 'arrow-right',
+                label: button.label|default(''),
+                modifiers: button.modifiers|default([]),
+                style: 'solid',
+              } only %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      {% if image|length %}
+        {% include '@objects/image.twig' with {
+          image: image|merge({
+            animateIn: 'fadeY',
+            classes: 'c-hero__image',
+            modifiers: ['rounded-full', 'square'],
+          }),
+        } only %}
+      {% endif %}
+    </div>
+  {% endblock %}
+{% endembed %}

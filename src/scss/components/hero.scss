@@ -1,0 +1,57 @@
+@use '../defines/breakpoints';
+@use '../defines/functions';
+
+.c-hero {
+  padding-block: functions.fluid-clamp(3rem, 6rem);
+}
+
+.c-hero--center {
+  text-align: center;
+}
+
+.c-hero--left {
+  text-align: left;
+}
+
+.c-hero--right {
+  text-align: right;
+}
+
+.c-hero__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  @include breakpoints.media-lg-min {
+    align-items: center;
+    flex-direction: row;
+  }
+}
+
+.c-hero__content {
+  display: grid;
+  gap: 2rem;
+}
+
+.c-hero__buttons {
+  display: flex;
+  gap: 2rem;
+
+  .c-hero--center & {
+    justify-content: center;
+  }
+
+  .c-hero--left & {
+    justify-content: flex-start;
+  }
+
+  .c-hero--right & {
+    justify-content: flex-end;
+  }
+}
+
+.c-hero__image {
+  flex-shrink: 0;
+  overflow: hidden;
+  width: calc(50% - 3.75rem);
+}

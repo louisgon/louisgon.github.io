@@ -1,0 +1,37 @@
+{# Passed Variables #}
+{% set items = items|default([]) %}
+{% set page = page|default('') %}
+
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  containerType: 'full',
+  module: 'Nav',
+  name: 'nav',
+  tag: 'nav',
+} %}
+  {% block content %}
+    <div class="c-nav__bar" data-animate-in="fade">
+      <div class="c-nav__bar-inner">
+        <ul class="c-nav__items" role="list" aria-label="Header Navigation Items">
+          {% for item in items %}
+            <li class="c-nav__item">
+              <a {{ htmlAttr({
+                class: {
+                  name: 'c-nav__link',
+                  modifiers: [
+                    item.id == page ? 'active' : '',
+                  ],
+                },
+                href: item.href,
+              }) }}>
+                {{ item.name }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <div class="c-nav__bar-indicator" aria-hidden="true"></div>
+      </div>
+    </div>
+  {% endblock %}
+{% endembed %}

@@ -1,0 +1,30 @@
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  containerType: 'full',
+  module: 'Header',
+  name: 'header',
+  tag: 'header',
+} %}
+  {% block content %}
+    <div class="c-header__inner">
+      {% include '@objects/button.twig' with {
+        animateIn: 'fadeLeft',
+        classes: 'c-header__logo',
+        href: '/',
+        icon: 'logo',
+      } only %}
+
+      <button class="c-header__theme-toggle" role="switch" aria-checked="true" aria-label="Use Dark Theme" data-animate-in="fadeRight">
+        {% for themeIcon in ['moon', 'sun'] %}
+          {% include '@objects/svg.twig' with {
+            classes: classList({
+              modifiers: [themeIcon],
+              name: 'c-header__theme-toggle-icon',
+            }),
+            name: 'icons/' ~ themeIcon,
+          } only %}
+        {% endfor %}
+      </button>
+    </div>
+  {% endblock %}
+{% endembed %}

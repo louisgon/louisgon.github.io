@@ -1,0 +1,41 @@
+@use '../defines/breakpoints';
+@use '../defines/functions';
+@use '../defines/vars';
+
+:root {
+  --page-footer-height: 11.125rem;
+
+  --page-content-max-width: vars.$width-content-max;
+  --page-footer-inner-height: 3.5rem;
+  --page-gutter: #{functions.fluid-clamp(2rem, 4rem)};
+  --page-header-padding-block: #{functions.fluid-clamp(2rem, 4rem)};
+  --page-header-inner-height: 3.125rem;
+  --page-nav-height: 3.5rem;
+  --page-nav-padding: 2rem;
+
+  --page-header-height: calc(var(--page-header-inner-height) + var(--page-header-padding-block) * 2);
+  --page-header-offset: calc(var(--page-header-inner-height) + var(--page-header-padding-block));
+  --page-nav-position-top: calc((var(--page-header-inner-height) - var(--page-nav-height)) * 0.5 - var(--page-nav-padding) + var(--page-header-padding-block));
+
+  @include breakpoints.media-md-min {
+    --page-footer-height: 7.125rem;
+  }
+
+  @include breakpoints.media-lg-min {
+    --page-footer-height: 9.125rem;
+  }
+
+  @include breakpoints.media-xl-min {
+    --page-footer-height: 11.125rem;
+  }
+}
+
+html {
+  font-family: vars.$font-primary;
+  font-size: vars.$rem-value;
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}

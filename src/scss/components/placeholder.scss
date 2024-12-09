@@ -1,0 +1,17 @@
+@use '../defines/functions';
+
+.c-placeholder {
+  padding-block: functions.fluid-clamp(3rem, 6rem);
+}
+
+.c-placeholder__items {
+  display: grid;
+  gap: 1rem;
+}
+
+.c-placeholder__item {
+  background: rgb(var(--color-primary), 0.1);
+  border-radius: 2.5rem;
+  height: 5rem;
+  transition: background-color 0.3s ease;
+}

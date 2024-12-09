@@ -1,0 +1,55 @@
+{% include '@components/intro.twig' with {
+  contentItems: [
+    {
+      type: 'pill',
+      data: {
+        label: 'Welcome',
+      },
+    },
+    {
+      type: 'text',
+      data: {
+        content: 'My name is',
+        style: 'title',
+      },
+      spacingOptions: {
+        mt: 3,
+      }
+    },
+    {
+      type: 'text',
+      data: {
+        content: 'Louis Gonzalez',
+        style: 'h1',
+        tag: 'h1',
+      },
+      spacingOptions: {
+        mt: 1,
+      }
+    },
+    {
+      type: 'text',
+      data: {
+        content: 'Self-taught developer creating websites since 2010. Currently working at <a href="https://www.goodfolks.com/" target="_blank">GOODFOLKS</a>.',
+        style: 'title',
+        tag: 'h2',
+      },
+      spacingOptions: {
+        mt: 2,
+      }
+    },
+    {
+      type: 'button',
+      data: {
+        href: '/about',
+        icon: 'arrow-right',
+        label: 'Learn More',
+        modifiers: ['secondary'],
+        style: 'solid',
+      },
+      spacingOptions: {
+        mt: 4,
+      }
+    }
+  ],
+} only %}

@@ -1,0 +1,56 @@
+{% include '@components/flex.twig' with {
+  background: 'theme',
+  contentItems: [
+    {
+      type: 'text',
+      data: {
+        content: 'About Me',
+        style: 'h2',
+        tag: 'h1',
+      },
+    },
+  ],
+  spacingOptions: {
+    pb: 'md',
+    pt: 'md',
+  },
+} only %}
+
+{% include '@components/flex.twig' with {
+  contentItems: [
+    {
+      type: 'text',
+      data: {
+        content: 'Hello, I\'m <b>Louis Gonzalez</b> - a web developer based in Texas.',
+        style: 'subtitle',
+      },
+    },
+    {
+      type: 'text',
+      data: {
+        content: 'I started my web development career in 2010, focusing on gaming projects.',
+        style: 'body-lg',
+      },
+      spacingOptions: {
+        mt: 3,
+      },
+    },
+    {
+      type: 'text',
+      data: {
+        content: 'In 2013, I ventured into freelance work. During this period, I was able to deliver over 150 projects for clients like ASICS, Timberland, and Uber.',
+        style: 'body-lg',
+      },
+      spacingOptions: {
+        mt: 2,
+      }
+    }
+  ],
+  image: {
+    src: 'me.jpg',
+  },
+  spacingOptions: {
+    pb: 'lg',
+    pt: 'lg',
+  },
+} only %}

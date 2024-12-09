@@ -1,0 +1,60 @@
+{# Computed Variables #}
+{% set socialItems = [
+  {
+    href: 'https://github.com/louisgon',
+    icon: 'github',
+    label: 'GitHub',
+  },
+  {
+    href: 'https://twitter.com/lgon95',
+    icon: 'twitter',
+    label: 'Twitter',
+  },
+  {
+    href: 'https://www.linkedin.com/in/lougon/',
+    icon: 'linkedin',
+    label: 'LinkedIn',
+  },
+] %}
+
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  containerType: 'full',
+  name: 'footer',
+  tag: 'footer',
+} %}
+  {% block content %}
+    <div class="c-footer__inner">
+      {% include '@objects/text.twig' with {
+        animateIn: 'fadeLeft',
+        classes: 'c-footer__info',
+        content: 'This website was built using Vite and Twig. Coded in VSCode, designed in Figma.',
+      } only %}
+
+      <div {{ htmlAttr({
+        animateIn: 'fadeRight',
+        class: 'c-footer__social',
+      }) }}>
+        {% include '@objects/text.twig' with {
+          classes: 'c-footer__social-label',
+          content: 'Social Links',
+        } only %}
+
+        <nav class="c-footer__social-links" aria-label="Footer Social Links">
+          {% for socialItem in socialItems %}
+            {% include '@objects/button.twig' with {
+              aria: {
+                label: socialItem.label,
+              },
+              classes: 'c-footer__social-link',
+              href: socialItem.href,
+              icon: socialItem.icon,
+              modifiers: ['white'],
+              style: 'icon-control',
+              target: '_blank',
+            } only %}
+          {% endfor %}
+        </nav>
+    </div>
+  {% endblock %}
+{% endembed %}

@@ -1,0 +1,17 @@
+{# Passed Variables #}
+{% set animateIn = animateIn|default('') %}
+{% set classes = classes|default('') %}
+{% set modifiers = modifiers|default([]) %}
+{% set src = src|default('') %}
+
+{# HTML #}
+<div {{ htmlAttr({
+  animateIn: animateIn,
+  class: {
+    classes: classes,
+    modifiers: modifiers,
+    name: 'o-image',
+  },
+}) }}>
+  <img class="o-image__image" src="src/images/{{ src }}" />
+</div>

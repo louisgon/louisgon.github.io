@@ -1,0 +1,16 @@
+{# Passed Variables #}
+{% set animateIn = animateIn|default('fade') %}
+{% set classes = classes|default('') %}
+{% set modifiers = modifiers|default([]) %}
+
+{# HTML #}
+<article {{ htmlAttr({
+  animateIn: animateIn,
+  class: {
+    classes: classes,
+    modifiers: modifiers,
+    name: 'l-wysiwyg',
+  },
+}) }}>
+  {% block content %}{% endblock %}
+</article>

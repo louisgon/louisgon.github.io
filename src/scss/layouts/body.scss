@@ -1,0 +1,131 @@
+@use '../defines/functions';
+@use '../defines/vars';
+
+.l-body {
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-primary));
+  height: 100dvh;
+  overflow: hidden;
+  opacity: 0;
+
+  // disable transition before ready
+  &:not(.l-body--ready) {
+    *,
+    *::before,
+    *::after {
+      transition: none !important;
+    }
+  }
+}
+
+.l-body--ready {
+  cursor: auto;
+  overflow-x: clip;
+  overflow-y: scroll;
+  pointer-events: auto;
+  transition: background-color 0.3s ease;
+  opacity: 1;
+}
+
+.l-body__main {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s ease;
+
+
+  .l-body:has(.l-body__loader--visible) & {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.l-body__frame {
+  border-left: calc(var(--page-gutter) / 2) solid rgb(var(--color-background));
+  border-right: calc(var(--page-gutter) / 2) solid rgb(var(--color-background));
+  isolation: isolate;
+  min-height: calc(100dvh - var(--page-header-height) - var(--page-footer-height));
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.3s ease;
+  z-index: vars.$z-index-body-frame;
+}
+
+.l-body__frame-corner {
+  aspect-ratio: 1;
+  color: rgb(var(--color-black-wash));
+  pointer-events: none;
+  position: absolute;
+  width: functions.fluid-clamp(1rem, 3rem);
+  transition: color 0.3s ease;
+
+  [data-theme='dark'] & {
+    color: rgb(var(--color-black-wash));
+  }
+
+  [data-theme='light'] & {
+    color: rgb(var(--color-white-wash));
+  }
+}
+
+.l-body__frame-corner--top-left {
+  top: 0;
+  left: 0;
+}
+
+.l-body__frame-corner--top-right {
+  top: 0;
+  right: 0;
+  transform: rotate(90deg);
+}
+
+.l-body__frame-corner--bottom-left {
+  bottom: 0;
+  left: 0;
+  transform: rotate(270deg);
+}
+
+.l-body__frame-corner--bottom-right {
+  bottom: 0;
+  right: 0;
+  transform: rotate(180deg);
+}
+
+.l-body__loader {
+  align-items: center;
+  backdrop-filter: blur(1rem);
+  background: rgb(var(--color-background-alt), 0.75);
+  display: none;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  opacity: 0;
+  position: fixed;
+  top: 0;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  width: 100%;
+  z-index: vars.$z-index-body-loader;
+}
+
+.l-body__loader--visible {
+  opacity: 1;
+}
+
+.l-body__loader-spinner {
+  transform: scale3d(0, 0, 1);
+  transition: transform 0.3s ease;
+
+  .l-body__loader--visible & {
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+.l-body__background {
+  background: rgb(var(--color-background-alt));
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  z-index: vars.$z-index-body-background;
+}

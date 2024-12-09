@@ -1,0 +1,13 @@
+{# Passed Variables #}
+{% set modifiers = modifiers|default([]) %}
+{% set type = type|default('') %}
+
+{# HTML #}
+<div class="{{ classList({
+  modifiers: modifiers|merge([type]),
+  name: 'l-container',
+}) }}">
+  <div class="l-container__inner">
+    {% block content %}{% endblock %}
+  </div>
+</div>

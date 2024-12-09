@@ -1,0 +1,62 @@
+{# Passed Variables #}
+{% set bodyData = bodyData|default({}) %}
+{% set navItems = navItems|default([]) %}
+{% set page = page|default('') %}
+
+{# HTML #}
+<body {{ htmlAttr({
+  class: 'l-body',
+  data: {
+    theme: 'dark',
+  },
+  module: 'Body',
+}) }}>
+  {% include '@components/nav.twig' with {
+    items: navItems,
+    page: page,
+  } only %}
+
+  {% include '@components/header.twig' %}
+
+  <div class="l-body__frame">
+    <main class="l-body__main">
+      {% include '@partials/page/' ~ page ~ '.twig' ignore missing %}
+    </main>
+
+    {% for frameCorner in ['top-left', 'top-right', 'bottom-left', 'bottom-right'] %}
+      {% include '@objects/svg.twig' with {
+        classes: classList({
+          modifiers: [frameCorner],
+          name: 'l-body__frame-corner',
+        }),
+        name: 'invert-radius',
+      } only %}
+    {% endfor %}
+  </div>
+
+  {% include '@components/footer.twig' %}
+
+  {% include '@components/cursor.twig' %}
+
+  <div class="l-body__loader">
+    {% include '@objects/spinner.twig' with {
+      classes: 'l-body__loader-spinner',
+    } only %}
+  </div>
+
+  {% for trigger in ['nav', 'top-of-page'] %}
+    {% include '@components/trigger.twig' with {
+      classes: 'l-body__trigger',
+      type: trigger,
+    } only %}
+  {% endfor %}
+
+  <div class="l-body__background"></div>
+
+  {% include '@partials/script-json.twig' with {
+    classes: 'l-body__data',
+    data: bodyData,
+  } only %}
+
+  <script type="module" src="/src/js/main.js" defer></script>
+</body>

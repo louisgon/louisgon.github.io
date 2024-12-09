@@ -1,0 +1,33 @@
+@use './space';
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 0.125rem solid rgb(var(--color-blue));
+    outline-offset: 0.25rem;
+  }
+}
+
+@mixin spacing-classes($key, $name) {
+  $directions: (
+    'a': 'all',
+    'x': 'inline',
+    'y': 'block',
+    't': 'top',
+    'b': 'bottom',
+    'l': 'left',
+    'r': 'right',
+  );
+  $options: space.$options;
+
+  @each $directionKey, $direction in $directions {
+    @each $optionKey, $option in $options {
+      @each $valueKey, $value in $option {
+        $className: 'u-#{$key}#{if($direction == 'all', '', $directionKey)}-#{$optionKey}-#{$valueKey}';
+
+        .#{$className} {
+          #{if($direction == 'all', $name, $name + '-' + $direction)}: #{$value};
+        }
+      }
+    }
+  }
+}

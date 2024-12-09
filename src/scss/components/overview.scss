@@ -1,0 +1,15 @@
+.c-overview {
+  text-align: center;
+}
+
+.c-overview__divider {
+  &:not(:first-child) {
+    margin-top: 2rem;
+  }
+}
+
+.c-overview__description {
+  &:not(:first-child) {
+    margin-top: 1.5rem;
+  }
+}

@@ -1,0 +1,116 @@
+@use '../defines/mixins';
+@use '../defines/vars';
+
+.o-button {
+  @include mixins.focus-ring;
+
+  --button-background-color: transparent;
+  --button-background-color-alpha: 1;
+  --button-background-scale: 1;
+  --button-border-color: transparent;
+  --button-border-width: 0;
+  --button-color: var(--color-primary);
+  --button-color-alpha: 1;
+  --button-icon-scale: 1;
+
+  --button-background: rgb(var(--button-background-color), var(--button-background-color-alpha));
+
+  align-items: center;
+  background: var(--button-background);
+  border: var(--button-border-width) solid var(--button-border-color);
+  background: none;
+  color: rgba(var(--button-color), var(--button-color-alpha));
+  display: flex;
+  font-weight: vars.$font-primary-weight-bold;
+  gap: 0.5rem;
+  isolation: isolate;
+  justify-content: center;
+  position: relative;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  width: fit-content;
+
+  &:hover {
+    --button-color: var(--color-blue);
+  }
+}
+
+.o-button--icon-left {
+  flex-direction: row-reverse;
+}
+
+.o-button--full {
+  width: 100%;
+}
+
+// button styles
+.o-button--icon-control,
+.o-button--solid {
+  background: none;
+  transition: color 0.3s ease;
+
+  &::before {
+    background: var(--button-background);
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    position: absolute;
+    transform: scale3d(var(--button-background-scale), var(--button-background-scale), 1);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    z-index: -1;
+  }
+}
+
+.o-button--icon-control {
+  --button-background-color: var(--color-primary);
+  --button-background-color-alpha: 0.1;
+
+  padding: 0.75rem;
+  border-radius: 1.5rem;
+
+  &:active {
+    --button-background-scale: 0.9;
+  }
+}
+
+.o-button--icon-control.o-button--white {
+  // --button-background-color: var(--color-white);
+}
+
+.o-button--solid {
+  --button-background-color: var(--color-blue);
+  --button-color: var(--color-background);
+
+  border-radius: 1.5rem;
+  padding: 0.75rem 2rem;
+
+  &:active {
+    --button-background-scale: 0.9;
+  }
+
+  &:hover {
+    --button-background-color-alpha: 0.75;
+    --button-color: var(--color-background);
+  }
+}
+
+.o-button--solid.o-button--secondary {
+  --button-background-color: var(--color-green);
+}
+
+.o-button__icon {
+  transform: scale3d(var(--button-icon-scale), var(--button-icon-scale), 1);
+  transition: transform 0.3s ease;
+
+  .o-button--icon-control & {
+    width: 1.5rem;
+  }
+
+  .o-button--solid & {
+    width: 1.5rem;
+  }
+
+  .o-button:not(.o-button--icon-control):active & {
+    --button-icon-scale: 0.9;
+  }
+}

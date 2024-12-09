@@ -1,0 +1,7 @@
+{# Passed Variables #}
+{% set page = page|default('') %}
+
+{# HTML #}
+<div data-fetch-page>
+  {% include '@partials/page/' ~ page ~ '.twig' ignore missing %}
+</div>

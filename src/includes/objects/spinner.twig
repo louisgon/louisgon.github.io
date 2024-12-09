@@ -1,0 +1,10 @@
+{# Passed Variables #}
+{% set classes = classes|default('') %}
+
+{# HTML #}
+<div class="{{ classList({
+  classes: classes,
+  name: 'o-spinner',
+}) }}">
+  <div class="o-spinner__icon"></div>
+</div>

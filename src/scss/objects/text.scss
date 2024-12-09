@@ -1,0 +1,74 @@
+@use '../defines/breakpoints';
+@use '../defines/typography';
+@use '../defines/vars';
+
+.o-text {
+  --text-color: var(--color-primary);
+  --text-color-alpha: 1;
+
+  color: rgb(var(--text-color), var(--text-color-alpha));
+  margin: 0;
+  padding: 0;
+  transition: color 0.3s ease;
+
+  a {
+    border-bottom: 2px solid rgb(var(--text-color));
+    color: rgb(var(--text-color));
+    font-style: italic;
+    text-decoration: none;
+    transition: border-color 0.3s ease, color 0.3s ease;
+
+    &:hover {
+      --text-color: var(--color-blue);
+    }
+  }
+}
+
+// Typography styles
+.o-text--body {
+  @include typography.body;
+}
+
+.o-text--body-lg {
+  @include typography.body-lg;
+}
+
+.o-text--caption {
+  @include typography.caption;
+}
+
+.o-text--h1 {
+  @include typography.h1;
+}
+
+.o-text--h2 {
+  @include typography.h2;
+}
+
+.o-text--h3 {
+  @include typography.h3;
+}
+
+.o-text--h4 {
+  @include typography.h4;
+}
+
+.o-text--h5 {
+  @include typography.h5;
+}
+
+.o-text--h6 {
+  @include typography.h6;
+}
+
+.o-text--overline {
+  @include typography.overline;
+}
+
+.o-text--subtitle {
+  @include typography.subtitle;
+}
+
+.o-text--title {
+  @include typography.title;
+}

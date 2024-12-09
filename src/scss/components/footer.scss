@@ -1,0 +1,59 @@
+@use '../defines/breakpoints';
+@use '../defines/functions';
+@use '../defines/mixins';
+@use '../defines/vars';
+
+.c-footer {
+  align-items: center;
+  background: rgb(var(--color-background));
+  display: flex;
+  padding-block: functions.fluid-clamp(2rem, 4rem);
+  position: relative;
+  z-index: vars.$z-index-footer;
+}
+
+.c-footer__inner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  @include breakpoints.media-md-min {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.c-footer__logo {
+  width: 2.5rem;
+  flex-shrink: 0;
+}
+
+.c-footer__info {
+  max-width: 22rem;
+  text-align: center;
+
+  @include breakpoints.media-md-min {
+    text-align: left;
+  }
+}
+
+.c-footer__nav-link {
+  display: block;
+}
+
+.c-footer__social {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+.c-footer__social-links {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+
+  @include breakpoints.media-md-min {
+    justify-content: flex-end;
+  }
+}

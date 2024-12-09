@@ -1,3 +1,14 @@
-.assets/
-.vscode/
-node_modules/
+.local
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+dist
+node_modules
+vendor
+!src/scss/vendor
+.DS_Store
+.pnp.*
+.vite

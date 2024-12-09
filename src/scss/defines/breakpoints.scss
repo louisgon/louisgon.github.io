@@ -1,0 +1,71 @@
+@use './vars';
+
+$px-to-rem: px-to-rem(1);
+
+// min props
+$width-media-xs-min: vars.$width-content-min;
+$width-media-sm-min: 30rem;
+$width-media-md-min: 48rem;
+$width-media-lg-min: 64rem;
+$width-media-xl-min: vars.$width-content-max;
+
+// max props
+$width-media-xs-max: $width-media-sm-min - $px-to-rem;
+$width-media-sm-max: $width-media-md-min - $px-to-rem;
+$width-media-md-max: $width-media-lg-min - $px-to-rem;
+$width-media-lg-max: $width-media-xl-min - $px-to-rem;
+
+// media queries
+@mixin media-xs-min {
+  @media (min-width: #{$width-media-xs-min}) {
+    @content;
+  }
+}
+
+@mixin media-xs-max {
+  @media (max-width: #{$width-media-xs-max}) {
+    @content;
+  }
+}
+
+@mixin media-sm-min {
+  @media (min-width: #{$width-media-sm-min}) {
+    @content;
+  }
+}
+
+@mixin media-sm-max {
+  @media (max-width: #{$width-media-sm-max}) {
+    @content;
+  }
+}
+
+@mixin media-md-min {
+  @media (min-width: #{$width-media-md-min}) {
+    @content;
+  }
+}
+
+@mixin media-md-max {
+  @media (max-width: #{$width-media-md-max}) {
+    @content;
+  }
+}
+
+@mixin media-lg-min {
+  @media (min-width: #{$width-media-lg-min}) {
+    @content;
+  }
+}
+
+@mixin media-lg-max {
+  @media (max-width: #{$width-media-lg-max}) {
+    @content;
+  }
+}
+
+@mixin media-xl-min {
+  @media (min-width: #{$width-media-xl-min}) {
+    @content;
+  }
+}

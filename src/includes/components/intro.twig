@@ -1,0 +1,14 @@
+{# Passed Variables #}
+{% set contentItems = contentItems|default([]) %}
+
+{# HTML #}
+{% embed '@layouts/component.twig' with {
+  name: 'intro',
+} %}
+  {% block content %}
+    {% include '@objects/content.twig' with {
+      classes: 'c-intro__content',
+      items: contentItems,
+    } only %}
+  {% endblock %}
+{% endembed %}

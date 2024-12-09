@@ -1,0 +1,48 @@
+{# Passed Variables #}
+{% set animateIn = animateIn|default('') %}
+{% set aria = aria|default({}) %}
+{% set classes = classes|default('') %}
+{% set href = href|default('') %}
+{% set icon = icon|default('') %}
+{% set label = label|default('') %}
+{% set modifiers = modifiers|default([]) %}
+{% set style = style|default('') %}
+{% set target = target|default('') %}
+
+{# Computed Variables #}
+{% set icon_only_style = style in ['icon', 'icon-control'] %}
+
+{% if href %}
+  {% set tag = 'a' %}
+  {% set target = target|default('_self') %}
+{% else %}
+  {% set tag = tag|default('button') %}
+  {% set target = '' %}
+{% endif %}
+
+{# HTML #}
+<{{ htmlAttr({
+  animateIn: animateIn,
+  aria: aria,
+  class: {
+    classes: classes,
+    name: 'o-button',
+    modifiers: modifiers|merge([
+      style
+    ]),
+  },
+  href: href,
+  tag: tag,
+  target: target,
+}) }}>
+  {% if label and not icon_only_style %}
+    <span class="o-button__label">{{ label }}</span>
+  {% endif %}
+
+  {% if icon %}
+    {% include '@objects/svg.twig' with {
+      classes: 'o-button__icon',
+      name: 'icons/' ~ icon,
+    } only %}
+  {% endif %}
+</{{ tag }}>
