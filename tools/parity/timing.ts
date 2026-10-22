@@ -11,7 +11,7 @@ export async function timing(a: Site, b: Site, out: string, runs = 3) {
   for (const sc of SCENARIOS.filter((s) => SET.includes(s.name))) for (let r = 0; r < runs; r++) for (const s of r % 2 ? [b, a] : [a, b]) {
     const { page, context } = await open(browser, s, { profile: sc.profile, hash: sc.hash, scale: 2 });
     await page.evaluate(() => { const w = window as unknown as { __dt: number[] }; w.__dt = []; let last = 0; const f = (t: number) => { if (last) w.__dt.push(t - last); last = t; requestAnimationFrame(f); }; requestAnimationFrame(f); });
-    await sc.run({ page, wait: (n) => page.waitForTimeout(n * 16.7), mark: async () => {} });
+    await sc.run({ page, wait: (n) => page.waitForTimeout(n * 16.7), mark: async () => {}, expect: async () => {} });
     const dt: number[] = await page.evaluate(() => (window as unknown as { __dt: number[] }).__dt);
     ((result[sc.name] ??= {})[s.name] ??= []).push(stats(dt));
     await context.close();

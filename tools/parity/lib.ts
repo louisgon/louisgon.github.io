@@ -12,16 +12,19 @@ export const PROFILES: Record<Profile, BrowserContextOptions> = {
 
 const MIME: Record<string, string> = { html: 'text/html; charset=utf-8', js: 'text/javascript', css: 'text/css', webp: 'image/webp', avif: 'image/avif', json: 'application/json', txt: 'text/plain' };
 
-export function site(name: Site['name'], target: string, swap?: string): Site {
+export function site(name: Site['name'], target: string, swap?: string, base = '/'): Site {
   if (!existsSync(target) || !statSync(target).isDirectory()) return { name, url: target.replace(/\/?$/, '/'), swap };
   const root = resolve(target);
   const server = Bun.serve({ port: 0, fetch(req) {
     let path = decodeURIComponent(new URL(req.url).pathname);
+    if (!path.startsWith(base)) return new Response('Not found', { status: 404 });
+    path = path.slice(base.length - 1);
+    if (!path.endsWith('/') && !path.split('/').pop()!.includes('.') && existsSync(join(root, path, 'index.html'))) return new Response(null, { status: 307, headers: { location: `${base}${path.slice(1)}/` } });
     if (path.endsWith('/')) path += 'index.html';
     const file = Bun.file(join(root, path));
     return file.size ? new Response(file, { headers: { 'content-type': MIME[path.split('.').pop()!] ?? 'application/octet-stream' } }) : new Response('Not found', { status: 404 });
   } });
-  return { name, url: `http://localhost:${server.port}/`, swap };
+  return { name, url: `http://localhost:${server.port}${base}`, swap };
 }
 
 export const launch = (classicScrollbars = false) => chromium.launch({ ignoreDefaultArgs: classicScrollbars ? ['--hide-scrollbars'] : [] });
@@ -71,9 +74,9 @@ function fakeTime() {
   };
 }
 
-type Open = { profile: Profile; deterministic?: boolean; hash?: string; video?: string; reducedMotion?: boolean; scale?: number };
+type Open = { profile: Profile; deterministic?: boolean; path?: string; hash?: string; video?: string; reducedMotion?: boolean; scale?: number };
 
-export async function open(browser: Browser, s: Site, { profile, deterministic = false, hash = '', video, reducedMotion, scale }: Open) {
+export async function open(browser: Browser, s: Site, { profile, deterministic = false, path = '', hash = '', video, reducedMotion, scale }: Open) {
   const context = await browser.newContext({ ...PROFILES[profile], ...(scale ? { deviceScaleFactor: scale } : {}), reducedMotion: reducedMotion ? 'reduce' : 'no-preference', ...(video ? { recordVideo: { dir: video, size: PROFILES[profile].viewport! } } : {}) });
   const page = await context.newPage();
   const errors: string[] = [];
@@ -85,7 +88,7 @@ export async function open(browser: Browser, s: Site, { profile, deterministic =
   if (deterministic) {
     await page.addInitScript(fakeTime);
   }
-  await page.goto(s.url + hash, { waitUntil: 'load' });
+  await page.goto(s.url + path + hash, { waitUntil: 'load' });
   await page.waitForLoadState('networkidle');
   await page.evaluate(() => document.fonts.ready.then(() => undefined));
   if (deterministic) await settle(page, 1500);
@@ -110,6 +113,6 @@ export async function frames(page: Page, n: number, each?: (i: number) => Promis
   }
 }
 
-export const normalise = (s: string) => s.replace(/(?:\/[\w./-]*)?\/_astro\/([\w-]+)\.[\w-]+\.(webp|avif)/g, 'img/$1.$2').replace(/(?:^|(?<=["'(]))(?:\.\/)?img\/([\w-]+)\.(webp|avif)/g, 'img/$1.$2');
+export const normalise = (s: string) => s.replace(/\bhref=(?:#case-|(?:\/[\w.-]+)*\/work\/)([\w-]+)\/?(?=[ |])/g, 'href=case:$1').replace(/(?:\/[\w./-]*)?\/_astro\/([\w-]+)\.[\w-]+\.(webp|avif)/g, 'img/$1.$2').replace(/(?:^|(?<=["'(]))(?:\.\/)?img\/([\w-]+)\.(webp|avif)/g, 'img/$1.$2');
 
 export function arg(name: string, fallback?: string) { const i = process.argv.indexOf(`--${name}`); return i > 0 ? process.argv[i + 1] : fallback; }

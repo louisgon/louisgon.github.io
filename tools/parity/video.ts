@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { launch, open, type Site } from './lib';
 import { SCENARIOS } from './scenarios';
 
-const SET = ['desktop-load', 'desktop-reload', 'desktop-hash', 'desktop-nav', 'desktop-case', 'phone-load', 'phone-reload', 'phone-hash', 'phone-menu', 'phone-case'];
+const SET = ['desktop-load', 'desktop-reload', 'desktop-hash', 'desktop-nav', 'desktop-case', 'phone-load', 'phone-reload', 'phone-hash', 'phone-menu', 'phone-case', 'desktop-direct', 'desktop-history', 'desktop-refresh', 'phone-direct', 'phone-history', 'phone-refresh'];
 
 export function blips(file: string) {
   const raw = Bun.spawnSync(['ffmpeg', '-v', 'error', '-i', file, '-vf', 'fps=25,scale=4:4:flags=area,format=gray', '-f', 'rawvideo', '-']).stdout;
@@ -21,10 +21,10 @@ export async function video(a: Site, b: Site, out: string, only?: string) {
   const browser = await launch(), lines: string[] = [];
   for (const sc of SCENARIOS.filter((s) => SET.includes(s.name) && (!only || only.split(',').some((o) => s.name.includes(o))))) {
     const peaks: Record<string, number[][]> = {};
-    for (const s of [a, b]) {
+    for (const s of sc.fresh ? [b] : [a, b]) {
       const dir = join(out, 'video', sc.name, s.name); mkdirSync(dir, { recursive: true });
-      const { page, context, errors } = await open(browser, s, { profile: sc.profile, hash: sc.hash, video: dir });
-      await sc.run({ page, wait: (n) => page.waitForTimeout(n * 16.7), mark: async () => {} });
+      const { page, context, errors } = await open(browser, s, { profile: sc.profile, path: sc.path, hash: sc.hash, video: dir });
+      await sc.run({ page, wait: (n) => page.waitForTimeout(n * 16.7), mark: async () => {}, expect: async () => {} });
       await context.close();
       const file = join(dir, `${s.name}.webm`); renameSync(join(dir, readdirSync(dir).find((f) => f.endsWith('.webm'))!), file);
       const score = blips(file), top = score.map((v, i) => [i, Math.round(v)]).filter(([, v]) => v >= 12).sort((x, y) => y[1] - x[1]).slice(0, 12);
@@ -32,7 +32,8 @@ export async function video(a: Site, b: Site, out: string, only?: string) {
       sheet(file, top.slice(0, 6).map(([i]) => i), join(out, 'video', sc.name, `${s.name}-peaks.png`));
       writeFileSync(join(dir, 'blips.json'), JSON.stringify({ score: score.map((v) => Math.round(v)), errors }));
     }
-    lines.push(`${sc.name}: a max ${peaks.a[0]?.[1] ?? 0} (${peaks.a.length} peaks), b max ${peaks.b[0]?.[1] ?? 0} (${peaks.b.length} peaks); a ${peaks.a.map(([i, v]) => `${(i / 25).toFixed(2)}s:${v}`).join(' ')} | b ${peaks.b.map(([i, v]) => `${(i / 25).toFixed(2)}s:${v}`).join(' ')}`);
+    const list = (k: 'a' | 'b') => (peaks[k] ? `${k} max ${peaks[k][0]?.[1] ?? 0} (${peaks[k].length} peaks) ${peaks[k].map(([i, v]) => `${(i / 25).toFixed(2)}s:${v}`).join(' ')}` : `${k} skipped`);
+    lines.push(`${sc.name}: ${list('a')} | ${list('b')}`);
     console.log(lines.at(-1));
   }
   await browser.close();

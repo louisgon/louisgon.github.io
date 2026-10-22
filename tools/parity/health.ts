@@ -20,6 +20,12 @@ export async function health(sites: Site[], out: string) {
     sideways.caseInner = await phone.page.evaluate(() => { const c = document.getElementById('case')!; return c.scrollWidth - c.clientWidth; });
     r.phoneOverflow = sideways; r.phoneErrors = phone.errors;
     await phone.context.close();
+    if (s.name === 'b') {
+      const direct = await open(browser, s, { profile: 'phone', path: 'work/kioti/' });
+      await direct.page.waitForTimeout(3000);
+      r.phoneDirect = { overflow: await overflow(direct.page), caseInner: await direct.page.evaluate(() => { const c = document.getElementById('case')!; return c.scrollWidth - c.clientWidth; }), errors: direct.errors };
+      await direct.context.close();
+    }
     const desk = await open(browser, s, { profile: 'desktop' });
     await desk.page.waitForTimeout(5000);
     r.gutter = await desk.page.evaluate(() => innerWidth - document.documentElement.clientWidth);
@@ -27,7 +33,14 @@ export async function health(sites: Site[], out: string) {
     await desk.page.click('.proj[data-i="0"] .acts [data-case]'); await desk.page.waitForTimeout(3000);
     r.case = await desk.page.evaluate(() => { const c = document.getElementById('case')!, b = c.getBoundingClientRect(); return { right: b.right, innerWidth, pageGutter: innerWidth - document.documentElement.clientWidth, caseScrollbar: c.offsetWidth - c.clientWidth }; });
     r.desktopErrors = desk.errors;
-    await desk.context.close(); await browser.close();
+    await desk.context.close();
+    if (s.name === 'b') {
+      const direct = await open(browser, s, { profile: 'desktop', path: 'work/kioti/' });
+      await direct.page.waitForTimeout(3000);
+      r.desktopDirect = { ...(await direct.page.evaluate(() => { const c = document.getElementById('case')!, b = c.getBoundingClientRect(); return { right: b.right, innerWidth, caseScrollbar: c.offsetWidth - c.clientWidth }; })), errors: direct.errors };
+      await direct.context.close();
+    }
+    await browser.close();
     report[s.name] = r; console.log(s.name, JSON.stringify(r));
   }
   mkdirSync(join(out, 'health'), { recursive: true });

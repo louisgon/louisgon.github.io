@@ -2,7 +2,7 @@ import type { Browser } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { frames, launch, normalise, open, type Site } from './lib';
-import { SCENARIOS, type Scenario } from './scenarios';
+import { SCENARIOS, type Scenario, type Want } from './scenarios';
 import { pixelDiff } from './pixels';
 
 type Delta = Record<string, string | null>;
@@ -30,9 +30,18 @@ function snapshotDelta() {
   return delta;
 }
 
+function routeState() {
+  const c = document.getElementById('case')!, a = document.activeElement as HTMLElement | null, mid = innerHeight / 2, row = (el: Element) => (el as HTMLElement).dataset.i;
+  const rows = [...document.querySelectorAll('.proj')].map((r) => { const b = r.getBoundingClientRect(); return Math.abs(b.top + b.height / 2 - mid); });
+  const p = a?.closest('.proj'), focus = !a || a === document.body ? 'body' : a.id ? `#${a.id}` : a.matches('.proj') ? `.proj[${row(a)}]` : `${p ? `.proj[${row(p)}] ` : ''}${a.tagName.toLowerCase()}.${[...a.classList].join('.')}`;
+  const dom = c.cloneNode(true) as HTMLElement; dom.querySelectorAll('.moon').forEach((m) => m.removeAttribute('style'));
+  return { path: location.pathname, open: c.classList.contains('on') ? c.getAttribute('aria-label')!.replace(/ case study$/, '') : null, focus, row: rows.indexOf(Math.min(...rows)), history: history.length, title: document.title, canonical: new URL(document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href).pathname, dom: dom.outerHTML };
+}
+
 async function record(browser: Browser, s: Site, sc: Scenario, dir: string) {
-  const { page, context, errors } = await open(browser, s, { profile: sc.profile, deterministic: true, hash: sc.hash });
-  const deltas: Delta[] = [], marks: string[] = [];
+  const { page, context, errors } = await open(browser, s, { profile: sc.profile, deterministic: true, path: sc.path, hash: sc.hash });
+  const deltas: Delta[] = [], marks: string[] = [], checks: string[] = [], fails: string[] = [], doms: Record<string, string> = {}, base = new URL(s.url).pathname;
+  const h0 = await page.evaluate(() => history.length);
   let n = 0;
   const sample = async () => { const d = await page.evaluate(snapshotDelta); for (const k in d) if (d[k] !== null) d[k] = normalise(d[k]!); deltas.push(d); };
   await sample();
@@ -44,9 +53,22 @@ async function record(browser: Browser, s: Site, sc: Scenario, dir: string) {
       await page.screenshot({ path: join(dir, `${s.name}-${label}.png`) });
       if (s.name === 'a') writeFileSync(join(dir, `a-${label}.html`), await page.evaluate(() => document.documentElement.outerHTML));
     },
+    expect: async (label: string, want: Want) => {
+      const got = await page.evaluate(routeState), bad: string[] = [];
+      const meta = got.open ? `${got.open} case study · Louis Gonzalez` : 'Louis Gonzalez';
+      if (want.path !== undefined && got.path !== base + want.path) bad.push(`path ${got.path}`);
+      if (want.open !== undefined && got.open !== want.open) bad.push(`open ${got.open}`);
+      if (want.focus !== undefined && got.focus !== want.focus) bad.push(`focus ${got.focus}`);
+      if (want.row !== undefined && got.row !== want.row) bad.push(`row ${got.row}`);
+      if (want.history !== undefined && got.history - h0 !== want.history) bad.push(`history ${got.history - h0}`);
+      if (got.title !== meta) bad.push(`title ${got.title}`);
+      if (got.canonical !== got.path) bad.push(`canonical ${got.canonical}`);
+      if (want.dom) { if (doms[want.dom] === undefined) doms[want.dom] = got.dom; else if (doms[want.dom] !== got.dom) { bad.push(`dom differs from ${want.dom}`); writeFileSync(join(dir, `dom-${label}.html`), `${doms[want.dom]}\n\n${got.dom}`); } }
+      checks.push(label); if (bad.length) fails.push(`${label}: ${bad.join(', ')}`);
+    },
   });
   await context.close();
-  return { deltas, marks, errors };
+  return { deltas, marks, errors, checks, fails };
 }
 
 const random = (k: string, a = '', b = '') => { const [x, y] = [a, b].map((v) => v.split('|')); return x.length === 4 && y.length === 4 && x.slice(0, 3).join() === y.slice(0, 3).join() && (/^display: inline-block; width: [\d.]+px; text-align: center;$/.test(x[2]) || /id=sig[VL]/.test(x[1])); };
@@ -69,6 +91,12 @@ export async function trace(a: Site, b: Site, out: string, only?: string) {
   const worker = async () => { for (let sc = queue.shift(); sc; sc = queue.shift()) await one(sc); };
   const one = async (sc: Scenario) => {
     const dir = join(out, 'trace', sc.name); mkdirSync(dir, { recursive: true });
+    if (sc.fresh) {
+      const rb = await record(browser, b, sc, dir);
+      writeFileSync(join(dir, 'report.json'), JSON.stringify({ marks: rb.marks, checks: rb.checks, fails: rb.fails, errors: rb.errors }, null, 1));
+      summary.push(`${sc.name}: b only, ${rb.checks.length - rb.fails.length}/${rb.checks.length} checks pass${rb.fails.length ? ` (${rb.fails.join('; ')})` : ''}, errors ${rb.errors.length}`);
+      console.log(summary.at(-1)); return;
+    }
     const [ra, rb] = await Promise.all([record(browser, a, sc, dir), record(browser, b, sc, dir)]), r = compare(ra.deltas, rb.deltas);
     const shots = await Promise.all(ra.marks.map(async (m) => ({ mark: m, ...(await pixelDiff(join(dir, `a-${m}.png`), join(dir, `b-${m}.png`), join(dir, `diff-${m}.png`))) })));
     writeFileSync(join(dir, 'report.json'), JSON.stringify({ ...r, shots, errors: { a: ra.errors, b: rb.errors } }, null, 1));

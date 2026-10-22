@@ -13,7 +13,7 @@ import { output } from './output';
 const check = process.argv[2] ?? 'trace';
 const out = arg('out', join(tmpdir(), `parity-${Date.now()}`))!;
 mkdirSync(out, { recursive: true });
-const a = site('a', arg('a', 'https://next.louis.gg')!), b = site('b', arg('b', 'dist')!, arg('swap'));
+const a = site('a', arg('a', 'https://next.louis.gg')!), b = site('b', arg('b', 'dist')!, arg('swap'), arg('base'));
 console.log(`parity ${check} a=${a.url} b=${b.url}${b.swap ? ` swap=${b.swap}` : ''} out=${out}`);
 
 if (check === 'trace') await trace(a, b, out, arg('only'));
