@@ -8,11 +8,12 @@ The site is a static Astro project in plain strict TypeScript with bun and no UI
 
 | Path | What it is |
 |---|---|
-| `src/pages/index.astro` | The page, composed from the section components |
+| `src/pages/index.astro` | The home page, rendering `Site` |
+| `src/pages/work/[slug].astro` | One page per project at `/work/<id>/`, rendering `Site` with that case already open |
 | `src/layouts/Base.astro` | Head, noindex meta, fonts, the stylesheets in cascade order, the `site-data` JSON island and the script entry |
-| `src/components/` | One component per section (Nav, MobileMenu, Hero, PilotLog, Stack, Work, Clients, About, Contact, Footer, CaseShell) plus Backdrop, Cursor, ReviewTab, Heading and Divider |
+| `src/components/` | `Site.astro` composes the page. One component per section (Nav, MobileMenu, Hero, PilotLog, Stack, Work, Clients, About, Contact, Footer, CaseShell) plus Backdrop, Cursor, ReviewTab, Heading and Divider |
 | `src/content/projects.json` | The eight projects in site order with their `fact` line and case `story`, validated by `src/content.config.ts` |
-| `src/lib/` | Build time helpers. `assets.ts` runs every image through Astro's `getImage`, `site.ts` builds the project list and the data island, `planets.ts` holds the moons and `skills.ts` the stack cards |
+| `src/lib/` | Build time helpers. `assets.ts` runs every image through Astro's `getImage`, `site.ts` builds the project list and the data island, `planets.ts` holds the moons and `skills.ts` the stack cards. `case.ts` (the case study markup), `pages.ts` (base aware paths, titles and descriptions) and `icons.ts` run both at build time and in the browser |
 | `src/scripts/` | Client code. `main.ts` runs setup in order and owns the one requestAnimationFrame loop, `state.ts` holds shared state, and each system has its own module |
 | `src/styles/` | Global CSS split by section, imported by `Base.astro` in cascade order |
 | `src/assets/` | Source images, one WebP each. The build writes WebP at quality 85 everywhere and AVIF at quality 60 for the four hero layers |
@@ -35,7 +36,9 @@ bun run parity <check> # compare two builds, see below
 
 ## Parity harness
 
-`bun run parity <check> --a <url or folder> --b <url or folder>` compares two builds. `--a` defaults to https://next.louis.gg and `--b` to `dist`, and a folder is served locally. `--swap <folder>` makes the `b` site load its images from that folder instead of `/_astro`, so pixel comparisons ignore image encoding. Reports go to a temp folder unless `--out` names one, and `--only` filters scenarios by name.
+`bun run parity <check> --a <url or folder> --b <url or folder>` compares two builds. `--a` defaults to https://next.louis.gg and `--b` to `dist`, and a folder is served locally. `--swap <folder>` makes the `b` site load its images from that folder instead of `/_astro`, so pixel comparisons ignore image encoding. `--base` serves the `b` folder under a base path, such as the review build's `/a/8t5qjd6kq3na/`. Reports go to a temp folder unless `--out` names one, and `--only` filters scenarios by name.
+
+Scenarios marked `fresh` cover behaviour the baseline does not have (direct case URLs, browser back and forward, refresh with a case open, keyboard paging and a direct load of every slug). They run on `b` only, and their `expect` steps check the path, open case, focus, centred row, history length, title and canonical, and that a directly loaded case has the same DOM as one opened in the page.
 
 | Check | What it does |
 |---|---|
@@ -45,7 +48,7 @@ bun run parity <check> # compare two builds, see below
 | `timing` | Frame times at device scale 2 through scroll, nav, case and menu flows |
 | `health` | Sideways scroll on phones, the case scrollbar with classic scrollbars, console errors and failed requests |
 | `keys` | Tab order, focus rings, the skip link, and opening, paging and closing a case from the keyboard |
-| `output` | Checks a build folder for 2D transforms, review code in the live build, noindex and image sizes |
+| `output` | Checks a build folder for 2D transforms, review code in the live build, noindex, image sizes, and that every `/work/` page exists with its title, description, canonical and server rendered case |
 
 ## Notes
 
@@ -55,6 +58,7 @@ bun run parity <check> # compare two builds, see below
 - `REVIEW=on` sets `__REVIEW__`. The Review tab renders only then, and the `#review` alias points `main.ts` at `review.ts` (which brings `review.css`) or at an empty module, so the live build carries none of it.
 - CSS minification is off because Lightning CSS rewrites `translate3d`, `scale3d` and `rotate3d` into 2D forms. The `output` check guards it.
 - Keep the order of the ticks in `main.ts`. Many modules read values another module wrote earlier in the same frame.
+- Case studies route through the History API in `cases.ts`, never a client router. Opening pushes `/work/<id>/`, paging replaces it, and Back or Escape goes back in history when this document pushed the entry. Otherwise it pushes the home URL. `popstate` runs `sync`, which brings the screen in line with the URL through the usual flights. A direct load adopts the server rendered case, lands the page beneath on that row through `HI.skip`, and its Back is a short fade with no flight.
 - Icons are Lucide inline SVG at a 1.5 stroke. Pill buttons are label only.
 
 ## Design and build rules
