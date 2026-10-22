@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 const review = process.env.REVIEW === 'on';
 
 export default defineConfig({
+  site: 'https://louis.gg',
   base: process.env.BASE ?? '/',
   build: { inlineStylesheets: 'always' },
   vite: {

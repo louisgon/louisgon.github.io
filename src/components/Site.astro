@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import Cursor from './Cursor.astro';
+import CaseShell from './CaseShell.astro';
+import Backdrop from './Backdrop.astro';
+import Nav from './Nav.astro';
+import MobileMenu from './MobileMenu.astro';
+import Hero from './Hero.astro';
+import PilotLog from './PilotLog.astro';
+import Stack from './Stack.astro';
+import Work from './Work.astro';
+import Clients from './Clients.astro';
+import About from './About.astro';
+import Contact from './Contact.astro';
+import ReviewTab from './ReviewTab.astro';
+import Footer from './Footer.astro';
+
+interface Props { open?: number }
+const { open } = Astro.props;
+---
+<Base open={open}>
+  <Cursor />
+  <CaseShell open={open} />
+  <Backdrop />
+  <Nav />
+  <MobileMenu />
+  <Hero />
+  <main>
+    <PilotLog />
+    <Stack />
+    <Work />
+    <Clients />
+    <About />
+    <Contact />
+  </main>
+  {__REVIEW__ && <ReviewTab />}
+  <Footer />
+</Base>

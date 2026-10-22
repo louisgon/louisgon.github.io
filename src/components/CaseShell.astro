@@ -1,1 +1,9 @@
-<div id="case" tabindex="-1" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Case study"><div class="cpw" id="cpw" aria-hidden="true"></div><div class="in" id="caseIn"></div></div>
+---
+import { caseHTML, planetHTML } from '../lib/case';
+import { getProjects } from '../lib/site';
+
+interface Props { open?: number }
+const { open } = Astro.props;
+const projects = open === undefined ? [] : await getProjects();
+---
+<div id="case" tabindex="-1" data-lenis-prevent role="dialog" aria-modal="true" aria-label={open === undefined ? 'Case study' : `${projects[open].title} case study`}><div class="cpw" id="cpw" aria-hidden="true">{open !== undefined && <Fragment set:html={planetHTML(projects, open)} />}</div><div class="in" id="caseIn">{open !== undefined && <Fragment set:html={caseHTML(projects, open)} />}</div></div>

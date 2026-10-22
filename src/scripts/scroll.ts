@@ -2,11 +2,14 @@ import Lenis from 'lenis';
 import { HI, reduce, S, TR } from './state';
 import { $, ease3 } from './util';
 import { setNav } from './nav';
+import { caseAt } from './data';
 
 export let lenis: Lenis | null = null;
 let keyNav = false;
 
 export function landY(t: HTMLElement) { if (t.id === 'hero') return 0; if (t.id === 'intro') return t.getBoundingClientRect().top + scrollY + Math.max(0, (t.offsetHeight - innerHeight) * 0.5); return t.getBoundingClientRect().top + scrollY; }
+
+export const centerY = (el: Element) => { const r = el.getBoundingClientRect(); return scrollY + r.top + r.height / 2 - innerHeight / 2; };
 
 export function land(el: HTMLElement, host?: HTMLElement | null) { const t = keyNav || !host ? el : host; if (!t.hasAttribute('tabindex') && !t.matches('a, button, input')) t.setAttribute('tabindex', '-1'); t.focus({ preventScroll: true }); }
 
@@ -41,9 +44,10 @@ export function initLanding() {
   history.scrollRestoration = 'manual';
   addEventListener('pagehide', () => { try { sessionStorage.setItem('space-y', String(Math.round(scrollY))); } catch {} });
   ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((ev) => addEventListener(ev, () => { HI.moved = true; if (!HI.copy) HI.ff = true; }, { passive: true }));
-  let tg: HTMLElement | null = null, y = 0; try { tg = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null; } catch {}
+  const open = caseAt(location.pathname);
+  let tg: HTMLElement | null = null, y = 0; try { tg = open < 0 && location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null; } catch {}
   const nav0 = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
-  if (tg) y = landY(tg); else if (nav0 && /reload|back_forward/.test(nav0.type)) { try { y = +(sessionStorage.getItem('space-y') ?? 0) || 0; } catch {} }
+  if (open >= 0) y = centerY(document.querySelector(`.proj[data-i="${open}"]`)!); else if (tg) y = landY(tg); else if (nav0 && /reload|back_forward/.test(nav0.type)) { try { y = +(sessionStorage.getItem('space-y') ?? 0) || 0; } catch {} }
   const go = (v: number) => { if (lenis) { lenis.resize(); lenis.scrollTo(v, { immediate: true, force: true }); } else scrollTo(0, v); };
   if (y > innerHeight * 0.5) { HI.skip = true; HI.ship = -1; go(Math.min(y, document.documentElement.scrollHeight - innerHeight)); const t = tg; if (t && document.fonts) document.fonts.ready.then(() => { if (!HI.moved) go(landY(t)); }); } else go(0);
 }

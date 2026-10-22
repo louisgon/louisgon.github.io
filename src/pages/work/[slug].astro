@@ -1,0 +1,11 @@
+---
+import Site from '../../components/Site.astro';
+import { getProjects } from '../../lib/site';
+
+export async function getStaticPaths() {
+  return (await getProjects()).map((p, i) => ({ params: { slug: p.id }, props: { open: i } }));
+}
+
+const { open } = Astro.props;
+---
+<Site open={open} />
