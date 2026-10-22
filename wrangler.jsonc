@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "louisgg-next",
+  "account_id": "6fde3e98219379e7b9d8373ec590dff3",
   "compatibility_date": "2026-10-01",
   "routes": [{ "pattern": "next.louis.gg", "custom_domain": true }],
   "assets": {

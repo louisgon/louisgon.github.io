@@ -483,3 +483,7 @@
   - No sideways scroll on phones, no console errors or failed requests, the case is flush to the right edge with classic scrollbars, and the keyboard flows match (tab order, focus rings, skip link, Enter, focus trap, arrows, Escape and focus return).
   - Frame timing at device scale 2 (headless Chrome, 60Hz, three alternating runs) is no worse. Missed frames for the new build against the old are scroll 22.9 against 24.9 percent, nav 24.0 against 26.0, case 15.3 against 15.5, phone menu 12.8 against 17.8 and phone case 8.5 against 8.7.
 - Not changed in this stage. Dead CSS from earlier rounds (`#jump`, `.serif`, and the `spin` and `flick` keyframes) and the unused `TR.black` path are kept for parity, ready for the performance stage.
+
+## Deploys from GitHub Actions (2026-10-21)
+- The branch is now `next` (renamed from `louis/portfolio-space`) and the worktree moves to `~/Worktrees/louisgon/louisgon.github.io/next`. Stage work goes on short branches merged into `next`, and only on Louis's word, because every push to `next` deploys.
+- `.github/workflows/deploy-next.yml` installs with the frozen lockfile, then runs `bun run check`, `bun run build` and the parity `output` check before `wrangler deploy`. It needs the `CLOUDFLARE_API_TOKEN` repository secret, and the account ID is in `wrangler.jsonc`. `bun run deploy` stays as a local fallback.

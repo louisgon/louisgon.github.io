@@ -1,6 +1,6 @@
 # louis.gg next
 
-The Space portfolio for `louis.gg`, live at **https://next.louis.gg**. Branch `louis/portfolio-space` holds it. `main` still serves the 2021 site through GitHub Pages until a cutover, which happens only on Louis's word.
+The Space portfolio for `louis.gg`, live at **https://next.louis.gg**. Branch `next` holds it, and every push to `next` deploys it. Work happens on short branches merged into `next` only when Louis says to ship. `main` still serves the 2021 site through GitHub Pages until a cutover, which happens only on Louis's word.
 
 The site is a static Astro project in plain strict TypeScript with bun and no UI framework. One page holds a three.js hero, Lenis scrolling and a single frame loop.
 
@@ -29,7 +29,7 @@ bun run build:review   # dist/ with the Review tab
 bun run check          # astro check, strict TypeScript
 bun run preview        # build, then wrangler dev
 bun run review         # review build with base /a/8t5qjd6kq3na/, republished to the local artifact host
-bun run deploy         # build, then deploy the louisgg-next Worker (only when Louis asks)
+bun run deploy         # build, then deploy from this machine (fallback when Actions is down, only when Louis asks)
 bun run parity <check> # compare two builds, see below
 ```
 
@@ -50,6 +50,7 @@ bun run parity <check> # compare two builds, see below
 ## Notes
 
 - Deploys go to an assets-only Worker named `louisgg-next` with the custom domain `next.louis.gg`. Cloudflare manages its DNS record.
+- `.github/workflows/deploy-next.yml` runs on every push to `next` and from the Run workflow button. It installs with the frozen lockfile, then runs `check`, `build` and the parity `output` check before `wrangler deploy`, using the `CLOUDFLARE_API_TOKEN` repository secret. The account ID sits in `wrangler.jsonc`.
 - The live build stays unindexed until cutover, through both the `noindex` meta and the `X-Robots-Tag` header.
 - `REVIEW=on` sets `__REVIEW__`. The Review tab renders only then, and the `#review` alias points `main.ts` at `review.ts` (which brings `review.css`) or at an empty module, so the live build carries none of it.
 - CSS minification is off because Lightning CSS rewrites `translate3d`, `scale3d` and `rotate3d` into 2D forms. The `output` check guards it.
