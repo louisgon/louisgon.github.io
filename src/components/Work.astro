@@ -1,0 +1,40 @@
+---
+import Divider from './Divider.astro';
+import Heading from './Heading.astro';
+import { getProjects } from '../lib/site';
+import { moonsHTML } from '../lib/planets';
+import { nn } from '../lib/sections';
+
+const projects = await getProjects();
+---
+<section class="s" id="work">
+  <Divider n={3} name="Destinations" />
+  <div class="hd" data-stage>
+    <div><div class="eyebrow mono k st" style="--i:0">Destinations</div><Heading lines={['Selected', 'work']} /></div>
+    <p class="lead st" style="--i:2">Long-term platforms and launches for Goodfolks and Calibrate clients, most of them still under my care today.</p>
+  </div>
+  <div id="projects">
+    {projects.map((p, i) => (
+      <article class="proj" data-i={i} aria-labelledby={`pt${i}`}>
+        <div class="planet" aria-hidden="true"><img src={p.planet} alt="" /><Fragment set:html={moonsHTML(i)} /></div>
+        <a class="pic rv" href={`#case-${p.id}`} data-case aria-label={`${p.title} case study`}>
+          <img src={p.shot} alt="" loading="lazy" />
+          <div class="ring"></div>
+          <div class="hud"></div>
+          <div class="tag" aria-hidden="true"><b>DEST {nn(i + 1)}</b><span>{new URL(p.url).hostname.replace(/^www\./, '')}</span></div>
+        </a>
+        <div class="rv">
+          <div class="num mono" aria-hidden="true">{nn(i + 1)} / {nn(projects.length)}</div>
+          <h3 class="disp" id={`pt${i}`}><a href={`#case-${p.id}`} data-case>{p.title}</a></h3>
+          <div class="team mono">{p.team}</div>
+          <p>{p.fact}</p>
+          <div class="stack">{p.stack.map((x) => <span>{x}</span>)}</div>
+          <div class="acts">
+            <a class="btn sm" href={`#case-${p.id}`} data-case>Case study</a>
+            <a class="btn ghost sm" href={p.url} target="_blank" rel="noopener">Visit site<span class="sr"> (opens in a new tab)</span></a>
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

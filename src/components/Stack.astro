@@ -1,0 +1,32 @@
+---
+import Divider from './Divider.astro';
+import Heading from './Heading.astro';
+import { CARD_GRID, LOGO, SKILLS } from '../lib/skills';
+import { nn } from '../lib/sections';
+---
+<section class="s" id="stack">
+  <Divider n={2} name="Systems" />
+  <div class="sgrid" aria-hidden="true"><i></i></div>
+  <canvas id="bus" aria-hidden="true"></canvas>
+  <div class="hd" data-stage>
+    <div><div class="eyebrow mono k st" style="--i:0">Systems</div><Heading lines={['The whole', 'stack']} /></div>
+    <p class="sub st" style="--i:2">Every part of the job, from the first pixel to the server it runs on.</p>
+  </div>
+  <div class="table" id="table">
+    {SKILLS.map((c, n) => (
+      <div class="slot">
+        <div class="card">
+          <div class="f bk" style="transform:rotate3d(0,1,0,180deg)"><Fragment set:html={CARD_GRID} /><svg class="lg" viewBox="0 0 4 5"><path fill="currentColor" d={LOGO} /></svg><div class="tag">SYS {nn(n + 1)}</div></div>
+          <div class="f fr" style="transform:none">
+            <div class="hdr"><span>SYS {nn(n + 1)}</span><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true" set:html={c.ic} /></span></div>
+            <h3>{c.t}</h3>
+            <div class="ct">{nn(c.items.length)} systems online</div>
+            <p class="d">{c.d}</p>
+            <ul>{c.items.map((x, i) => <li style={`--i:${i}`}><i></i><span>{x}</span></li>)}</ul>
+            <div class="shine"></div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

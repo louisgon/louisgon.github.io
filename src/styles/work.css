@@ -1,0 +1,54 @@
+#work { padding-bottom: 24px; }
+#work .hd { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 50px; }
+.proj { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: center; padding: clamp(40px, 6vh, 70px) 0; border-top: 1px solid var(--line); text-decoration: none; color: inherit; }
+.proj:nth-of-type(even) .pic { order: 2; }
+.proj:nth-of-type(even) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+#work .hd .h2 { font-size: clamp(34px, 4.6vw, 80px); }
+.proj .planet img { filter: brightness(.82) saturate(.85); }
+.proj .pic { position: relative; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: #0a1226; box-shadow: 0 0 0 1px rgb(143 211 255 / 26%), 0 0 60px -12px rgb(80 170 255 / 32%), 0 40px 80px -40px rgb(0 0 0 / 80%); transform-style: preserve-3d; }
+.proj .pic .hud { inset: 12px 12px 48px; }
+.proj .pic .tag { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: flex; justify-content: space-between; padding: 12px 20px; background: rgb(5 10 24 / 90%); border-top: 1px solid rgb(143 211 255 / 22%); font: 400 11px/1 "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--holo); text-shadow: 0 1px 8px rgb(0 0 0 / 80%); pointer-events: none; }
+.proj .pic .tag b { font-weight: 400; color: var(--gold); }
+.proj .pic img { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 0; object-fit: cover; object-position: top; will-change: transform; transition: filter .5s; }
+@media (hover: hover) { .proj:hover .pic img { filter: none; } }
+.proj .pic::after { content: ""; position: absolute; inset: 0; z-index: 2; background: linear-gradient(180deg, transparent 55%, rgb(4 8 20 / 45%)); pointer-events: none; }
+.proj .pic .ring { position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgb(143 211 255 / 0%); transition: box-shadow .4s, opacity .3s var(--ease-out); pointer-events: none; z-index: 2; }
+@media (hover: hover) { .proj:hover .pic .ring { box-shadow: inset 0 0 0 1px rgb(143 211 255 / 60%), inset 0 0 40px rgb(80 170 255 / 25%); } }
+.proj .num { color: var(--holo); }
+.proj h3 { margin: 12px 0 6px; font-size: clamp(24px, 3vw, 46px); line-height: 1.05; }
+.proj .team { color: var(--dim); }
+.proj p { color: var(--dim); max-width: 46ch; margin: 18px 0; }
+.proj .stack { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px; }
+.proj .stack span { padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); color: #cfeaff; font: 400 12px/1 "JetBrains Mono", monospace; }
+.proj .pic { opacity: 0; transform: none; transition: opacity 1s var(--ease-out), transform .7s var(--ease-out); }
+.proj .pic.in { opacity: 1; }
+.proj .pic img { transform: translate3d(0, 5%, 0) scale3d(1.15, 1.15, 1); backface-visibility: hidden; transition: transform 1.6s var(--ease-out), filter .5s; }
+.proj .pic.in img { transform: translate3d(0, 0, 0) scale3d(1, 1, 1); }
+.proj { position: relative; isolation: isolate; }
+.proj > .pic, .proj > .rv { position: relative; z-index: 1; }
+.proj .planet { position: absolute; z-index: 0; width: clamp(240px, 27vw, 440px); aspect-ratio: 1; top: 26%; pointer-events: none; opacity: 0; transform: translate3d(0, -50%, 0); will-change: transform, opacity; backface-visibility: hidden; }
+.proj .planet img { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
+.proj:nth-of-type(odd) .planet { left: -12%; } .proj:nth-of-type(even) .planet { right: -12%; }
+.proj .planet { opacity: calc(var(--po, 0) * .95); }
+@media (max-width: 860px) { .proj .planet { width: 52vw; top: 14%; } .proj:nth-of-type(odd) .planet { left: auto; right: -14%; } .proj:nth-of-type(even) .planet { right: -14%; } .proj, .proj:nth-of-type(even) { grid-template-columns: 1fr; } .proj:nth-of-type(even) .pic { order: 0; } }
+#projects { position: relative; }
+.traj { position: absolute; left: calc(clamp(16px, 5vw, 72px) * -.5); top: 0; bottom: 0; width: 1px; background: rgb(143 211 255 / 12%); pointer-events: none; }
+.traj .fill { position: absolute; inset: 0; background: linear-gradient(180deg, var(--holo), var(--gold)); box-shadow: 0 0 8px rgb(143 211 255 / 70%); transform-origin: 50% 0; transform: scale3d(1, 0, 1); will-change: transform; }
+.traj .node { position: absolute; left: -4px; width: 9px; height: 9px; border-radius: 50%; border: 1px solid rgb(143 211 255 / 40%); background: var(--bg); transition: background .4s, border-color .4s, box-shadow .4s; }
+.traj .node.on { background: var(--holo); border-color: var(--holo); box-shadow: 0 0 12px var(--holo); }
+.proj .planet img { animation: pspin 26s ease-in-out infinite alternate; }
+.proj:nth-of-type(even) .planet img { animation-duration: 31s; animation-direction: alternate-reverse; }
+@keyframes pspin { from { transform: rotate3d(0, 0, 1, -5deg); } to { transform: rotate3d(0, 0, 1, 5deg); } }
+.proj .planet .glint { position: absolute; inset: 0; z-index: 1; overflow: hidden; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; pointer-events: none; }
+.proj .planet .glint::before { content: ""; position: absolute; top: 0; bottom: 0; left: -100%; width: 300%; background: linear-gradient(100deg, transparent 38%, rgb(255 240 220 / 30%) 48%, transparent 58%); animation: glint 9s ease-in-out infinite; will-change: transform; }
+@keyframes glint { 0%, 30% { transform: translate3d(-34%, 0, 0); } 70%, 100% { transform: translate3d(34%, 0, 0); } }
+@media (max-width: 860px) { .traj { display: none; } }
+.proj .pic .hud, .proj .pic::after { transition: opacity .5s var(--ease-out); }
+.proj .pic .tag { transition: opacity .45s var(--ease-out), transform .55s var(--ease-out); will-change: transform, opacity; backface-visibility: hidden; }
+.proj .pic.lift .hud, .proj .pic.lift .ring, .proj .pic.lift::after { opacity: 0; transition: opacity .3s var(--ease-io); }
+.proj .pic.lift .tag { opacity: 0; transform: translate3d(0, 100%, 0); transition: opacity .3s var(--ease-io), transform .32s cubic-bezier(.4, 0, 1, 1); }
+.proj a.pic { display: block; }
+.proj h3 a { color: inherit; text-decoration: none; }
+.proj .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.proj .planet .moon, #case .cplanet .moon, #case .splanet .moon { position: absolute; left: 50%; top: 50%; border-radius: 50%; box-shadow: 0 0 8px rgb(200 220 255 / 18%); pointer-events: none; will-change: transform; backface-visibility: hidden; }
+@media (max-width: 760px) { .proj .planet { width: 36vw; top: 2%; } }

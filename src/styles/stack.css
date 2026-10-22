@@ -1,0 +1,33 @@
+#stack .hd { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: clamp(36px, 6vh, 64px); }
+#stack .sub { max-width: 30ch; color: var(--dim); font-size: 16px; margin: 0; }
+.table { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(16px, 2vw, 28px); max-width: 1440px; margin: 0 auto; }
+.slot { container-type: inline-size; perspective: 1200px; }
+.card { --u: 1cqw; position: relative; width: 100%; aspect-ratio: 1 / 1.45; transform-style: preserve-3d; will-change: transform, opacity; backface-visibility: hidden; }
+@container (max-width: 239px) { .card .fr .d { display: none; } }
+@media (max-width: 999px) { .table { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; } }
+@media (max-width: 599px) { .table { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 80%; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin: -50px calc(clamp(16px, 5vw, 72px) * -1) -40px; padding: 60px clamp(16px, 5vw, 72px) 70px; scroll-padding-inline: clamp(16px, 5vw, 72px); } .table::-webkit-scrollbar { display: none; } .slot { scroll-snap-align: start; } }
+.card .f { position: absolute; inset: 0; border-radius: calc(var(--u) * 6); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
+.card .bk { background: radial-gradient(120% 80% at 50% 0%, #16325f, #081328 60%, #050a18); border: 1px solid rgb(143 211 255 / 50%); box-shadow: 0 0 30px rgb(80 170 255 / 22%), 0 30px 60px rgb(0 0 0 / 55%); display: grid; place-items: center; color: var(--holo); }
+.card .bk svg.lg { width: 20%; filter: drop-shadow(0 0 10px rgb(120 200 255 / 80%)); position: relative; z-index: 1; }
+.card .bk svg.grid { position: absolute; inset: 0; width: 100%; height: 100%; }
+.card .bk .tag { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 8); text-align: center; font: 400 calc(var(--u) * 3.6)/1 "JetBrains Mono", monospace; letter-spacing: .32em; color: rgb(143 211 255 / 70%); }
+.card .fr { padding: calc(var(--u) * 7.5); background: linear-gradient(170deg, #0f1c36, #080f21 45%, #05080f); border: 1px solid rgb(143 211 255 / 18%); box-shadow: inset 0 1px 0 rgb(143 211 255 / 60%), inset 0 calc(var(--u) * 18) calc(var(--u) * 26) calc(var(--u) * -20) rgb(143 211 255 / 10%), 0 30px 60px rgb(0 0 0 / 55%); color: var(--fg); display: flex; flex-direction: column; }
+.card .fr::before { --c: rgb(255 207 138 / 40%); --l: calc(var(--u) * 6); content: ""; position: absolute; inset: calc(var(--u) * 3.5); pointer-events: none; background: linear-gradient(var(--c), var(--c)) 0 0 / var(--l) 1px, linear-gradient(var(--c), var(--c)) 0 0 / 1px var(--l), linear-gradient(var(--c), var(--c)) 100% 0 / var(--l) 1px, linear-gradient(var(--c), var(--c)) 100% 0 / 1px var(--l), linear-gradient(var(--c), var(--c)) 0 100% / var(--l) 1px, linear-gradient(var(--c), var(--c)) 0 100% / 1px var(--l), linear-gradient(var(--c), var(--c)) 100% 100% / var(--l) 1px, linear-gradient(var(--c), var(--c)) 100% 100% / 1px var(--l); background-repeat: no-repeat; }
+.card .fr::after { content: none; }
+.card .fr .hdr { display: flex; justify-content: space-between; align-items: center; font: 400 max(9px, calc(var(--u) * 3.8))/1 "JetBrains Mono", monospace; letter-spacing: .24em; color: var(--gold); }
+.card .fr .ic { width: calc(var(--u) * 13); height: calc(var(--u) * 13); border-radius: calc(var(--u) * 3.5); display: grid; place-items: center; color: var(--holo); background: rgb(143 211 255 / 10%); border: 1px solid rgb(143 211 255 / 35%);  }
+.card .fr .ic svg { width: 56%; height: 56%; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.card .fr h3 { margin: calc(var(--u) * 7) 0 0; font: 700 calc(var(--u) * 7.6)/1.05 "Syncopate", sans-serif; text-transform: uppercase; white-space: nowrap; }
+.card .fr .ct { display: flex; align-items: center; gap: calc(var(--u) * 2.5); margin-top: calc(var(--u) * 3.2); font: 400 max(9px, calc(var(--u) * 3.6))/1 "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); }
+.card .fr .ct::before { content: ""; width: calc(var(--u) * 1.8); height: calc(var(--u) * 1.8); border-radius: 50%; background: #7dffb0; box-shadow: 0 0 6px #7dffb0; }
+.card .fr .d { margin: calc(var(--u) * 6) 0 0; font: 400 max(12px, calc(var(--u) * 5))/1.4 "Inter Tight", sans-serif; color: var(--dim); }
+.card .fr ul { list-style: none; margin: auto 0 0; padding: calc(var(--u) * 5) 0 0; }
+.card .fr li { --k: clamp(0, calc(var(--g, 1) * 8 - var(--i)), 1); display: flex; align-items: center; gap: calc(var(--u) * 3.2); padding: calc(var(--u) * 2.3) 0; border-top: 1px solid rgb(143 211 255 / 14%); font: 400 max(11px, calc(var(--u) * 4.9))/1.2 "JetBrains Mono", monospace; color: #d6e8ff; white-space: nowrap; opacity: calc(.18 + var(--k) * .82); transform: translate3d(calc((1 - var(--k)) * var(--u) * -4), 0, 0); }
+.card .fr li i { flex: none; width: calc(var(--u) * 1.6); height: calc(var(--u) * 1.6); background: var(--holo);  transform: rotate3d(0, 0, 1, 45deg); }
+.card .shine { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at var(--sx, 50%) var(--sy, 0%), rgb(255 255 255 / 70%), transparent 52%); mix-blend-mode: soft-light; opacity: var(--so, 0); }
+.sgrid { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background-image: linear-gradient(rgb(143 211 255 / 6%) 1px, transparent 1px), linear-gradient(90deg, rgb(143 211 255 / 6%) 1px, transparent 1px); background-size: 64px 64px; background-position: center; -webkit-mask-image: radial-gradient(70% 60% at 50% 60%, #000, transparent 80%); mask-image: radial-gradient(70% 60% at 50% 60%, #000, transparent 80%); }
+.sgrid i { position: absolute; left: 0; right: 0; top: 0; height: 120px; background: linear-gradient(180deg, transparent, rgb(143 211 255 / 10%) 85%, rgb(143 211 255 / 45%) 100%); animation: scanl 7s cubic-bezier(.45, 0, .55, 1) infinite; will-change: transform; }
+@keyframes scanl { from { transform: translate3d(0, -120px, 0); } to { transform: translate3d(0, 1200px, 0); } }
+#stack { position: relative; }
+#bus { position: absolute; left: 0; right: 0; pointer-events: none; z-index: 0; }
+.table { position: relative; z-index: 1; }

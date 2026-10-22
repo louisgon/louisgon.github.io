@@ -3,12 +3,28 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "bun build.ts",
-    "build:review": "REVIEW=on bun build.ts",
-    "dev": "bun run build && wrangler dev",
-    "deploy": "bun run build && wrangler deploy"
+    "dev": "astro dev",
+    "build": "astro build",
+    "build:review": "REVIEW=on astro build",
+    "check": "astro check && tsc -p tools/parity",
+    "preview": "astro build && wrangler dev",
+    "parity": "bun tools/parity/run.ts",
+    "review": "REVIEW=on BASE=/a/8t5qjd6kq3na/ astro build && artifact publish \"$PWD/dist\" --id 8t5qjd6kq3na",
+    "deploy": "astro build && wrangler deploy"
+  },
+  "dependencies": {
+    "astro": "7.4.1",
+    "lenis": "1.1.13",
+    "sharp": "^0.35.5",
+    "three": "0.170.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.11",
+    "@types/bun": "^1.4.3",
+    "@types/node": "^26.6.5",
+    "@types/three": "0.170.0",
+    "playwright": "1.64.1",
+    "typescript": "^6.0.3",
     "wrangler": "^4.151.2"
   }
 }

@@ -1,0 +1,11 @@
+#clients { padding-top: 44px; padding-bottom: 48px; border-top: 1px solid rgb(143 211 255 / 18%); border-bottom: 1px solid rgb(143 211 255 / 18%); overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
+#clients .lbl { text-align: center; margin-bottom: 26px; }
+#clients .mqp { appearance: none; cursor: pointer; margin-left: 14px; padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--dim); font-size: 10px; letter-spacing: .16em; transition: color .3s, border-color .3s; }
+#clients .mqp:hover, #clients .mqp[aria-pressed="true"] { color: var(--fg); border-color: rgb(143 211 255 / 45%); }
+.marquee { display: flex; width: max-content; will-change: transform; }
+.marquee span { padding: 0 clamp(22px, 3vw, 46px); font: 700 clamp(22px, 3.4vw, 52px)/1 "Syncopate", sans-serif; text-transform: uppercase; color: rgb(234 240 255 / 62%); white-space: nowrap; transition: color .3s, -webkit-text-stroke-color .3s; }
+.marquee span::after { content: "✦"; margin-left: clamp(22px, 3vw, 46px); color: var(--gold); text-shadow: 0 0 10px rgb(255 200 120 / 80%); -webkit-text-stroke: 0; font-size: .4em; vertical-align: middle; }
+#clients { background: repeating-linear-gradient(90deg, rgb(143 211 255 / 28%) 0 1px, transparent 1px 28px) top / 100% 7px no-repeat, repeating-linear-gradient(90deg, rgb(143 211 255 / 28%) 0 1px, transparent 1px 28px) bottom / 100% 7px no-repeat; }
+.marquee span { font-size: clamp(18px, 2.3vw, 34px) !important; }
+.marquee span small { margin-right: 12px; color: var(--holo); font: 400 10px/1 "JetBrains Mono", monospace; letter-spacing: .2em; vertical-align: .9em; }
+.marquee span::after { content: "" !important; display: inline-block; width: 1px; height: .8em; margin-left: clamp(26px, 3.4vw, 52px) !important; background: rgb(143 211 255 / 30%); text-shadow: none !important; vertical-align: -.05em; }

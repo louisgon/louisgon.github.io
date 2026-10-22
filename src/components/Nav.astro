@@ -1,0 +1,18 @@
+---
+import { NAV } from '../lib/sections';
+---
+<a class="skip-link" href="#intro">Skip to content</a>
+<nav id="nav">
+  <a class="logo" href="#hero" aria-label="Louis Gonzalez, back to top"><svg viewBox="0 0 4 5" aria-hidden="true"><path fill="currentColor" d="M1,0H.5L0,.5v4L.5,5h2V4H1ZM2,2.5H4v2L3.5,5H3V3.5H2ZM1.5,0V1H3v.5H4V.5L3.5,0Z"/></svg></a>
+  <span class="ro mono" aria-hidden="true"><b id="navNum">00</b> / 05</span>
+  <div class="links">
+    {NAV.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
+    <i class="mk" id="navMk" aria-hidden="true"><b></b><b></b><b></b><b></b></i>
+  </div>
+  <a class="talk" href="mailto:mail@louis.gg">Let’s talk</a>
+  <button type="button" class="mbtn" id="mbtn" aria-expanded="false" aria-controls="mnav" aria-label="Open menu">
+    <svg class="ic m" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    <svg class="ic x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+  </button>
+  <div class="hudline" aria-hidden="true"><i id="navProg"></i></div>
+</nav>

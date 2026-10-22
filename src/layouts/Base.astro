@@ -1,0 +1,37 @@
+---
+import '../styles/base.css';
+import '../styles/backdrop.css';
+import '../styles/hero.css';
+import '../styles/nav.css';
+import '../styles/intro.css';
+import '../styles/stack.css';
+import '../styles/work.css';
+import '../styles/clients.css';
+import '../styles/about.css';
+import '../styles/contact.css';
+import '../styles/footer.css';
+import '../styles/case.css';
+import '../styles/cursor.css';
+import '../styles/state.css';
+import { getSiteData } from '../lib/site';
+
+const data = JSON.stringify(await getSiteData()).replace(/</g, '\\u003c');
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+{!__REVIEW__ && <meta name="robots" content="noindex">}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Louis Gonzalez</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-.5 -.5 5 6%27%3E%3Cpath fill=%27%238fd3ff%27 d=%27M1,0H.5L0,.5v4L.5,5h2V4H1ZM2,2.5H4v2L3.5,5H3V3.5H2ZM1.5,0V1H3v.5H4V.5L3.5,0Z%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+<script type="application/json" id="site-data" set:html={data}></script>
+</head>
+<body class="hi-nav hi-main">
+<slot />
+<script>import '../scripts/main';</script>
+</body>
+</html>

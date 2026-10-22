@@ -1,0 +1,133 @@
+[
+  {
+    "id": "airmail",
+    "order": 1,
+    "title": "Air Mail",
+    "team": "Goodfolks",
+    "url": "https://airmail.news",
+    "stack": [
+      "Laravel",
+      "PHP",
+      "Alpine.js",
+      "MySQL"
+    ],
+    "blurb": "Laravel application replacing a legacy WordPress system, reading the old database over an SSH tunnel through the transition.",
+    "fact": "Rebuilt a legacy WordPress system as a Laravel app, reading the old database over an SSH tunnel through the switch so nothing was lost.",
+    "story": {
+      "brief": "Air Mail had outgrown a legacy WordPress system and needed to move without losing any of its content.",
+      "did": "Built the replacement as a Laravel app that read the old database live over an SSH tunnel, so both systems ran side by side through the switch.",
+      "result": "The move happened with nothing lost, and the team publishes on the new app today."
+    }
+  },
+  {
+    "id": "azul",
+    "order": 2,
+    "title": "Azul",
+    "team": "Goodfolks",
+    "url": "https://azul.com",
+    "stack": [
+      "PHP",
+      "JavaScript",
+      "Sass"
+    ],
+    "blurb": "A platform maintained continuously across six years, with a documentation site alongside it.",
+    "fact": "Kept a large Java company’s platform and documentation site healthy and moving for six years.",
+    "story": {
+      "brief": "A large Java company needed its platform and documentation site kept healthy and moving, year after year.",
+      "did": "Looked after both for six years, shipping new work and keeping the docs in step with the product.",
+      "result": "It became my longest client partnership, six years and counting."
+    }
+  },
+  {
+    "id": "puck",
+    "order": 3,
+    "title": "Puck News",
+    "team": "Goodfolks",
+    "url": "https://puck.news/",
+    "stack": [
+      "WordPress",
+      "PHP",
+      "JavaScript"
+    ],
+    "blurb": "A long-lived publishing platform under continuous development, integrations and all.",
+    "fact": "Ongoing development on a live subscription news platform and its integrations, without ever breaking publishing."
+  },
+  {
+    "id": "kioti",
+    "order": 4,
+    "title": "Kioti",
+    "team": "Goodfolks",
+    "url": "https://kioti.com",
+    "stack": [
+      "Craft CMS",
+      "PHP",
+      "Mapbox GL",
+      "Vite"
+    ],
+    "blurb": "Dealer and equipment site on Craft CMS with a Mapbox-driven locator, paired with its own API service.",
+    "fact": "A Craft CMS build with a Mapbox dealer locator, backed by its own API service."
+  },
+  {
+    "id": "perry-weather",
+    "order": 5,
+    "title": "Perry Weather",
+    "team": "Goodfolks",
+    "url": "https://perryweather.com/",
+    "stack": [
+      "Preact",
+      "Hono",
+      "Cloudflare Workers",
+      "Rive"
+    ],
+    "blurb": "Marketing site and product surface with Rive animation, Preact islands and a Hono API on Cloudflare Workers.",
+    "fact": "A marketing site that doubles as a product surface, with Rive animation, Preact islands and a Hono API on Cloudflare Workers.",
+    "story": {
+      "brief": "Perry Weather wanted a marketing site that also works as a product surface, not just a brochure.",
+      "did": "Built it with Rive animation and Preact islands for the interactive parts, backed by a Hono API on Cloudflare Workers.",
+      "result": "A fast, mostly static site where the interactive pieces load only where they are needed."
+    }
+  },
+  {
+    "id": "esses",
+    "order": 6,
+    "title": "Esses Magazine",
+    "team": "Goodfolks",
+    "url": "https://esses.com",
+    "stack": [
+      "Astro",
+      "Craft CMS",
+      "Cloudflare Workers"
+    ],
+    "blurb": "Headless magazine site, an Astro front end on Cloudflare Workers against Craft CMS.",
+    "fact": "A headless magazine, with an Astro front end on Cloudflare Workers against Craft CMS."
+  },
+  {
+    "id": "rockit",
+    "order": 7,
+    "title": "Rockit Apple",
+    "team": "Calibrate",
+    "url": "https://www.rockitapple.com/",
+    "stack": [
+      "Craft CMS",
+      "PHP",
+      "Sass",
+      "Vite"
+    ],
+    "blurb": "Brand site built and maintained on Craft CMS.",
+    "fact": "Built and maintained the brand site on Craft CMS."
+  },
+  {
+    "id": "umf",
+    "order": 8,
+    "title": "Unique Mānuka Factor",
+    "team": "Calibrate",
+    "url": "https://www.umf.org.nz/",
+    "stack": [
+      "WordPress",
+      "PHP",
+      "Sass"
+    ],
+    "blurb": "Site for the certification body behind the Mānuka honey grading standard.",
+    "fact": "Site for the certification body behind the Mānuka honey grading standard."
+  }
+]

@@ -1,0 +1,15 @@
+#intro { padding: 0 !important; }
+#intro .pin { position: relative; min-height: 100vh; min-height: 100svh; padding-top: 110px !important; padding-bottom: 110px !important; display: grid; align-content: center; padding: 0 clamp(16px, 5vw, 72px); overflow: hidden; }
+#intro .pin > .inner { transform-origin: 50% 40%; will-change: transform, opacity; }
+#intro .big { max-width: 30ch; margin: 0; font: 500 clamp(26px, 3.6vw, 54px)/1.14 "Inter Tight", sans-serif; letter-spacing: -.02em; }
+#intro .big .w { display: inline-block; white-space: pre; }
+#intro .big em { font-style: normal; color: var(--holo); }
+#intro .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 60px; border-top: 1px solid var(--line); max-width: 1180px; }
+#intro .stats > div { padding: 30px 28px 4px; border-left: 1px solid var(--line); } #intro .stats > div:first-child { padding-left: 0; border-left: 0; }
+#intro .stats b { display: block; white-space: nowrap; font-size: clamp(44px, 5.6vw, 88px); line-height: 1; }
+#intro .stats b small { margin-left: .14em; font-size: .42em; color: var(--holo); text-transform: none; }
+#intro .stats > div > span { display: block; margin-top: 14px; font: 600 11px/1.4 "JetBrains Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+@media (max-width: 860px) { #intro .stats { grid-template-columns: 1fr; margin-top: 40px; } #intro .stats > div, #intro .stats > div:first-child { padding: 22px 0 18px; border-left: 0; border-bottom: 1px solid var(--line); } #intro .stats b { font-size: 48px; } }
+#intro .inner { position: relative; z-index: 1; }
+#intro .eyebrow, #intro .stats { will-change: transform, opacity; backface-visibility: hidden; }
+@media (max-width: 860px) { #intro .stats { max-width: none; } #intro .big { max-width: none; } }

@@ -1,0 +1,6 @@
+---
+import { nn } from '../lib/sections';
+interface Props { n: number; name: string }
+const { n, name } = Astro.props;
+---
+<div class="sdiv" aria-hidden="true"><span class="mono">{nn(n)} · {name}</span><span class="mono">32.78N 96.80W · Sector DAL</span></div>

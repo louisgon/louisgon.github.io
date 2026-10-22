@@ -1,0 +1,18 @@
+.rvw { position: fixed; z-index: 50; left: 16px; bottom: 16px; width: min(350px, calc(100vw - 32px)); font: 14px/1.45 "Inter Tight", sans-serif; color: #0a1226; }
+.rvw .tab { appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border: 0; border-radius: 999px; background: var(--holo); color: #03101e; font: 700 11px/1 "JetBrains Mono", monospace; letter-spacing: .12em; text-transform: uppercase; box-shadow: 0 10px 30px rgb(0 0 0 / 40%); }
+.rvw .box { display: none; margin-bottom: 10px; padding: 14px; border-radius: 14px; background: #eef3ff; box-shadow: 0 20px 50px rgb(0 0 0 / 50%); }
+.rvw.open .box { display: block; }
+.rvw .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+.rvw .hd b { font-size: 15px; } .rvw .hd span { color: #56607e; font-size: 12px; }
+.rvw .nv { display: flex; gap: 6px; }
+.rvw .ic { width: 15px; height: 15px; } .rvw .nv button { display: grid; place-items: center; }
+.rvw .nv button, .rvw .rate button { appearance: none; cursor: pointer; border: 1px solid #b9c4de; background: transparent; color: #0a1226; border-radius: 8px; font: 600 12px/1 "Inter Tight", sans-serif; padding: 8px 10px; }
+.rvw .rate { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+.rvw .rate button[aria-pressed="true"][data-v="keep"] { background: #2f7a4b; border-color: #2f7a4b; color: #fff; }
+.rvw .rate button[aria-pressed="true"][data-v="tweak"] { background: #d99a1e; border-color: #d99a1e; }
+.rvw .rate button[aria-pressed="true"][data-v="rework"] { background: #c4161c; border-color: #c4161c; color: #fff; }
+.rvw textarea { width: 100%; min-height: 80px; resize: vertical; border: 1px solid #b9c4de; border-radius: 10px; padding: 8px 10px; font: 15px/1.4 "Inter Tight", sans-serif; background: #fff; color: #0a1226; }
+.rvw .ft { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.rvw .ft span { color: #56607e; font-size: 12px; }
+.rvw .copy { appearance: none; cursor: pointer; border: 0; border-radius: 999px; background: #0a1226; color: #eef3ff; padding: 9px 13px; font: 700 11px/1 "Inter Tight", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+@media (max-width: 760px) { .rvw .tab { width: 40px; height: 40px; padding: 0; justify-content: center; align-items: center; display: inline-flex; opacity: .8; } .rvw .tab span { display: none; } }

@@ -1,0 +1,6 @@
+---
+import { NAV, nn } from '../lib/sections';
+---
+<div class="mnav" id="mnav" aria-label="Sections">
+  {NAV.map(([id, label], i) => <a href={`#${id}`} style={`--i:${i}`}><small>{nn(i + 1)}</small>{label}</a>)}
+</div>

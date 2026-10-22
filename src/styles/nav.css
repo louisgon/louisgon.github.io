@@ -1,0 +1,30 @@
+nav { position: fixed; z-index: 60; left: 0; right: 0; top: 0; display: flex; align-items: center; gap: 22px; padding: 16px clamp(16px, 3vw, 40px); transition: opacity .7s var(--ease-io); }
+nav::before { content: ""; position: absolute; left: 0; right: 0; top: 0; bottom: -34px; z-index: -1; pointer-events: none; background: linear-gradient(180deg, rgb(4 6 13 / 92%), rgb(4 6 13 / 80%) 58%, rgb(4 6 13 / 0%)); opacity: 0; transition: opacity .45s ease; will-change: opacity; }
+nav.solid::before { opacity: 1; }
+nav .mbtn { display: none; appearance: none; cursor: pointer; width: 42px; height: 42px; margin-left: 10px; padding: 0; place-items: center; border: 1px solid rgb(143 211 255 / 40%); border-radius: 50%; background: rgb(4 10 22 / 70%); color: var(--fg); }
+nav .mbtn .ic { grid-area: 1 / 1; width: 18px; height: 18px; transition: opacity .25s ease, transform .4s var(--ease-out); will-change: transform, opacity; backface-visibility: hidden; }
+nav .mbtn .ic.x { opacity: 0; transform: rotate3d(0, 0, 1, -90deg); }
+nav .mbtn[aria-expanded="true"] .ic.m { opacity: 0; transform: rotate3d(0, 0, 1, 90deg); } nav .mbtn[aria-expanded="true"] .ic.x { opacity: 1; transform: none; }
+.mnav { position: fixed; inset: 0; z-index: 59; display: grid; align-content: center; gap: 22px; padding: 96px 24px 48px; background: rgb(3 5 11 / 95%); opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility 0s .35s; }
+.mnav.on { opacity: 1; visibility: visible; transition: opacity .35s ease; }
+.mnav a { display: block; color: var(--fg); text-decoration: none; font: 700 clamp(30px, 10vw, 46px)/1 "Syncopate", sans-serif; text-transform: uppercase; opacity: 0; transform: translate3d(0, 18px, 0); transition: opacity .5s ease, transform .6s var(--ease-out); transition-delay: calc(var(--i) * 60ms + 80ms); will-change: transform, opacity; backface-visibility: hidden; }
+.mnav a small { display: block; margin-bottom: 10px; color: var(--holo); font: 600 10px/1 "JetBrains Mono", monospace; letter-spacing: .2em; }
+.mnav.on a { opacity: 1; transform: none; }
+@media (min-width: 861px) { .mnav { display: none; } }
+nav .logo { display: inline-flex; color: var(--fg); }
+nav .logo svg { width: 20px; height: 25px; transform-origin: 50% 50%; will-change: transform, opacity; backface-visibility: hidden; }
+nav .ro { color: var(--dim); font-size: 11px; letter-spacing: .16em; white-space: nowrap; }
+nav .ro b { display: inline-block; min-width: 2ch; color: var(--fg); font-weight: 600; }
+nav .links { position: relative; margin-left: auto; display: flex; gap: 4px; }
+nav .links a { position: relative; z-index: 1; padding: 10px 12px; text-decoration: none; color: var(--dim); font: 600 11px/1 "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; transition: color .35s var(--ease-out); }
+nav .links a:hover, nav .links a.on { color: var(--fg); }
+nav .mk { position: absolute; left: 0; top: 0; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease-out); }
+nav .mk.on { opacity: 1; }
+nav .mk b { position: absolute; left: 0; top: 0; width: 7px; height: 7px; border: 1px solid var(--holo); filter: drop-shadow(0 0 4px rgb(143 211 255 / 65%)); transition: transform .55s var(--ease-out); will-change: transform; backface-visibility: hidden; }
+nav .mk b:nth-child(1) { border-right: 0; border-bottom: 0; } nav .mk b:nth-child(2) { border-left: 0; border-bottom: 0; } nav .mk b:nth-child(3) { border-right: 0; border-top: 0; } nav .mk b:nth-child(4) { border-left: 0; border-top: 0; }
+nav .talk { margin-left: 12px; padding: 12px 17px; border-radius: 999px; background: var(--fg); color: var(--bg); text-decoration: none; font: 600 11.5px/1 "Inter Tight", sans-serif; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; transition: background .25s, transform .25s var(--ease-pop); will-change: transform; backface-visibility: hidden; }
+@media (hover: hover) { nav .talk:hover { background: var(--holo); transform: translate3d(0, -1px, 0); } }
+nav .hudline { position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; pointer-events: none; }
+nav .hudline i { position: absolute; inset: 0; background: linear-gradient(90deg, var(--holo), var(--gold)); box-shadow: 0 0 8px rgb(143 211 255 / 70%); transform-origin: 0 50%; transform: scale3d(0, 1, 1); will-change: transform; }
+@media (max-width: 860px) { nav .links { display: none; } nav .talk { margin-left: auto; } }
+@media (max-width: 860px) { nav .mbtn { display: grid; } nav { gap: 14px; } }
