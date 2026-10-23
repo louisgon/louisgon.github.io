@@ -5,7 +5,7 @@ import { lenis } from './scroll';
 type Note = { v?: string; note?: string };
 
 export function initReview() {
-  const SECS = [['hero', 'Cockpit hero and warp'], ['intro', 'Pilot log intro'], ['stack', 'The whole stack'], ['work', 'Selected work'], ['clients', 'Client marquee'], ['pilot', 'The pilot'], ['contact', 'Contact']];
+  const SECS = [['hero', 'Orbit hero'], ['intro', 'Pilot log intro'], ['stack', 'The whole stack'], ['work', 'Selected work'], ['clients', 'Client marquee'], ['pilot', 'The pilot'], ['contact', 'Contact']];
   const RVK = 'space-review'; let rs: Record<string, Note> = {}; try { rs = JSON.parse(localStorage.getItem(RVK) || '{}'); } catch {}
   const rsave = () => { try { localStorage.setItem(RVK, JSON.stringify(rs)); } catch {} };
   let rvCur = -1, rvHold = 0;
