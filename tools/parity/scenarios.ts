@@ -5,6 +5,11 @@ import projects from '../../src/content/projects.json';
 export type Want = { path?: string; open?: string | null; focus?: string; row?: number; history?: number; dom?: string };
 export type Run = { page: Page; wait: (frames: number) => Promise<void>; mark: (label: string) => Promise<void>; expect: (label: string, want: Want) => Promise<void> };
 export type Scenario = { name: string; profile: Profile; path?: string; hash?: string; fresh?: boolean; run: (r: Run) => Promise<void> };
+export type Mask = { skip: string; classes: string[]; marks: string[] };
+
+export const MASKS: Record<string, Mask> = {
+  hero: { skip: '#hero, #orb', classes: ['hi-nav', 'hv-in'], marks: ['desktop-load/hero', 'desktop-nav/nav-hero', 'desktop-keys/skip-link', 'phone-load/hero', 'phone-menu/menu'] },
+};
 
 const LOAD = 330;
 const y = (page: Page, id: string, k = 0) => page.evaluate(([id, k]) => (window as unknown as { __y: (id: string, k: number) => void }).__y(id, k), [id, k] as const);

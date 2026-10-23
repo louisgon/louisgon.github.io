@@ -2,22 +2,23 @@ import type { Browser } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { frames, launch, normalise, open, type Site } from './lib';
-import { SCENARIOS, type Scenario, type Want } from './scenarios';
+import { MASKS, SCENARIOS, type Mask, type Scenario, type Want } from './scenarios';
 import { pixelDiff } from './pixels';
 
 type Delta = Record<string, string | null>;
 
 
-function snapshotDelta() {
+function snapshotDelta(mask: Mask | null) {
   const w = window as unknown as { __prev?: Record<string, string> };
   const cur: Record<string, string> = {};
-  const describe = (el: Element | null) => { const p: number[] = []; for (let e = el; e && e.parentElement; e = e.parentElement) p.unshift([...e.parentElement.children].indexOf(e)); return p.join('/'); };
+  const kids = (el: Element) => [...el.children].filter((c) => !mask || !c.matches(mask.skip));
+  const describe = (el: Element | null) => { const p: number[] = []; for (let e = el; e && e.parentElement; e = e.parentElement) { if (mask && e.matches(mask.skip)) return 'masked'; p.unshift(kids(e.parentElement).indexOf(e)); } return p.join('/'); };
   const walk = (el: Element, path: string) => {
     if (el.tagName === 'SCRIPT') return;
-    const attrs = el.getAttributeNames().filter((n) => n !== 'style').sort().map((n) => `${n}=${el.getAttribute(n)}`);
+    const attrs = el.getAttributeNames().filter((n) => n !== 'style').sort().map((n) => `${n}=${mask && el === document.body && n === 'class' ? el.className.split(' ').filter((c) => !mask.classes.includes(c)).join(' ') : el.getAttribute(n)}`);
     let text = ''; el.childNodes.forEach((c) => { if (c.nodeType === 3) text += c.textContent; });
     cur[path] = `${el.tagName}|${attrs.join(' ')}|${(el as HTMLElement).style?.cssText ?? ''}|${text.replace(/\s+/g, ' ').trim()}`;
-    [...el.children].forEach((c, i) => walk(c, `${path}/${i}`));
+    kids(el).forEach((c, i) => walk(c, `${path}/${i}`));
   };
   walk(document.body, 'body');
   cur.html = `${document.documentElement.className}|${document.documentElement.style.cssText}`;
@@ -38,12 +39,12 @@ function routeState() {
   return { path: location.pathname, open: c.classList.contains('on') ? c.getAttribute('aria-label')!.replace(/ case study$/, '') : null, focus, row: rows.indexOf(Math.min(...rows)), history: history.length, title: document.title, canonical: new URL(document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href).pathname, dom: dom.outerHTML };
 }
 
-async function record(browser: Browser, s: Site, sc: Scenario, dir: string) {
+async function record(browser: Browser, s: Site, sc: Scenario, dir: string, mask: Mask | null) {
   const { page, context, errors } = await open(browser, s, { profile: sc.profile, deterministic: true, path: sc.path, hash: sc.hash });
   const deltas: Delta[] = [], marks: string[] = [], checks: string[] = [], fails: string[] = [], doms: Record<string, string> = {}, base = new URL(s.url).pathname;
   const h0 = await page.evaluate(() => history.length);
   let n = 0;
-  const sample = async () => { const d = await page.evaluate(snapshotDelta); for (const k in d) if (d[k] !== null) d[k] = normalise(d[k]!); deltas.push(d); };
+  const sample = async () => { const d = await page.evaluate(snapshotDelta, mask); for (const k in d) if (d[k] !== null) d[k] = normalise(d[k]!); deltas.push(d); };
   await sample();
   await sc.run({
     page,
@@ -86,21 +87,21 @@ function compare(a: Delta[], b: Delta[]) {
   return { samples: Math.max(a.length, b.length), lengths: [a.length, b.length], bad, noise, ranges, byKey, diffs };
 }
 
-export async function trace(a: Site, b: Site, out: string, only?: string) {
-  const browser = await launch(), summary: string[] = [], queue = SCENARIOS.filter((s) => !only || only.split(',').some((o) => s.name.includes(o)));
+export async function trace(a: Site, b: Site, out: string, only?: string, masked?: string) {
+  const mask = masked ? MASKS[masked] : null, browser = await launch(), summary: string[] = [], queue = SCENARIOS.filter((s) => !only || only.split(',').some((o) => s.name.includes(o)));
   const worker = async () => { for (let sc = queue.shift(); sc; sc = queue.shift()) await one(sc); };
   const one = async (sc: Scenario) => {
     const dir = join(out, 'trace', sc.name); mkdirSync(dir, { recursive: true });
     if (sc.fresh) {
-      const rb = await record(browser, b, sc, dir);
+      const rb = await record(browser, b, sc, dir, mask);
       writeFileSync(join(dir, 'report.json'), JSON.stringify({ marks: rb.marks, checks: rb.checks, fails: rb.fails, errors: rb.errors }, null, 1));
       summary.push(`${sc.name}: b only, ${rb.checks.length - rb.fails.length}/${rb.checks.length} checks pass${rb.fails.length ? ` (${rb.fails.join('; ')})` : ''}, errors ${rb.errors.length}`);
       console.log(summary.at(-1)); return;
     }
-    const [ra, rb] = await Promise.all([record(browser, a, sc, dir), record(browser, b, sc, dir)]), r = compare(ra.deltas, rb.deltas);
+    const [ra, rb] = await Promise.all([record(browser, a, sc, dir, mask), record(browser, b, sc, dir, mask)]), r = compare(ra.deltas, rb.deltas);
     const shots = await Promise.all(ra.marks.map(async (m) => ({ mark: m, ...(await pixelDiff(join(dir, `a-${m}.png`), join(dir, `b-${m}.png`), join(dir, `diff-${m}.png`))) })));
     writeFileSync(join(dir, 'report.json'), JSON.stringify({ ...r, shots, errors: { a: ra.errors, b: rb.errors } }, null, 1));
-    summary.push(`${sc.name}: ${r.bad}/${r.samples} samples differ (${r.noise} random only)${r.ranges.length ? ` in ${r.ranges.map(([x, y]) => (x === y ? x : `${x}-${y}`)).join(' ')}` : ''}, lengths ${r.lengths.join('/')}, shots ${shots.map((s) => `${s.mark} ${s.changed}px`).join(', ')}, errors ${ra.errors.length}/${rb.errors.length}`);
+    summary.push(`${sc.name}: ${r.bad}/${r.samples} samples differ (${r.noise} random only)${r.ranges.length ? ` in ${r.ranges.map(([x, y]) => (x === y ? x : `${x}-${y}`)).join(' ')}` : ''}, lengths ${r.lengths.join('/')}, shots ${shots.map((s) => `${s.mark} ${s.changed}px${mask?.marks.includes(`${sc.name}/${s.mark}`) ? ` (${masked} on screen)` : ''}`).join(', ')}, errors ${ra.errors.length}/${rb.errors.length}`);
     console.log(summary.at(-1));
   };
   await Promise.all(Array.from({ length: Number(process.env.PARITY_JOBS ?? 3) }, worker));

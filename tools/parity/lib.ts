@@ -32,7 +32,7 @@ export const launch = (classicScrollbars = false) => chromium.launch({ ignoreDef
 function fakeTime() {
   type Timer = { at: number; fn: (...a: unknown[]) => void; args: unknown[]; every?: number };
   const w = window as unknown as Record<string, unknown>, realTimeout = window.setTimeout.bind(window), timers = new Map<number, Timer>();
-  let now = 0, id = 1, rafs: [number, FrameRequestCallback][] = [], seed = 0x5eed;
+  let now = 0, id = 1, rafs: [number, FrameRequestCallback][] = [], seed = 0x5eed, ticking = false;
   w.__raf = window.requestAnimationFrame.bind(window);
   const decode = HTMLImageElement.prototype.decode;
   let decoding = 0;
@@ -54,6 +54,7 @@ function fakeTime() {
   const yieldReal = () => new Promise((r) => realTimeout(r, 0)), started = new WeakMap<Animation, number>();
   const drive = () => { for (const a of document.getAnimations()) { if (!started.has(a)) { started.set(a, now); a.playbackRate = 0; } const t = now - started.get(a)!, end = a.effect?.getComputedTiming().endTime; if (typeof end === 'number' && Number.isFinite(end) && t >= end) { a.playbackRate = 1; a.finish(); } else a.currentTime = t; } };
   w.__advance = async (ms: number) => {
+    if (!ticking) { ticking = true; seed = 0x5eed; }
     const end = now + ms;
     for (const deliver of observed.splice(0)) deliver();
     drive();

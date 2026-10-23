@@ -16,8 +16,8 @@ mkdirSync(out, { recursive: true });
 const a = site('a', arg('a', 'https://next.louis.gg')!), b = site('b', arg('b', 'dist')!, arg('swap'), arg('base'));
 console.log(`parity ${check} a=${a.url} b=${b.url}${b.swap ? ` swap=${b.swap}` : ''} out=${out}`);
 
-if (check === 'trace') await trace(a, b, out, arg('only'));
-if (check === 'css') await css(a, b, out, arg('snapshots', join(out, 'trace'))!);
+if (check === 'trace') await trace(a, b, out, arg('only'), arg('mask'));
+if (check === 'css') await css(a, b, out, arg('snapshots', join(out, 'trace'))!, arg('mask'));
 if (check === 'video') await video(a, b, out, arg('only'));
 if (check === 'timing') await timing(a, b, out, Number(arg('runs', '3')));
 if (check === 'health') await health([a, b], out);
