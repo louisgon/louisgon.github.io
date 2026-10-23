@@ -5,7 +5,7 @@ export { RMQ };
 
 export const TR = { busy: false, casing: false, dim: 0, black: 0, up: 0, down: 0, next: null as (() => void) | null, f: 1 };
 export const pend = new Set<Element>();
-export const HI = { t0: 0, space: 0, planet: 0, cue: 0, pt: 0, ship: 0, copy: 0, skip: false, ff: false, moved: false, done: false };
+export const HI = { t0: 0, space: 0, planet: 0, cue: 0, pt: 0, copy: 0, skip: false, ff: false, moved: false, done: false };
 
 export const S = {
   DT: 1 / 60,

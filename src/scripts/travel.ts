@@ -2,7 +2,7 @@ import { pend, reduce, S, TR } from './state';
 import { $, wait } from './util';
 import { land, lenis, scrollToY } from './scroll';
 import { revealEl } from './reveal';
-import { heroEnd } from './hero';
+import { heroEnd } from './orbit';
 
 export let revealAt = -1e9;
 

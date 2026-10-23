@@ -1,13 +1,13 @@
 import * as THREE from 'three';
-import { HI, reduce, S, TR, ez, lf } from './state';
+import { reduce, S, TR, ez, lf } from './state';
 import { $, clamp, lerp, mob, sstep } from './util';
 import { BLIT_FRAG, BLIT_VERT, NEBULA_FRAG, QUAD_VERT, STAR_LINE_FRAG, STAR_POINT_FRAG, STAR_VERT } from './shaders';
 import { landY, lenis } from './scroll';
-import { layoutHero, lyBack, lyFront, orbK, skyO, VH } from './hero';
+import { starVis } from './orbit';
 import { secCur } from './nav';
 
 export let warpS = 0, dimS = 0;
-let renderer: THREE.WebGLRenderer, DPR: number, scene: THREE.Scene, camera: THREE.PerspectiveCamera, plCam: THREE.OrthographicCamera;
+let renderer: THREE.WebGLRenderer, DPR: number, scene: THREE.Scene, camera: THREE.PerspectiveCamera;
 let bgScene: THREE.Scene, bgCam: THREE.OrthographicCamera, bgRT: THREE.WebGLRenderTarget, blitScene: THREE.Scene;
 let z = 0, cruiseS = 0, velS = 0, flyS = 0, streamS = 1, fadeS = 0.6, blackS = 0, ftAvg = 16;
 const DEPTH = 300, BGS = 0.34;
@@ -33,12 +33,13 @@ export function initStars() {
   bgRT = new THREE.WebGLRenderTarget(1, 1, { depthBuffer: false });
   blitU.uTex.value = bgRT.texture; blitScene = new THREE.Scene();
   blitScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({ uniforms: blitU, depthTest: false, depthWrite: false, blending: THREE.NoBlending, vertexShader: BLIT_VERT, fragmentShader: BLIT_FRAG })));
-  plCam = new THREE.OrthographicCamera(-1, 1, 1, -1, -6000, 6000);
+  renderer.compile(bgScene, bgCam); renderer.compile(blitScene, bgCam); renderer.compile(scene, camera);
 }
 
+const VH = () => Math.max(innerHeight, $('lvh').offsetHeight);
 const depthK = () => { const a = landY($('intro')), b = document.documentElement.scrollHeight - innerHeight; return clamp((scrollY - a) / Math.max(1, b - a)); };
 
-export function resize() { renderer.setPixelRatio(DPR); U.uPR.value = DPR / 1.5; const vh = VH(); renderer.setSize(innerWidth, vh, false); camera.aspect = innerWidth / vh; camera.updateProjectionMatrix(); Object.assign(plCam, { left: -innerWidth / 2, right: innerWidth / 2, top: vh / 2, bottom: -vh / 2 }); plCam.updateProjectionMatrix(); bgU.uRes.value.set(Math.round(innerWidth * DPR * BGS), Math.round(vh * DPR * BGS)); bgRT.setSize(bgU.uRes.value.x, bgU.uRes.value.y); layoutHero(); }
+export function resize() { renderer.setPixelRatio(DPR); U.uPR.value = DPR / 1.5; const vh = VH(); renderer.setSize(innerWidth, vh, false); camera.aspect = innerWidth / vh; camera.updateProjectionMatrix(); bgU.uRes.value.set(Math.round(innerWidth * DPR * BGS), Math.round(vh * DPR * BGS)); bgRT.setSize(bgU.uRes.value.x, bgU.uRes.value.y); }
 
 export function initMeteors() {
   if (!reduce) { const mt = document.querySelector('#meteors i')!; const fire = () => { const x = Math.random() * innerWidth * 0.8 + innerWidth * 0.1, y = Math.random() * innerHeight * 0.5, ang = 20 + Math.random() * 25, d = 260 + Math.random() * 260, r = (ang * Math.PI) / 180;
@@ -57,10 +58,11 @@ export function fovTick() { const f = (innerWidth < innerHeight ? 70 : 60) + war
 export function starsTick(dt: number, now: number) {
   const stream = streamS, cruise = cruiseS;
   { z += dt * (2 + stream * 16 + flyS * 34 + warpS * 300 + velS * 95 + S.boost * 160); S.boost *= Math.pow(0.95, dt * 60); }
-  U.uZ.value = z; U.uStretch.value = warpS * 56 + cruise * 16 + S.boost * 14 + stream * 5 + flyS * 6; U.uFade.value = (0.85 + warpS * 0.15) * (1 - blackS) * fadeS * HI.space; U.uTime.value = now / 1000; camera.rotation.set((S.smy - 0.5) * -0.05, (S.smx - 0.5) * -0.08, 0);
+  U.uZ.value = z; U.uStretch.value = warpS * 56 + cruise * 16 + S.boost * 14 + stream * 5 + flyS * 6; U.uFade.value = (0.85 + warpS * 0.15) * (1 - blackS) * fadeS * starVis; U.uTime.value = now / 1000; camera.rotation.set((S.smy - 0.5) * -0.05, (S.smx - 0.5) * -0.08, 0);
   { const sec = HUES[secCur] ? secCur : 'hero', hu = HUES[sec]; W.hue.x = lerp(W.hue.x, hu[0], lf(0.03)); W.hue.y = lerp(W.hue.y, hu[1], lf(0.03)); W.hue.z = lerp(W.hue.z, hu[2], lf(0.03));
     const inHero = S.zone === 'hero' && !$('case').classList.contains('on'); W.neb = lerp(W.neb, inHero ? 1 : 0.5 - depthK() * 0.22, lf(0.04)); }
-  bgU.uT.value = now / 1000; bgU.uNeb.value = W.neb; blitU.uA.value = (1 - orbK * skyO) * HI.space; blitU.uT.value = now / 1000; bgU.uDim.value = Math.max(dimS * 0.9, blackS);
+  bgU.uT.value = now / 1000; bgU.uNeb.value = W.neb; blitU.uA.value = starVis; blitU.uT.value = now / 1000; bgU.uDim.value = Math.max(dimS * 0.9, blackS);
+  renderer.setClearAlpha(0); renderer.clear(); if (starVis <= 0.003) return;
   ftAvg = lerp(ftAvg, dt * 1000, 0.02); if (ftAvg > 24 && DPR > 0.75 && !TR.busy) { DPR = Math.max(0.75, DPR - 0.25); ftAvg = 16; resize(); }
-  renderer.setClearAlpha(0); renderer.clear(); if (blitU.uA.value > 0.003) { renderer.setRenderTarget(bgRT); renderer.render(bgScene, bgCam); renderer.setRenderTarget(null); renderer.render(blitScene, bgCam); } const ly = orbK > 0.003; if (ly) renderer.render(lyBack, plCam); renderer.render(scene, camera); if (ly) renderer.render(lyFront, plCam);
+  renderer.setRenderTarget(bgRT); renderer.render(bgScene, bgCam); renderer.setRenderTarget(null); renderer.render(blitScene, bgCam); renderer.render(scene, camera);
 }

@@ -1,7 +1,7 @@
 import { getCollection } from 'astro:content';
-import { avif, webp } from './assets';
+import { webp } from './assets';
 
-const LAYERS = ['sky', 'far', 'cloud', 'ship'] as const;
+const SPRITES = ['ship', 'drone', 'dart', 'heavy', 'boss'] as const;
 
 export async function getProjects() {
   const entries = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
@@ -9,8 +9,8 @@ export async function getProjects() {
 }
 
 export async function getSiteData() {
-  const layers = await Promise.all(LAYERS.map(async (k) => [k, { webp: await webp(k), avif: await avif(k) }] as const));
-  return { projects: await getProjects(), layers: Object.fromEntries(layers) as Record<(typeof LAYERS)[number], { webp: string; avif: string }> };
+  const sprites = await Promise.all(SPRITES.map(async (k) => [k, await webp(`hero/${k}`)] as const));
+  return { projects: await getProjects(), sprites: Object.fromEntries(sprites) as Record<(typeof SPRITES)[number], string> };
 }
 
 export type SiteData = Awaited<ReturnType<typeof getSiteData>>;

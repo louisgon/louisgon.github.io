@@ -4,7 +4,7 @@ import type { ImageMetadata } from 'astro';
 const WEBP = 85;
 const AVIF = 60;
 
-const files = import.meta.glob<{ default: ImageMetadata }>('../assets/*.webp', { eager: true });
+const files = import.meta.glob<{ default: ImageMetadata }>('../assets/**/*.webp', { eager: true });
 
 const source = (name: string) => {
   const file = files[`../assets/${name}.webp`];
