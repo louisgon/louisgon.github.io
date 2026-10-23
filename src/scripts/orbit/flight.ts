@@ -12,7 +12,7 @@ export const cancelInput = () => { input.charge = null; input.keys.clear(); inpu
 
 export function start(kind?: Kind) {
   G.run++; store.set('lg01-played', 1); egg.whisper = -1; egg.over = false; D.hero.style.cursor = '';
-  Object.assign(G, { on: true, m: {}, relic: null, relicLv: 0, shield: 0, heat: 0, sector: 1, banked: 0, arcs: [], wings: [], wingT: 0, clock: 0, score: 0, combo: 1, comboT: -9, wave: 0, lives: 3, drones: [], bolts: [], enemyBolts: [], parts: [], pops: [], trail: [], tele: [], shake: 0, flash: 0, slow: 0, fireT: 0.15, over: false, card: false, mode: '', nextWave: performance.now() + 600, waveDone: true, bossDownAt: -1e9, msgT: -1e9, lock: null });
+  Object.assign(G, { on: true, m: {}, relic: null, relicLv: 0, shield: 0, heat: 0, sector: 1, banked: 0, arcs: [], wings: [], wingT: 0, clock: 0, score: 0, combo: 1, comboT: -9, wave: 0, lives: 3, drones: [], bolts: [], enemyBolts: [], parts: [], pops: [], trail: [], tele: [], shake: 0, flash: 0, slow: 0, fireT: 0.15, over: false, card: false, mode: '', nextWave: performance.now() + 600, draftAt: 0, waveDone: true, bossDownAt: -1e9, msgT: -1e9, lock: null });
   ship.hit = 0; ship.ease = 0.22;
   renderLives(); renderMods(); $('score').textContent = fmt(0);
   $('best1').textContent = fmt(P.best);

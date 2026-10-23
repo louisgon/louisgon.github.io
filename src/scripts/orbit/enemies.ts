@@ -102,9 +102,10 @@ export function waveTick() {
       const intercept = G.leaked === 0 ? 1000 : 0, clean = G.waveHits === 0 ? 500 : 0, bonus = Math.round((intercept + clean) * scoreMul());
       if (bonus) { G.score += bonus; bumpScore(); }
       msg(intercept && clean ? 'Flawless' : intercept ? 'All intercepted' : clean ? 'Untouched' : 'Wave clear', bonus ? `+${bonus}` : 'Choose an upgrade', 900);
-      G.nextWave = 1e15; const run = G.run; setTimeout(() => { if (G.run === run && G.on && !G.over && !G.card) showCard('draft'); }, 950);
+      G.nextWave = 1e15; G.draftAt = F.now + 950;
     }
   }
+  if (G.draftAt && F.now > G.draftAt) { G.draftAt = 0; showCard('draft'); }
   if (G.waveDone && F.now > G.nextWave) spawnWave();
 }
 

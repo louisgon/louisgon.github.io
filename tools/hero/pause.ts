@@ -1,4 +1,4 @@
-import { card, page, playing, shot, type Ctx } from './lib';
+import { card, page, playing, shot, steer, type Ctx } from './lib';
 
 export async function pause(c: Ctx) {
   const { p, context, errors } = await page(c, { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 }, true);
@@ -15,4 +15,16 @@ export async function pause(c: Ctx) {
   c.ok('Resume flies on', !resumed.on && (await playing(p)), resumed);
   c.ok('pause console clean', !errors.length, errors);
   await context.close();
+
+  const g = await page(c, { viewport: { width: 1440, height: 900 } }, true);
+  await g.p.waitForTimeout(1000);
+  await g.p.mouse.move(720, 650); await g.p.mouse.down(); await g.p.waitForTimeout(300); await g.p.mouse.up();
+  const cleared = await steer(g.p, 1440, 900, 30000, () => g.p.evaluate(() => /clear|intercepted|Flawless|Untouched/.test(document.getElementById('msgB')!.textContent ?? '')));
+  await g.p.evaluate(() => dispatchEvent(new Event('blur'))); await g.p.waitForTimeout(1500);
+  const held = await card(g.p);
+  await g.p.click('#cardMore'); await g.p.waitForTimeout(500);
+  const after = await card(g.p);
+  c.ok('pausing between a clear and its draft still drafts', cleared && held.mode === 'pause' && after.on && after.mode === 'draft', { cleared, held, after });
+  c.ok('clear pause console clean', !g.errors.length, g.errors);
+  await g.context.close();
 }

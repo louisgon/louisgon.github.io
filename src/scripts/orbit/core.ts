@@ -39,7 +39,7 @@ export const input = { mx: 0.5, my: 0.5, gx: 0.5, gy: 0.7, charge: null as Charg
 export const G = {
   on: false, run: 0, clock: 0, score: 0, banked: 0, combo: 1, comboT: -9, wave: 0, sector: 1, heat: 0, lives: 3, m: {} as Record<string, number>, relic: null as string | null, relicLv: 0, shield: 0,
   drones: [] as Drone[], bolts: [] as Bolt[], enemyBolts: [] as EnemyBolt[], parts: [] as Part[], pops: [] as Pop[], trail: [] as Trail[], arcs: [] as Arc[], tele: [] as Tele[], wings: [] as Point[],
-  wingT: 0, trailAcc: 0, shake: 0, flash: 0, slow: 0, nextWave: 0, fireT: 0, over: false, card: false, mode: '' as Mode, msgT: -1e9, msgHold: 1100, waveDone: true, leaked: 0, waveHits: 0, cap: 4, bossDownAt: -1e9, lock: null as Drone | null, waveT: 0, warn: 0.6, travel: 1,
+  wingT: 0, trailAcc: 0, shake: 0, flash: 0, slow: 0, nextWave: 0, draftAt: 0, fireT: 0, over: false, card: false, mode: '' as Mode, msgT: -1e9, msgHold: 1100, waveDone: true, leaked: 0, waveHits: 0, cap: 4, bossDownAt: -1e9, lock: null as Drone | null, waveT: 0, warn: 0.6, travel: 1,
 };
 export const egg = { hover: 0, over: false, idleT: 0, whisper: -1, shown: 0 };
 export const F = { now: 0, rdt: 0, dt: 0, t: 0, sy: 0, scroll: 0, px: 0, py: 0, sw: 0, sh: 0, fc: 0 };
