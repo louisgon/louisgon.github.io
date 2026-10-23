@@ -89,7 +89,7 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 - Buttons are refined pills, solid white primary and outline secondary, with labels only. No icon on View the work, Get in touch, Case study or Visit site, and never a diagonal external arrow anywhere.
 - Icons are Lucide inline SVG at a 1.5 stroke with round caps, used only for icon-only controls and small nav cues. Never use text glyph arrows.
 - Pilot Log is Big numbers in a divided row. The About timeline is Big years. Hero is the name and title eyebrow, Ready for launch, the proof line and the Scroll to launch cue.
-- The native cursor always shows. The targeting cursor is decoration for mouse pointers only.
+- The native cursor always shows, except while flying the hero game, where the ship takes its place. The targeting cursor is decoration for mouse pointers only.
 - Hover effects apply only under (hover: hover). Tap highlight is off.
 
 ### Accessibility
