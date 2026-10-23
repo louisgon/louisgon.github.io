@@ -48,7 +48,7 @@ export async function flow(c: Ctx) {
     await p.touchscreen.tap(lx, ly); await p.waitForTimeout(700);
     c.ok('phone Land tap lands', !(await playing(p)));
     await shot(c, p, 'flow-phone-landed');
-    await T('touchStart', 200, 600); await T('touchMove', 200, 450); await T('touchMove', 200, 250); await T('touchEnd'); await p.waitForTimeout(800);
+    await T('touchStart', 200, 640); for (let i = 1; i <= 10; i++) { await T('touchMove', 200, 640 - i * 30); await p.waitForTimeout(16); } await T('touchEnd'); await p.waitForTimeout(800);
     c.ok('phone swipe scrolls the page', !(await playing(p)) && (await scrolled(p)) > 0, await scrolled(p));
     c.ok('phone console clean', !errors.length, errors);
     await context.close();

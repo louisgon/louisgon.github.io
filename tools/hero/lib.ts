@@ -23,6 +23,10 @@ export const shipAt = (p: Page) => p.evaluate(() => [innerWidth / 2, innerHeight
 export const stored = (p: Page, k: string) => p.evaluate((k) => localStorage.getItem(k), k);
 export const card = (p: Page) => p.evaluate(() => { const c = document.getElementById('card')!; return { on: c.classList.contains('on'), mode: c.dataset.mode ?? '', title: document.getElementById('cardT')!.textContent ?? '', opts: [...document.querySelectorAll('#opts .opt .nm')].map((n) => n.textContent ?? ''), score: document.getElementById('score')!.textContent ?? '' }; });
 
+export async function top(p: Page) {
+  for (let i = 0; i < 30 && (await p.evaluate(() => scrollY)) > 0; i++) { await p.evaluate(() => (window as unknown as { __y: (id: string, k: number) => void }).__y('hero', 0)); await p.waitForTimeout(100); }
+}
+
 export async function touch(context: BrowserContext, p: Page) {
   const cdp = await context.newCDPSession(p);
   return (type: 'touchStart' | 'touchMove' | 'touchEnd', x?: number, y?: number) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: x === undefined ? [] : [{ x, y: y! }] });

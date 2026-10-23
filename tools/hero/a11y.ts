@@ -1,4 +1,4 @@
-import { card, page, playing, shot, type Ctx } from './lib';
+import { card, page, playing, shot, top, type Ctx } from './lib';
 
 const focused = (p: import('playwright').Page) => p.evaluate(() => { const e = document.activeElement as HTMLElement; return { id: e.id, text: (e.textContent || e.tagName).trim().slice(0, 24), inHud: !!e.closest('.hud'), inHero: !!e.closest('#hero') }; });
 
@@ -21,9 +21,9 @@ export async function a11y(c: Ctx) {
     const rest: Awaited<ReturnType<typeof focused>>[] = [];
     for (let i = 0; i < 12; i++) { await p.keyboard.press('Tab'); rest.push(await focused(p)); }
     c.ok('tab order at rest reaches the hero links and skips the flight HUD', rest.some((f) => f.text === 'View the work') && rest.some((f) => f.text === 'Get in touch') && !rest.some((f) => f.inHud), rest.map((f) => f.id || f.text).join(' > '));
-    await p.evaluate(() => { (document.activeElement as HTMLElement).blur(); (window as unknown as { __y: (id: string, k: number) => void }).__y('hero', 0); });
-    await p.waitForTimeout(600);
-    await p.mouse.move(150, 300); await p.keyboard.down('Space'); await p.waitForTimeout(320); await p.keyboard.up('Space'); await p.waitForTimeout(300);
+    await p.evaluate(() => (document.activeElement as HTMLElement).blur());
+    await top(p); await p.waitForTimeout(600);
+    await p.mouse.move(150, 300); await p.keyboard.down('Space'); await p.waitForTimeout(450); await p.keyboard.up('Space'); await p.waitForTimeout(300);
     c.ok('a keyboard start moves focus to the flight HUD', (await focused(p)).id === 'hud', await focused(p));
     await p.keyboard.press('Tab');
     const land = await focused(p);
