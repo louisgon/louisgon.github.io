@@ -61,7 +61,7 @@
 #hero .hud .combo i { display: block; width: 64px; height: 3px; overflow: hidden; border-radius: 2px; background: rgb(255 207 138 / 18%); }
 #hero .hud .combo b { display: block; height: 100%; background: var(--gold); transform-origin: 0 50%; will-change: transform; }
 
-#hero .panel { position: absolute; left: 50%; top: 46%; width: min(580px, calc(100% - 24px)); padding: 28px 28px 26px; text-align: center; border: 1px solid rgb(255 207 138 / 35%); border-radius: 18px; background: #060a15; opacity: 0; visibility: hidden; transform: translate3d(-50%, -46%, 0) scale3d(.96, .96, 1); transition: opacity .35s ease, transform .5s var(--ease-out), visibility 0s .35s; will-change: transform, opacity; backface-visibility: hidden; }
+#hero .panel { position: absolute; left: 50%; top: 46%; width: min(580px, calc(100% - 24px)); padding: 28px 28px 26px; text-align: center; border: 1px solid rgb(255 207 138 / 35%); border-radius: 18px; background: #221815; opacity: 0; visibility: hidden; transform: translate3d(-50%, -46%, 0) scale3d(.96, .96, 1); transition: opacity .35s ease, transform .5s var(--ease-out), visibility 0s .35s; will-change: transform, opacity; backface-visibility: hidden; }
 #hero .panel.on { opacity: 1; visibility: visible; pointer-events: auto; transform: translate3d(-50%, -46%, 0); transition: opacity .35s ease, transform .5s var(--ease-out); }
 #hero .panel [hidden] { display: none !important; }
 #hero .panel .mono { color: var(--gold); }
