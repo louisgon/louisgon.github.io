@@ -2,7 +2,7 @@
 
 The Space portfolio for `louis.gg`, live at **https://next.louis.gg**. Branch `next` holds it, and every push to `next` deploys it. Work happens on short branches merged into `next` only when Louis says to ship. `main` still serves the 2021 site through GitHub Pages until a cutover, which happens only on Louis's word.
 
-The site is a static Astro project in plain strict TypeScript with bun and no UI framework. One page holds a three.js hero, Lenis scrolling and a single frame loop.
+The site is a static Astro project in plain strict TypeScript with bun and no UI framework. One page holds a hero drawn on its own 2D canvas with a hidden game, a three.js starfield, Lenis scrolling and a single frame loop. three.js draws the starfield only.
 
 ## Layout
 
@@ -15,10 +15,12 @@ The site is a static Astro project in plain strict TypeScript with bun and no UI
 | `src/content/projects.json` | The eight projects in site order with their `fact` line and case `story`, validated by `src/content.config.ts` |
 | `src/lib/` | Build time helpers. `assets.ts` runs every image through Astro's `getImage`, `site.ts` builds the project list and the data island, `planets.ts` holds the moons and `skills.ts` the stack cards. `case.ts` (the case study markup), `pages.ts` (base aware paths, titles and descriptions) and `icons.ts` run both at build time and in the browser |
 | `src/scripts/` | Client code. `main.ts` runs setup in order and owns the one requestAnimationFrame loop, `state.ts` holds shared state, and each system has its own module |
+| `src/scripts/orbit/` | The hero and its hidden game, hooked into `main.ts` as `initOrbit` and `orbitTick`. `core.ts` holds the shared state and the seeded random source, `backdrop.ts` the planet scene, `enemies.ts` the waves and the monolith, `combat.ts` fire and hits, `upgrades.ts` the upgrades and relics, `hud.ts` the HUD and cards, `flight.ts` start and land, `input.ts` the controls, `render.ts` the ship and the Easter egg cues, and `store.ts` pilot rank storage |
 | `src/styles/` | Global CSS split by section, imported by `Base.astro` in cascade order |
-| `src/assets/` | Source images, one WebP each. The build writes WebP at quality 85 everywhere and AVIF at quality 60 for the four hero layers |
+| `src/assets/` | Source images, one WebP each, with the hero art in `hero/`. The build writes WebP at quality 85 everywhere and AVIF at quality 60 for the two hero backgrounds, which a `picture` in `Hero.astro` serves so each device loads only the one it needs |
 | `public/_headers` | Copied to `dist`, sets `X-Robots-Tag: noindex` |
 | `tools/parity/` | The parity harness (Playwright) |
+| `tools/hero/` | Playwright checks for the hero and its game |
 | `HANDOFF.md` | The full design and engineering history |
 
 ## Commands
@@ -32,11 +34,12 @@ bun run preview        # build, then wrangler dev
 bun run review         # review build with base /a/8t5qjd6kq3na/, republished to the local artifact host
 bun run deploy         # build, then deploy from this machine (fallback when Actions is down, only when Louis asks)
 bun run parity <check> # compare two builds, see below
+bun run hero           # hero and game checks on a test build, --only egg,flow,rogue,a11y,swipe,pause
 ```
 
 ## Parity harness
 
-`bun run parity <check> --a <url or folder> --b <url or folder>` compares two builds. `--a` defaults to https://next.louis.gg and `--b` to `dist`, and a folder is served locally. `--swap <folder>` makes the `b` site load its images from that folder instead of `/_astro`, so pixel comparisons ignore image encoding. `--base` serves the `b` folder under a base path, such as the review build's `/a/8t5qjd6kq3na/`. Reports go to a temp folder unless `--out` names one, and `--only` filters scenarios by name.
+`bun run parity <check> --a <url or folder> --b <url or folder>` compares two builds. `--a` defaults to https://next.louis.gg and `--b` to `dist`, and a folder is served locally. `--swap <folder>` makes the `b` site load its images from that folder instead of `/_astro`, so pixel comparisons ignore image encoding. `--base` serves the `b` folder under a base path, such as the review build's `/a/8t5qjd6kq3na/`. Reports go to a temp folder unless `--out` names one, and `--only` filters scenarios by name. `--mask hero` makes `trace` and `css` set aside the hero, the old `#orb` layer and the intro body classes, and labels the marks where the hero is on screen, for comparing across the orbit hero change.
 
 Scenarios marked `fresh` cover behaviour the baseline does not have (direct case URLs, browser back and forward, refresh with a case open, keyboard paging and a direct load of every slug). They run on `b` only, and their `expect` steps check the path, open case, focus, centred row, history length, title and canonical, and that a directly loaded case has the same DOM as one opened in the page.
 
@@ -58,6 +61,8 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 - `REVIEW=on` sets `__REVIEW__`. The Review tab renders only then, and the `#review` alias points `main.ts` at `review.ts` (which brings `review.css`) or at an empty module, so the live build carries none of it.
 - CSS minification is off because Lightning CSS rewrites `translate3d`, `scale3d` and `rotate3d` into 2D forms. The `output` check guards it.
 - Keep the order of the ticks in `main.ts`. Many modules read values another module wrote earlier in the same frame.
+- The game draws from its own seeded random source and never from Math.random, so parity stays deterministic.
+- `bun run hero` builds with `--mode test` into its own folder. Only that mode compiles the `window.__god` hook the long game checks use, so the live build carries none of it.
 - Case studies route through the History API in `cases.ts`, never a client router. Opening pushes `/work/<id>/`, paging replaces it, and Back or Escape goes back in history when this document pushed the entry. Otherwise it pushes the home URL. `popstate` runs `sync`, which brings the screen in line with the URL through the usual flights. A direct load adopts the server rendered case, lands the page beneath on that row through `HI.skip`, and its Back is a short fade with no flight.
 - Icons are Lucide inline SVG at a 1.5 stroke. Pill buttons are label only.
 
@@ -66,7 +71,8 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 ### Direction
 - The hero is the cockpit moment. You rest in orbit over a dawn planet with the LG-01 ship, and one scroll flies you out into the site. Everything past the hero is a normal, readable, scroll-animated site in the same space theme. Do not reopen other directions.
 - Art direction applies to the hero only. Other sections stay minimal, with thin, exact, code-drawn graphics on near-black and no painted backdrops.
-- The hero is layered painted art (sky, far world, clouds, ship) in the site's WebGL canvas with small life in each layer. Improve it by retouching or repainting layers, never by going back to procedural planets.
+- The hero is painted planet art on the hero canvas with LG-01 drawn over it and small life in the scene. Improve it by retouching or repainting the art, never by going back to procedural planets.
+- The game stays an Easter egg. No button, banner or copy points to it beyond the ship hover and the single idle whisper.
 - The project planets are the real solar system in project order (Mercury Air Mail to Neptune UMF) with their real moons. Nothing is drawn behind a planet.
 
 ### Motion
@@ -82,7 +88,7 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 - Header is HUD brackets around the active link, a 00 to 05 readout, the labels Log, Stack, Work, About and Contact, and a solid white Let's talk pill.
 - Buttons are refined pills, solid white primary and outline secondary, with labels only. No icon on View the work, Get in touch, Case study or Visit site, and never a diagonal external arrow anywhere.
 - Icons are Lucide inline SVG at a 1.5 stroke with round caps, used only for icon-only controls and small nav cues. Never use text glyph arrows.
-- Pilot Log is Big numbers in a divided row. The About timeline is Big years. Hero is Ready for launch with no overline or tagline.
+- Pilot Log is Big numbers in a divided row. The About timeline is Big years. Hero is the name and title eyebrow, Ready for launch, the proof line and the Scroll to launch cue.
 - The native cursor always shows. The targeting cursor is decoration for mouse pointers only.
 - Hover effects apply only under (hover: hover). Tap highlight is off.
 
