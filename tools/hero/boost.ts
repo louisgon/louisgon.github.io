@@ -92,7 +92,8 @@ export async function boost(c: Ctx) {
     c.ok('phone drags never scroll', (await scrolled(p)) === 0);
     c.ok('phone pixel ratio is capped at 1.5', d.dpr <= 1.5, d.dpr);
     await p.waitForTimeout(1500); await shot(c, p, 'boost-phone-play');
-    const [lx, ly] = await box(p, 'land'); await p.touchscreen.tap(lx, ly); await p.waitForTimeout(1300);
+    await clearCards(p); const [lx, ly] = await box(p, 'land'); await p.touchscreen.tap(lx, ly);
+    await p.waitForFunction(() => { const s = (window as unknown as { __lg: { st: () => St } }).__lg.st(); return !s.on && s.view === 0; }, null, { timeout: 4000 }).catch(() => {});
     c.ok('phone Land tap lands back at the orbit hero', !(await playing(p)) && (await st(p)).view === 0);
     c.ok('phone flight console clean', !errors.length, errors);
     await context.close();
