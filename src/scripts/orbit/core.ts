@@ -50,7 +50,7 @@ export const mk = (w: number, h = w) => { const c = document.createElement('canv
 
 export const V = { W: 0, H: 0, DPR: 1, tall: false, short: false, U: 1, Z: 1, vw: 1, vh: 1, far: 600, dprCap: 1.5, vis: true };
 export const A = { ready: false, base: false, bg: null as HTMLImageElement | null, ship: null as HTMLImageElement | null, shipTop: null as HTMLImageElement | null, art: [] as HTMLImageElement[][], nebula: null as HTMLImageElement | null, meta: null as Meta | null, aspR: 0.38, aspT: 0.855, tsq0: 0.22 };
-export const scene = { vp: { x: 0, y: 0 }, sun: { x: 0.6, y: 0.25 }, limb: 0.3, edge: [0.3, 0, 0], glow: 1 };
+export const scene = { vp: { x: 0, y: 0 }, sun: { x: 0.6, y: 0.25 }, limb: 0.3, edge: [0.3, 0, 0], lit: 1, glow: 1 };
 export const rs = { x: 0, y: 0, vx: 0, vy: 0, tx: 0.5, ty: 0.66, sc: 1, bank: 0, base: 300, restX: 0.5, restY: 0.66, noz: [[0.33, 0.62], [0.67, 0.62]] };
 export const ship = { x: 0, y: 0, vx: 0, vy: 0, cx: 0, cy: 0, h: 0, hv: 0, bank: 0, play: 160, kick: 0, muzzle: 0, tnoz: [[0.31, 0.9], [0.69, 0.9]] };
 export const cam = { x: 0, y: 0 };

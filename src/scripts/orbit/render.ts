@@ -1,6 +1,6 @@
 import { reduce } from '../state';
-import { A, at, base, C, clamp, ctx, egg, F, G, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
-import { DCOL, PAL, prepFaction, S, SK, SPR, TX } from './art';
+import { A, at, base, C, clamp, ctx, egg, F, G, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, scene, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
+import { DCOL, LIT, PAL, prepFaction, S, SK, SPR, TX } from './art';
 import { AR, BM, BO, DB, EB, EN, FX, MI, NR, RB, rm, SH, SP, TG, WS } from './world';
 import { played, store } from './store';
 
@@ -21,23 +21,35 @@ export function drawRear(x: number, y: number, sw: number, sqy: number, al: numb
   trail = trail.filter((p) => !p.done); if (trail.length > 120) trail.splice(0, trail.length - 120);
   if (al <= 0.004) return;
 
+  const thr = (boost ? 1 : 0.55 + egg.hover * 0.35) + clamp(Math.hypot(vx, vy) / V.W) * 0.6 + punch * 0.9, lit = scene.lit * al;
+  if (lit > 0.01) { ctx.save(); ctx.translate(x, y + shh * 0.46); ctx.scale(1, 0.36); sprite(SPR.trail, 0, 0, sw * 0.62, 0.2 * lit * Math.min(thr, 1.2) * (1 + 0.08 * flick(t, 0))); ctx.restore(); }
   ctx.globalCompositeOperation = 'source-over';
   ctx.save(); ctx.translate(x, y); ctx.rotate(rs.bank * 0.55); ctx.scale(1 - Math.abs(rs.bank) * 0.18, sqy);
   if (al < 1) ctx.globalAlpha = al;
   ctx.drawImage(A.ship, -sw / 2, -shh / 2, sw, shh);
-  ctx.globalAlpha = 1;
+  if (lit > 0.01 && LIT.shade && LIT.light) {
+    ctx.globalAlpha = lit; ctx.globalCompositeOperation = 'multiply'; ctx.drawImage(LIT.shade, -sw / 2, -shh / 2, sw, shh);
+    ctx.globalAlpha = lit * Math.min(1, scene.glow); ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(LIT.light, -sw / 2, -shh / 2, sw, shh);
+  }
   ctx.globalCompositeOperation = 'lighter';
-  const thr = (boost ? 1 : 0.55 + egg.hover * 0.35) + (reduce ? 0 : 0.08 * Math.sin(t * 23)) + clamp(Math.hypot(vx, vy) / V.W) * 0.6 + punch * 0.9;
-  for (const n of rs.noz) {
-    const nx = (n[0] - 0.5) * sw, ny = (n[1] - 0.5) * shh;
+  if (LIT.spill) { ctx.globalAlpha = al * clamp(thr) * (0.62 + 0.06 * flick(t, 0) + 0.06 * flick(t, 1)); ctx.drawImage(LIT.spill, -sw / 2, -shh / 2, sw, shh); }
+  ctx.globalAlpha = 1;
+  for (let i = 0; i < rs.noz.length; i++) {
+    const n = rs.noz[i], nx = (n[0] - 0.5) * sw, ny = (n[1] - 0.5) * shh, f = flick(t, i), th = thr * (1 + 0.05 * f), wv = reduce ? 0 : Math.sin(t * 4.3 + i * 1.9) * 0.6 + Math.sin(t * 7.1 + i * 0.7) * 0.4;
     if (punch > 0.01) sprite(SPR.trail, nx, ny + sw * 0.04, sw * 0.3 * punch, 0.5 * punch * al);
-    sprite(SPR.cyan, nx, ny, sw * 0.13 * thr, 0.95 * al);
-    const pl = sw * (0.1 + 0.16 * thr), wd = sw * 0.032, fl = reduce ? 1 : 0.85 + 0.15 * Math.sin(t * 37 + nx);
-    const g = ctx.createLinearGradient(nx, ny, nx, ny + pl * fl); g.addColorStop(0, `rgba(170,232,255,${0.6 * thr * al})`); g.addColorStop(0.5, `rgba(110,200,255,${0.25 * thr * al})`); g.addColorStop(1, 'rgba(80,170,255,0)');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(nx - wd, ny); ctx.quadraticCurveTo(nx - wd * 0.7, ny + pl * 0.45 * fl, nx, ny + pl * fl); ctx.quadraticCurveTo(nx + wd * 0.7, ny + pl * 0.45 * fl, nx + wd, ny); ctx.closePath(); ctx.fill();
+    sprite(SPR.cyan, nx, ny, sw * 0.13 * th, 0.95 * al);
+    const pl = sw * (0.1 + 0.16 * th), wd = sw * 0.032;
+    plume(nx, ny, wd * 2.2, pl * 1.3, wv * wd * 1.5, th * al, 0.13, 0.05);
+    plume(nx, ny, wd, pl * (1 + 0.03 * f), wv * wd * 0.5, th * al, 0.6, 0.25);
   }
   ctx.restore();
   ctx.globalCompositeOperation = 'source-over';
+}
+
+const flick = (t: number, i: number) => (reduce ? 0 : Math.sin(t * 11.3 + i * 2.1) * 0.5 + Math.sin(t * 17.9 + i * 4.3) * 0.3 + Math.sin(t * 29.7 + i) * 0.2);
+function plume(nx: number, ny: number, wd: number, pl: number, sway: number, a: number, a0: number, a1: number) {
+  const g = ctx.createLinearGradient(nx, ny, nx + sway, ny + pl); g.addColorStop(0, `rgba(170,232,255,${a0 * a})`); g.addColorStop(0.5, `rgba(110,200,255,${a1 * a})`); g.addColorStop(1, 'rgba(80,170,255,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(nx - wd, ny); ctx.quadraticCurveTo(nx - wd * 0.7 + sway * 0.4, ny + pl * 0.45, nx + sway, ny + pl); ctx.quadraticCurveTo(nx + wd * 0.7 + sway * 0.4, ny + pl * 0.45, nx + wd, ny); ctx.closePath(); ctx.fill();
 }
 
 export function drawTrail(k: number) {

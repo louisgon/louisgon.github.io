@@ -2,7 +2,7 @@ import { DATA } from '../data';
 import { HI, reduce } from '../state';
 import { $, out, sstep } from '../util';
 import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, F, FAC, G, HOLD, initCore, input, LAND, lerp, restW, rs, scene, screen, ship, shipR, STICK, TYPES, V, VP } from './core';
-import { initArt, prepSprites, S } from './art';
+import { initArt, LIT, prepLight, prepSprites, S } from './art';
 import { analyse, drawOrbit, drawSpace, drawStreaks, initBackdrop, nozzles, prepMoons } from './backdrop';
 import { compact, EN, gridBuild, sizeWorld, TQ, WS } from './world';
 import { separate, spawner, updEnemies } from './enemies';
@@ -26,7 +26,7 @@ const load = (src: string) => new Promise<HTMLImageElement | null>((r) => { cons
 function useBg(img: HTMLImageElement | null) {
   A.bg = img && img.naturalWidth ? img : null; if (!A.bg) return;
   let m = metas.get(A.bg.currentSrc); if (!m) metas.set(A.bg.currentSrc, (m = analyse(A.bg)));
-  A.meta = m; scene.sun = m.sun; scene.limb = m.limb; scene.edge = m.edge; prepMoons(A.bg);
+  A.meta = m; scene.sun = m.sun; scene.limb = m.limb; scene.edge = m.edge; prepMoons(A.bg); light();
 }
 
 function restLayout() {
@@ -41,7 +41,14 @@ function restLayout() {
     for (const el of D.copy.children) { r.selectNodeContents(el); right = Math.max(right, r.getBoundingClientRect().right - x0); }
     b = Math.min(H * 0.6, W - right - 56); x = (right + W) / 2 / W; y = 0.58;
   }
-  rs.restX = x; rs.restY = y; rs.base = b;
+  rs.restX = x; rs.restY = y; rs.base = b; light();
+}
+
+function light() {
+  if (!A.ship) return;
+  const { W, H } = V, img = A.bg; let sx = W * scene.sun.x, sy = H * scene.sun.y;
+  if (img) { const s = Math.max(W / img.width, H / img.height) * 1.07, w = img.width * s, h = img.height * s; sx = (W - w) / 2 + scene.sun.x * w; sy = (H - h) / 2 + scene.sun.y * h; }
+  prepLight(sx - W * rs.restX, sy - H * rs.restY, rs.base * V.DPR * 1.15);
 }
 
 function size() {
@@ -69,7 +76,7 @@ export function initOrbit() {
   const sp = DATA.sprites;
   Promise.all([bg, load(sp.ship)]).then(([b, s]) => {
     useBg(b); A.ship = s; A.base = true;
-    if (s) { rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; }
+    if (s) { rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; LIT.key = ''; }
     size(); addEventListener('resize', size); new ResizeObserver(() => restLayout()).observe(D.copy); document.fonts.ready.then(() => restLayout());
     pic.addEventListener('load', () => pic.decode().then(() => useBg(pic), () => useBg(pic)));
     const art = FAC.flatMap((f) => TYPES.map((T) => sp[`${f.id}-${T.role}`]));
@@ -171,7 +178,7 @@ export function orbitTick(now: number, hp: number) {
   G.shake = Math.max(0, G.shake - rdt * 1.9);
   const amp = reduce ? 0 : G.shake * G.shake * 16 * V.U;
   C.sx = amp * (Math.sin(now * 0.053) * 0.6 + Math.sin(now * 0.031 + 1.3) * 0.4); C.sy = amp * (Math.sin(now * 0.047 + 2.1) * 0.6 + Math.sin(now * 0.029) * 0.4);
-  boost(VP.p);
+  boost(VP.p); scene.lit = 1 - sstep(0, 0.42, VP.p);
   if (!reduce) D.copy.style.setProperty('--cy', `${(-scrollY * 0.18 + DV.drop * 0.7).toFixed(1)}px`);
   C.wz = DV.gz; C.dz = V.DPR * C.wz; C.ox = DV.tx - ship.x * C.wz + C.sx; C.oy = DV.ty - ship.y * C.wz + C.sy;
   C.x0 = (C.sx - C.ox) / C.wz; C.x1 = (W + C.sx - C.ox) / C.wz; C.y0 = (C.sy - C.oy) / C.wz; C.y1 = (H + C.sy - C.oy) / C.wz;
