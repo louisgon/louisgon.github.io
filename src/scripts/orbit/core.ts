@@ -26,7 +26,7 @@ export const TYPES = [
 export const TAU = Math.PI * 2, DIVE = 1.45, LAND = 1, TILE = 980, CLOUDT = 2400, GZ0 = 1.15, TURN = Math.PI * 3;
 export const coarse = matchMedia('(pointer: coarse)').matches;
 export const HOLD: Record<Kind, number> = { touch: 300, mouse: 230, key: 230 };
-export const STICK = { r: 54, dz: 6 };
+export const STICK = { r: 64, dz: 10, curve: 1.7, ease: 9 };
 
 let seed = 0x0b17;
 export const rand = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };

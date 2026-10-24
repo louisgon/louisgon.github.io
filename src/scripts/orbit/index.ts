@@ -127,7 +127,7 @@ export function orbitTick(now: number, hp: number) {
 
   const px0 = ship.x, py0 = ship.y;
   if (top && !G.card && !G.dead) {
-    const maxV = 640 * V.U * spdM() * (V.tall ? 1.1 : 1);
+    const maxV = 640 * V.U * spdM() * (V.tall && !input.stick ? 1.1 : 1);
     let dvx = 0, dvy = 0;
     if (input.keys.size && !auto) {
       let kx = 0, ky = 0; input.keys.forEach((k) => { kx += STEER[k][0]; ky += STEER[k][1]; });
@@ -135,7 +135,7 @@ export function orbitTick(now: number, hp: number) {
       input.gx = ship.x; input.gy = ship.y; input.follow = false;
     } else if (input.stick && !auto) {
       const s = input.stick, dx = s.x - s.ox, dy = s.y - s.oy, d = Math.hypot(dx, dy);
-      if (d > STICK.dz) { const m = Math.min(1, (d - STICK.dz) / (STICK.r - STICK.dz)) ** 1.2 * maxV; dvx = dx / d * m; dvy = dy / d * m; }
+      if (d > STICK.dz) { const m = Math.min(1, (d - STICK.dz) / (STICK.r - STICK.dz)) ** STICK.curve * maxV; dvx = dx / d * m; dvy = dy / d * m; }
       input.gx = ship.x; input.gy = ship.y;
     } else {
       if (auto && dt > 0) { gridBuild(); bot(rdt); }
@@ -144,7 +144,7 @@ export function orbitTick(now: number, hp: number) {
       const dx = input.gx - ship.x, dy = input.gy - ship.y, d = Math.hypot(dx, dy);
       if (d > 0.5) { const s = Math.min(maxV, d * 9); dvx = dx / d * s; dvy = dy / d * s; }
     }
-    const f = 1 - Math.exp(-dt * 16);
+    const f = 1 - Math.exp(-dt * (input.last === 'touch' ? STICK.ease : 16));
     ship.cx = dvx; ship.cy = dvy;
     ship.vx += (dvx - ship.vx) * f; ship.vy += (dvy - ship.vy) * f;
     ship.x += ship.vx * dt; ship.y += ship.vy * dt;
