@@ -5,7 +5,7 @@ function soa<K extends string>(n: number, keys: readonly K[]) { const p = { n: 0
 export function rm<K extends string>(p: Pool<K>, i: number) { const j = --p.n; if (i !== j) for (const k of p.keys) { const a = p[k]; a[i] = a[j]; } }
 
 export const MAXE = coarse ? 170 : 340, CAPE = coarse ? 150 : 320;
-export const EN: Enemy[] = Array.from({ length: MAXE }, () => ({ t: 0, id: 0, x: 0, y: 0, vx: 0, vy: 0, kx: 0, ky: 0, hp: 1, max: 1, w: 1, r: 1, L: 0, sp: 1, flash: -1, elite: 0, ph: 0, mode: 0, st: 0, dx: 0, dy: 0, fire: 0, charge: 0, sum: 0, wingT: 0, ringT: 0, nova: 0, arc: 0, rot: 0, alpha: 0, age: 0, dead: 0 }));
+export const EN: Enemy[] = Array.from({ length: MAXE }, () => ({ t: 0, id: 0, x: 0, y: 0, vx: 0, vy: 0, kx: 0, ky: 0, hp: 1, max: 1, w: 1, r: 1, L: 0, sp: 1, flash: -1, elite: 0, ph: 0, mode: 0, st: 0, dx: 0, dy: 0, fire: 0, charge: 0, sum: 0, wingT: 0, ringT: 0, nova: 0, arc: 0, rot: 0, alpha: 0, age: 0, dead: 0, f: 0, peel: 0 }));
 export const WS = { nE: 0, serial: 1, nFX: 0, gc: 72, gw: 1, gh: 1, gx0: 0, gy0: 0, maxr: 40, boss: -1 };
 
 export const SP = soa(coarse ? 560 : 1100, ['x', 'y', 'vx', 'vy', 'l', 'm', 's', 'c', 'dr'] as const);
@@ -14,7 +14,7 @@ export const SH = soa(coarse ? 260 : 420, ['x', 'y', 'v', 'st', 'sp', 'ph', 'k',
 export const BO = soa(180, ['x', 'y', 'vx', 'vy', 'l', 'd', 'p', 'h'] as const);
 export const MI = soa(90, ['x', 'y', 'vx', 'vy', 'l', 'd', 'r', 'g', 'tid', 'sp'] as const);
 export const MT: (Enemy | null)[] = new Array(90).fill(null);
-export const EB = soa(10, ['x', 'y', 'vx', 'vy', 'l'] as const);
+export const EB = soa(10, ['x', 'y', 'vx', 'vy', 'l', 'f'] as const);
 export const FX = Array.from({ length: 120 }, () => ({ k: 0, x: 0, y: 0, r: 0, t: 0, d: 1, c: 0, a: 1 }));
 export const NR = Array.from({ length: 10 }, () => ({ on: false, x: 0, y: 0, r: 0, t: 0, d: 1, id: 0, dmg: 0, kb: 0, c: 0 }));
 export const BM = Array.from({ length: 24 }, () => ({ on: false, x0: 0, y0: 0, x1: 0, y1: 0, t: 0, d: 0.16, w: 8 }));
@@ -54,7 +54,7 @@ export function spawn(type: number, x: number, y: number, elite = 0) {
   e.t = type; e.id = WS.serial++; e.x = x; e.y = y; e.vx = e.vy = e.kx = e.ky = 0;
   e.hp = e.max = T.hp * hpScale() * (elite ? 7 : 1); e.elite = elite; e.sp = rnd(0.88, 1.12) * (elite ? 1.08 : 1);
   e.flash = -1; e.ph = rand() * TAU; e.mode = 0; e.st = 0; e.dx = 0; e.dy = 0; e.fire = rnd(2, 5); e.charge = 0; e.sum = 4;
-  e.wingT = -9; e.ringT = -9; e.nova = 0; e.arc = 0; e.rot = Math.atan2(ship.x - x, y - ship.y); e.alpha = 0; e.age = 0; e.dead = 0;
+  e.wingT = -9; e.ringT = -9; e.nova = 0; e.arc = 0; e.rot = Math.atan2(ship.x - x, y - ship.y); e.alpha = 0; e.age = 0; e.dead = 0; e.f = G.fac; e.peel = 0;
   sizeE(e); return e;
 }
 

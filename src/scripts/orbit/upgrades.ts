@@ -47,7 +47,7 @@ export function cacheOptions(): Option[] {
 export function openCache() {
   const c = G.cache!, U = V.U; G.cache = null;
   fx(2, c.x, c.y, 360 * U, 0.8, 0); fx(0, c.x, c.y, 160 * U, 0.45, 1); sparks(c.x, c.y, 26, 420 * U, 1, 9); addShake(0.2);
-  showCard('cache');
+  showCard('cache', c.f);
 }
 export function choose(i: number) {
   const o = G.opts[i], fromCache = G.mode === 'cache', U = V.U; if (!o || !G.card || (G.mode !== 'level' && !fromCache)) return;

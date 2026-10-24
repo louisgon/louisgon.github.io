@@ -1,6 +1,6 @@
 import { reduce } from '../state';
 import { $ } from '../util';
-import { clamp, D, fmtT, G, input, pad2, sayT, ship, type Kind, type Mode, type Option } from './core';
+import { clamp, D, FAC, fmtT, G, input, pad2, sayT, ship, type Kind, type Mode, type Option } from './core';
 import { P } from './store';
 import { bl, maxHull, WEAP } from './weapons';
 import { options, cacheOptions } from './upgrades';
@@ -32,7 +32,7 @@ let armT = 0, clockT = 0, upT = 0;
 const H = { sec: -1, kills: -1, lv: -1, xp: 0, xpSet: -1, msg: -1, vig: -1, boss: -1 };
 export const resetHud = () => Object.assign(H, { sec: -1, kills: -1, lv: -1, xp: 0 });
 
-export const msg = (b: string, s: string, hold = 1100, gold = false) => { $('msgB').textContent = b; $('msgS').textContent = s; D.msg.classList.toggle('gold', gold); G.msgT = performance.now(); G.msgHold = hold; };
+export const msg = (b: string, s: string, hold = 1100, gold = false, f = '') => { $('msgB').textContent = b; $('msgS').textContent = s; D.msg.classList.toggle('gold', gold); D.msg.dataset.f = f; G.msgT = performance.now(); G.msgHold = hold; };
 export const live = (t: string) => { $('live').textContent = ''; setTimeout(() => ($('live').textContent = t), 30); };
 export const buzz = (ms: number) => { try { if (navigator.vibrate && navigator.userActivation && navigator.userActivation.hasBeenActive) navigator.vibrate(ms); } catch {} };
 
@@ -62,9 +62,10 @@ const optHTML = (o: Option, i: number) => {
   return `<button type="button" class="opt k${o.kind}" data-i="${i}">${tag}<kbd>${i + 1}</kbd>${svg(o.icon)}<span class="tx"><span class="nm">${o.name}</span><span class="ds">${o.d}</span>${pips}${o.pr ? `<span class="pr">${o.pr}</span>` : ''}</span></button>`;
 };
 
-export function showCard(mode: Mode) {
+export const reached = () => (G.fac || G.lap ? `Reached <em>${FAC[G.fac].reach}</em>${G.lap ? ` on lap ${pad2(G.lap + 1)}` : ''}` : `Fought <em>${FAC[0].reach}</em>`);
+export function showCard(mode: Mode, f = 0) {
   G.card = true; G.mode = mode; D.hero.classList.add('carded');
-  const card = D.card, parts = { big: $('cardBig'), sub: $('cardSub'), rs: $('cardStats'), bld: $('cardBuild'), opts: D.opts, act: $('cardActions') };
+  const card = D.card, parts = { big: $('cardBig'), sub: $('cardSub'), rs: $('cardStats'), far: $('cardFar'), bld: $('cardBuild'), opts: D.opts, act: $('cardActions') };
   const show = (on: string[]) => Object.entries(parts).forEach(([k, el]) => (el.hidden = !on.includes(k)));
   let opts: Option[] = [];
   if (import.meta.env.MODE === 'test') T.botT = 0;
@@ -74,7 +75,7 @@ export function showCard(mode: Mode) {
     show(['opts']);
   } else if (mode === 'cache') {
     opts = cacheOptions();
-    $('cardT').textContent = opts[0].kind === 'e' ? 'Monolith cache · Evolve one' : 'Monolith cache · Choose one';
+    $('cardT').textContent = `${FAC[f].short} cache · ${opts[0].kind === 'e' ? 'Evolve one' : 'Choose one'}`;
     show(['opts']);
   } else if (mode === 'pause') {
     $('cardT').textContent = 'Paused'; D.cardMore.textContent = 'Resume'; show(['act']);
@@ -83,14 +84,15 @@ export function showCard(mode: Mode) {
     $('cardBig').innerHTML = fmtT(G.clock);
     $('cardSub').innerHTML = G.newBest ? 'New best' : `Best <em>${fmtT(P.best)}</em>`;
     $('cardStats').innerHTML = `<div>Kills<b>${G.kills}</b></div><div>Level<b>${pad2(G.level)}</b></div>`;
+    $('cardFar').innerHTML = reached();
     $('cardBuild').innerHTML = buildHTML();
-    D.cardMore.textContent = 'Fly again'; show(['big', 'sub', 'rs', 'bld', 'act']);
+    D.cardMore.textContent = 'Fly again'; show(['big', 'sub', 'rs', 'far', 'bld', 'act']);
   }
   G.opts = opts;
   D.opts.innerHTML = opts.map(optHTML).join('');
   card.dataset.mode = mode; card.dataset.n = String(opts.length); D.opts.style.setProperty('--n', String(Math.max(1, opts.length))); card.classList.add('on');
   if (mode === 'level' || mode === 'cache') { D.opts.classList.add('arm'); clearTimeout(armT); armT = window.setTimeout(() => D.opts.classList.remove('arm'), 380); }
-  live(mode === 'level' || mode === 'cache' ? `${$('cardT').textContent}. ${opts.map((o, i) => `${i + 1}, ${o.name}${o.kind === 'e' ? ', evolution' : o.L ? ` level ${o.L + 1}` : ', new'}`).join('. ')}` : mode === 'pause' ? 'Paused.' : `Hull lost. Time ${sayT(G.clock)}. Fly again or land.`);
+  live(mode === 'level' || mode === 'cache' ? `${$('cardT').textContent}. ${opts.map((o, i) => `${i + 1}, ${o.name}${o.kind === 'e' ? ', evolution' : o.L ? ` level ${o.L + 1}` : ', new'}`).join('. ')}` : mode === 'pause' ? 'Paused.' : `Hull lost. Time ${sayT(G.clock)}. ${reached().replace(/<\/?em>/g, '')}. Fly again or land.`);
   if (input.last === 'key') setTimeout(() => { const f = card.querySelector<HTMLElement>('.opt') || D.cardMore; if (f && !f.hidden) f.focus({ preventScroll: true }); }, 60);
 }
 

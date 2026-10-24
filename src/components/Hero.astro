@@ -24,13 +24,14 @@ const [wideAvif, wideWebp, tallAvif, tallWebp] = await Promise.all([avif('hero/b
     <div class="lv" aria-hidden="true" id="lv"><i></i><i></i><i></i></div>
     <div class="ctl mono" aria-hidden="true" id="ctl">Mouse or <kbd>WASD</kbd> to steer</div>
     <button type="button" class="land mono" id="land">Land <kbd>Esc</kbd></button>
-    <div class="boss" id="bossBar" aria-hidden="true"><span class="mono" id="bossName">Monolith</span><i><b id="bossFill"></b></i></div>
+    <div class="boss" id="bossBar" aria-hidden="true"><span class="mono" id="bossName">Rival flagship</span><i><b id="bossFill"></b></i></div>
     <div class="msg" id="msg" aria-hidden="true"><b id="msgB"></b><span class="mono" id="msgS"></span></div>
     <div class="panel" id="card" role="dialog" aria-labelledby="cardT">
       <div class="mono" id="cardT">Level 02</div>
       <b class="big" id="cardBig">00<i class="sep"></i>00</b>
       <div class="sub mono" id="cardSub">New best</div>
       <div class="rs mono" id="cardStats"></div>
+      <div class="far mono" id="cardFar"></div>
       <div class="bld" id="cardBuild"></div>
       <div class="opts" id="opts"></div>
       <div class="hc" id="cardActions"><button type="button" class="btn" id="cardMore">Fly again</button><button type="button" class="btn ghost" id="cardBack">Land</button></div>

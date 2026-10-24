@@ -1,14 +1,14 @@
 import { reduce } from '../state';
-import { A, at, base, C, clamp, ctx, DV, egg, F, G, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, TYPES, V, VP } from './core';
-import { S, SPR, TX } from './art';
+import { A, at, base, C, clamp, ctx, egg, F, G, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
+import { DCOL, PAL, prepFaction, S, SK, SPR, TX } from './art';
 import { AR, BM, BO, DB, EB, EN, FX, MI, NR, RB, rm, SH, SP, TG, WS } from './world';
 import { played, store } from './store';
 
 type Trail = { x: number; y: number; life: number; max: number; r: number; j: number; done?: boolean };
 let trail: Trail[] = [], RBc = 0;
-const DASH = [7, 9], NODASH: number[] = [], DCOL = ['#2a2019', '#4a3a2c', '#17130f', '#6a4f37'], JIT = new Float32Array(256);
+const DASH = [7, 9], NODASH: number[] = [], JIT = new Float32Array(256);
 
-export function drawRear(x: number, y: number, sw: number, sqy: number, al: number, vx: number, vy: number, boost: number) {
+export function drawRear(x: number, y: number, sw: number, sqy: number, al: number, vx: number, vy: number, boost: number, punch = 0) {
   if (!A.ship) return;
   const { rdt, t } = F, shh = sw * A.aspR;
   screen();
@@ -27,9 +27,10 @@ export function drawRear(x: number, y: number, sw: number, sqy: number, al: numb
   ctx.drawImage(A.ship, -sw / 2, -shh / 2, sw, shh);
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'lighter';
-  const thr = (boost ? 1 : 0.55 + egg.hover * 0.35) + (reduce ? 0 : 0.08 * Math.sin(t * 23)) + clamp(Math.hypot(vx, vy) / V.W) * 0.6;
+  const thr = (boost ? 1 : 0.55 + egg.hover * 0.35) + (reduce ? 0 : 0.08 * Math.sin(t * 23)) + clamp(Math.hypot(vx, vy) / V.W) * 0.6 + punch * 0.9;
   for (const n of rs.noz) {
     const nx = (n[0] - 0.5) * sw, ny = (n[1] - 0.5) * shh;
+    if (punch > 0.01) sprite(SPR.trail, nx, ny + sw * 0.04, sw * 0.3 * punch, 0.5 * punch * al);
     sprite(SPR.cyan, nx, ny, sw * 0.13 * thr, 0.95 * al);
     const pl = sw * (0.1 + 0.16 * thr), wd = sw * 0.032, fl = reduce ? 1 : 0.85 + 0.15 * Math.sin(t * 37 + nx);
     const g = ctx.createLinearGradient(nx, ny, nx, ny + pl * fl); g.addColorStop(0, `rgba(170,232,255,${0.6 * thr * al})`); g.addColorStop(0.5, `rgba(110,200,255,${0.25 * thr * al})`); g.addColorStop(1, 'rgba(80,170,255,0)');
@@ -59,13 +60,13 @@ export function drawTrail(k: number) {
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 }
 
-export function drawTop(x: number, y: number, sw: number, sqy: number, al: number, shOff: number, t: number) {
+export function drawTop(x: number, y: number, sw: number, sqy: number, al: number, t: number) {
   if (!A.shipTop) return;
   const { DPR, U, Z } = V, sh = sw * A.aspT, c = Math.cos(ship.h), s = Math.sin(ship.h), sqx = 1 - 0.12 * Math.abs(ship.bank);
   const ma = c * sqx * DPR, mb = s * sqx * DPR, mc = -s * sqy * DPR, md = c * sqy * DPR, kx = -s * ship.kick * 2 * U * Z, ky = c * ship.kick * 2 * U * Z;
-  if (S.shipS) { const so = 30 * U * Z * shOff, k = sw / S.shipS.iw, w2 = S.shipS.w * k, h2 = S.shipS.h * k; ctx.globalAlpha = 0.52 * al * DV.ga; ctx.setTransform(ma, mb, mc, md, (x + so * 0.6 + C.sx) * DPR, (y + so + C.sy) * DPR); ctx.drawImage(S.shipS.c, -w2 / 2, -h2 / 2, w2, h2); }
   const blink = G.blinkT > 0 && !reduce && Math.floor(G.blinkT * 16) % 2 === 0;
   ctx.setTransform(ma, mb, mc, md, (x + kx + C.sx) * DPR, (y + ky + C.sy) * DPR);
+  ctx.globalCompositeOperation = 'lighter'; sprite(SPR.trail, 0, sh * 0.18, sw * 0.95, 0.2 * al); ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = (blink ? 0.28 : 1) * al;
   ctx.drawImage(S.shipT && sw * DPR <= S.shipT.width * 1.05 ? S.shipT : A.shipTop, -sw / 2, -sh / 2, sw, sh);
   ctx.globalCompositeOperation = 'lighter';
@@ -81,31 +82,36 @@ export function drawTop(x: number, y: number, sw: number, sqy: number, al: numbe
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 }
 
+const cull = (e: (typeof EN)[number]) => e.w * (e.t === T_BS ? 2 : 1.6);
+let glowK = 1;
 export function drawEnemies() {
-  const U = V.U;
-  for (let i = 0; i < WS.nE; i++) {
-    const e = EN[i]; if (e.dead || e.mode === -1 || e.alpha <= 0.01 || !onView(e.x, e.y, e.w * 1.6)) continue;
-    const Sh = S.s[e.t]; if (!Sh) continue;
-    const sc = e.w / Sh.iw, sw = Sh.w * sc, sh = Sh.h * sc, so = TYPES[e.t].sh * U;
-    ctx.globalAlpha = e.alpha * 0.48; at(e.x + so * 0.6, e.y + so, Math.cos(e.rot), Math.sin(e.rot)); ctx.drawImage(Sh.c, -sw / 2, -sh / 2, sw, sh);
-  }
   for (let pass = 0; pass < 2; pass++) for (let i = 0; i < WS.nE; i++) {
-    const e = EN[i]; if (e.dead || e.mode === -1 || e.alpha <= 0.01 || (e.t >= T_HV) !== (pass === 0) || !onView(e.x, e.y, e.w * 1.6)) continue;
-    const Sp = e.elite ? S.e[e.t] : S.n[e.t]; if (!Sp) continue;
-    const sc = e.w / Sp.iw, sw = Sp.w * sc, sh = Sp.h * sc;
+    const e = EN[i]; if (e.dead || e.mode === -1 || e.alpha <= 0.01 || (e.t >= T_HV) !== (pass === 0) || !onView(e.x, e.y, cull(e))) continue;
+    if (S.fk[e.f] !== S.key) prepFaction(e.f);
+    const Sp = e.elite ? S.e[e.f][e.t] : S.n[e.f][e.t]; if (!Sp) continue;
+    const sc = e.w * S.dwf[e.f][e.t] / Sp.iw, sw = Sp.w * sc, sh = Sp.h * sc;
     ctx.globalAlpha = e.alpha; at(e.x, e.y, Math.cos(e.rot), Math.sin(e.rot)); ctx.drawImage(Sp.c, -sw / 2, -sh / 2, sw, sh);
-    if (e.flash > 0) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(1, e.flash / 0.04) * (e.t === T_BS ? 0.3 : e.t === T_HV ? 0.45 : 0.55) * e.alpha; ctx.drawImage(S.w[e.t].c, -sw / 2, -sh / 2, sw, sh); ctx.globalCompositeOperation = 'source-over'; }
+    if (e.flash > 0) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(1, e.flash / 0.04) * (e.t === T_BS ? 0.3 : e.t === T_HV ? 0.45 : 0.55) * e.alpha; ctx.drawImage(S.w[e.f][e.t].c, -sw / 2, -sh / 2, sw, sh); ctx.globalCompositeOperation = 'source-over'; }
   }
   ctx.globalAlpha = 1; base();
 }
 
 export function drawEnemyGlows(t: number) {
+  let n = 0;
   for (let i = 0; i < WS.nE; i++) {
-    const e = EN[i]; if (e.dead || e.mode === -1 || !onView(e.x, e.y, e.w)) continue;
-    if (e.t === T_HV && e.charge > 0) sprite(SPR.core, e.x + Math.sin(e.rot) * e.w * 0.5, e.y - Math.cos(e.rot) * e.w * 0.5, e.w * (0.25 + 0.4 * e.charge), e.alpha);
-    else if (e.t === T_BS) { const ch = e.mode === 1 ? clamp(e.st / 1.05) : e.mode === 2 ? 1 : 0; sprite(SPR.core, e.x, e.y, e.w * (0.5 + 0.35 * ch), (0.5 + 0.25 * Math.sin(t * 5)) * e.alpha + ch * 0.4); }
-    else if (e.elite) sprite(SPR.gold, e.x, e.y, e.w * 0.42, (0.16 + 0.1 * Math.sin(t * 6 + e.ph)) * e.alpha);
+    const e = EN[i]; if (e.dead || e.mode === -1 || e.alpha <= 0.01 || !onView(e.x, e.y, cull(e))) continue;
+    const Gl = S.g[e.f][e.t]; if (!Gl || S.fk[e.f] !== S.key) continue;
+    n++;
+    const ch = e.t === T_BS ? (e.mode === 1 ? clamp(e.st / 1.05) : e.mode === 2 ? 1 : 0) : 0, c = Math.cos(e.rot), sn = Math.sin(e.rot);
+    const sc = e.w * S.dwf[e.f][e.t] / Gl.iw * (1 + ch * 0.25), gw = Gl.w * sc, gh = Gl.h * sc;
+    ctx.globalAlpha = Math.min(1, e.alpha * glowK * (reduce ? 0.85 : 0.78 + 0.22 * Math.sin(t * 19 + e.ph * 7)) * (e.mode === 8 ? 1.3 : 1) + ch * 0.5);
+    at(e.x, e.y, c, sn); ctx.drawImage(Gl.c, -gw / 2, -gh / 2, gw, gh);
+    if (e.t === T_HV && e.charge > 0) { ctx.globalAlpha = e.alpha; base(); sprite(PAL[e.f].core, e.x + sn * e.w * 0.5, e.y - c * e.w * 0.5, e.w * (0.25 + 0.4 * e.charge), e.alpha); }
+    else if (e.t === T_BS && ch > 0) { base(); sprite(PAL[e.f].core, e.x + sn * e.L * 1.15, e.y - c * e.L * 1.15, e.w * (0.3 + 0.5 * ch), ch * 0.9 * e.alpha); }
+    else if (e.elite) { base(); sprite(SPR.gold, e.x, e.y, e.w * 0.42, (0.16 + 0.1 * Math.sin(t * 6 + e.ph)) * e.alpha); }
   }
+  glowK = clamp(1.2 - n / 200, 0.4, 1);
+  ctx.globalAlpha = 1; base();
 }
 
 export function drawShards(t: number) {
@@ -129,7 +135,6 @@ export function drawCache(t: number) {
   for (let k = 0; k < 2; k++) { const f = (c.t * 0.8 + k * 0.5) % 1, rr = r * (1.2 + f * 3.2); ctx.globalAlpha = (1 - f) * 0.5; ctx.drawImage(TX.ringG, c.x - rr, c.y - rr, rr * 2, rr * 2); }
   sprite(SPR.gold, c.x, c.y, r * (2.4 + pu * 0.6), 0.45 + 0.2 * pu);
   ctx.globalCompositeOperation = 'source-over';
-  ctx.globalAlpha = 0.45; ctx.fillStyle = '#0c0502'; ctx.beginPath(); ctx.ellipse(c.x + r * 0.35, c.y + r * 0.55, r * 1.05, r * 1.05, 0, 0, TAU); ctx.fill();
   const bob = Math.sin(t * 2.2) * 3 * U, rot = c.t * 0.6;
   ctx.globalAlpha = 1; at(c.x, c.y + bob, Math.cos(rot), Math.sin(rot)); ctx.drawImage(SPR.cache, -r * 1.25, -r * 1.25, r * 2.5, r * 2.5); base();
   ctx.globalAlpha = 1;
@@ -191,11 +196,12 @@ export function drawDebris(dt: number) {
   for (let i = P.n - 1; i >= 0; i--) {
     P.l[i] += dt; if (P.l[i] >= P.m[i]) { rm(P, i); continue; }
     const dr = Math.exp(-dt * 2.6); P.vx[i] *= dr; P.vy[i] *= dr; X[i] += P.vx[i] * dt; Y[i] += P.vy[i] * dt; P.a[i] += P.va[i] * dt * dr;
-    const f = P.l[i] / P.m[i], s = P.s[i], c = Math.cos(P.a[i]), sn = Math.sin(P.a[i]);
+    const f = P.l[i] / P.m[i], s = P.s[i], c = Math.cos(P.a[i]), sn = Math.sin(P.a[i]), k = P.c[i];
+    if (k >= DCOL.length) { const r = s * (1 + f * 2.2); ctx.globalAlpha = (1 - f) * Math.min(1, f * 8) * 0.85; at(X[i], Y[i], c, sn); ctx.drawImage(SPR.smoke, -r, -r, r * 2, r * 2); continue; }
     ctx.globalAlpha = 1 - f * f;
     at(X[i], Y[i], c, sn);
-    ctx.fillStyle = DCOL[P.c[i]]; ctx.fillRect(-s, -s * 0.55, s * 2, s * 1.1);
-    ctx.fillStyle = 'rgba(255,190,120,0.55)'; ctx.fillRect(-s, -s * 0.55, s * 2, Math.max(0.8, s * 0.22));
+    ctx.fillStyle = DCOL[k]; ctx.fillRect(-s, -s * 0.55, s * 2, s * 1.1);
+    ctx.fillStyle = PAL[(k / 4) | 0].hi; ctx.fillRect(-s, -s * 0.55, s * 2, Math.max(0.8, s * 0.22));
   }
   ctx.globalAlpha = 1; base();
 }
@@ -205,17 +211,17 @@ export function drawSparks(dt: number) {
   for (let i = P.n - 1; i >= 0; i--) {
     P.l[i] += dt; if (P.l[i] >= P.m[i]) { rm(P, i); continue; }
     const dr = Math.exp(-dt * P.dr[i]); VX[i] *= dr; VY[i] *= dr; X[i] += VX[i] * dt; Y[i] += VY[i] * dt;
-    const f = P.l[i] / P.m[i], c = P.c[i];
-    if (c < 4) {
+    const f = P.l[i] / P.m[i], k = SK[P.c[i]] || SK[6];
+    if (k.s) {
       const sp = Math.hypot(VX[i], VY[i]) || 1, len = Math.max(P.s[i] * 0.6, Math.min(sp * 0.045, P.s[i] * 3.2)) * (1 - f * 0.5), cs = VX[i] / sp, sn = VY[i] / sp;
       ctx.globalAlpha = 1 - f;
       at(X[i], Y[i], cs, sn);
-      ctx.drawImage(TX.streak[c], -len, -len * 0.26, len * 2, len * 0.52);
+      ctx.drawImage(k.t, -len, -len * 0.26, len * 2, len * 0.52);
     } else {
-      const r = P.s[i] * (c === 6 ? 1 - f * 0.6 : 0.6 + f * 0.6);
-      ctx.globalAlpha = c === 5 ? (1 - f) * 0.7 : 1 - f;
+      const r = P.s[i] * (k.sh ? 1 - f * 0.6 : 0.6 + f * 0.6);
+      ctx.globalAlpha = (1 - f) * k.a;
       at(X[i], Y[i], 1, 0);
-      ctx.drawImage(TX.soft[c - 4] || SPR.star, -r, -r, r * 2, r * 2);
+      ctx.drawImage(k.t, -r, -r, r * 2, r * 2);
     }
   }
   ctx.globalAlpha = 1; base();
@@ -225,8 +231,8 @@ export function drawFX(dt: number, rt: number) {
   for (let i = WS.nFX - 1; i >= 0; i--) {
     const f = FX[i]; f.t += f.k === 2 ? rt : dt; const p = f.t / f.d;
     if (p >= 1) { const j = --WS.nFX; FX[i] = FX[j]; FX[j] = f; continue; }
-    if (f.k === 0) { const r = f.r * (0.55 + 0.55 * p); sprite(f.c === 1 ? SPR.gold : f.c === 2 ? SPR.hit : SPR.blast, f.x, f.y, r, f.a * Math.pow(1 - p, 1.6)); }
-    else if (f.k === 1) { const r = f.r * (0.3 + 0.7 * (1 - Math.pow(1 - p, 3))); ctx.globalAlpha = f.a * (1 - p) * (1 - p); ctx.drawImage(f.c === 1 ? TX.ringG : f.c === 2 ? TX.ringH : TX.ringA, f.x - r, f.y - r, r * 2, r * 2); }
+    if (f.k === 0) { const r = f.r * (0.55 + 0.55 * p); sprite(TX.fx0[f.c] || SPR.blast, f.x, f.y, r, f.a * Math.pow(1 - p, 1.6)); }
+    else if (f.k === 1) { const r = f.r * (0.3 + 0.7 * (1 - Math.pow(1 - p, 3))); ctx.globalAlpha = f.a * (1 - p) * (1 - p); ctx.drawImage(TX.fx1[f.c] || TX.ringA, f.x - r, f.y - r, r * 2, r * 2); }
     else if (f.k === 2) { const e = 1 - Math.pow(1 - p, 3), r = f.r * (0.1 + 0.9 * e), r2 = f.r * 0.8 * (0.1 + 0.9 * (1 - Math.pow(1 - p, 2))); ctx.globalAlpha = (1 - p) * f.a; ctx.drawImage(TX.ringG, f.x - r, f.y - r, r * 2, r * 2); ctx.globalAlpha = (1 - p) * 0.8 * f.a; ctx.drawImage(TX.ringH, f.x - r2, f.y - r2, r2 * 2, r2 * 2); }
     else if (f.k === 3) sprite(f.c === 1 ? SPR.gold : SPR.hit, f.x, f.y, f.r * (1 - p * 0.3), f.a * (1 - p));
   }
@@ -339,7 +345,6 @@ export function drawWings() {
   ctx.globalCompositeOperation = 'source-over';
   for (let i = 0; i < n; i++) {
     const a = w.a + i / n * TAU, r = Math.atan2(-Math.sin(a), -Math.cos(a)), c = Math.cos(r), s = Math.sin(r);
-    if (S.shipS) { const so = 16 * U, k = ws / S.shipS.iw; ctx.globalAlpha = 0.42; at(w.px[i] + so * 0.6, w.py[i] + so, c, s); ctx.drawImage(S.shipS.c, -S.shipS.w * k / 2, -S.shipS.h * k / 2, S.shipS.w * k, S.shipS.h * k); }
     ctx.globalAlpha = 1; at(w.px[i], w.py[i], c, s); ctx.drawImage(w.evo ? S.minig : S.mini, -ws / 2, -wh / 2, ws, wh);
     ctx.globalCompositeOperation = 'lighter';
     for (const nz of ship.tnoz) sprite(SPR.cyan, (nz[0] - 0.5) * ws, (nz[1] - 0.5) * wh, ws * 0.14, 0.9);
@@ -350,7 +355,7 @@ export function drawWings() {
 
 export function drawBullets(t: number) {
   const P = EB, U = V.U;
-  for (let i = 0; i < P.n; i++) sprite(SPR.bolt, P.x[i], P.y[i], 15 * U * (1 + 0.08 * Math.sin(t * 18 + i)), Math.min(1, P.l[i] * 6));
+  for (let i = 0; i < P.n; i++) sprite(PAL[P.f[i]].bolt, P.x[i], P.y[i], 15 * U * (1 + 0.08 * Math.sin(t * 18 + i)), Math.min(1, P.l[i] * 6));
   ctx.globalAlpha = 1;
 }
 

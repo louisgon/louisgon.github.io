@@ -1,13 +1,13 @@
 import { DATA } from '../data';
 import { HI, reduce } from '../state';
 import { $, out, sstep } from '../util';
-import { A, base, C, cam, clamp, coarse, ctx, D, DIVE, DV, egg, F, G, HOLD, initCore, input, LAND, lerp, restW, rs, scene, screen, ship, shipR, STICK, V, VP } from './core';
-import { initArt, prepSprites, S, TX } from './art';
-import { analyse, drawGround, drawOrbit, drawStreaks, initBackdrop, nozzles } from './backdrop';
+import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, F, FAC, G, HOLD, initCore, input, LAND, lerp, restW, rs, scene, screen, ship, shipR, STICK, TYPES, V, VP } from './core';
+import { initArt, prepSprites, S } from './art';
+import { analyse, drawOrbit, drawSpace, drawStreaks, initBackdrop, nozzles } from './backdrop';
 import { compact, EN, gridBuild, sizeWorld, TQ, WS } from './world';
 import { separate, spawner, updEnemies } from './enemies';
 import { spdM, updBolts, updBullets, updMissiles, updNova, updShards, updWeapons, updWing } from './weapons';
-import { dive, dived, land, landed, start, steerHead, updCam } from './flight';
+import { boost, boosted, land, landed, start, steerHead, updCam } from './flight';
 import { hudTick, showBest, showCard, updateLabels } from './hud';
 import { choose, openCache } from './upgrades';
 import { grab, initInput, STEER } from './input';
@@ -58,13 +58,13 @@ export function initOrbit() {
     if (s) { rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; }
     size(); addEventListener('resize', size);
     pic.addEventListener('load', () => pic.decode().then(() => useBg(pic), () => useBg(pic)));
-    return Promise.all([sp['ship-top'], sp['drone-top'], sp['dart-top'], sp['heavy-top'], sp['boss-top'], sp.dunes].map(load));
-  }).then(([st, d, dt, hv, bs, dn]) => {
-    Object.assign(A, { shipTop: st, drone: d, dart: dt, heavy: hv, boss: bs, dunes: dn });
-    A.ready = !!(A.ship && st && d && dt && hv && bs && dn);
+    const art = FAC.flatMap((f) => TYPES.map((T) => sp[`${f.id}-${T.role}`]));
+    return Promise.all([sp['ship-top'], sp.nebula, ...art].map(load));
+  }).then(([st, nb, ...art]) => {
+    A.shipTop = st; A.nebula = nb; A.art = FAC.map((_, f) => art.slice(f * TYPES.length, (f + 1) * TYPES.length) as HTMLImageElement[]);
+    A.ready = !!(A.ship && st && nb && art.every(Boolean));
     if (!A.ready || !st) return;
     A.aspT = st.height / st.width; A.tsq0 = A.aspR * 0.5 / A.aspT; ship.tnoz = nozzles(st, ship.tnoz);
-    S.cpat = ctx.createPattern(TX.cloud, 'repeat');
     prepSprites();
   });
   new IntersectionObserver((es) => { V.vis = es[0].isIntersecting; if (!V.vis) land(); }).observe(D.hero);
@@ -92,9 +92,9 @@ export function orbitTick(now: number, hp: number) {
   const w0 = performance.now(), { W, H } = V, rdt = Math.min((now - last) / 1000, 0.05); last = now;
   if (coarse && rdt > 0.021 && G.on) { if (++slowFrames > 90 && V.dprCap > 1.01) { V.dprCap = V.dprCap > 1.3 ? 1.25 : 1; slowFrames = 0; S.key = ''; size(); } } else slowFrames = Math.max(0, slowFrames - 1);
   if (VP.dir) {
-    VP.p = clamp(VP.p + VP.dir * rdt / (reduce ? 0.3 : VP.dir > 0 ? DIVE : LAND));
-    if (VP.dir > 0 && VP.p >= 1) { VP.dir = 0; dived(); }
-    else if (VP.dir < 0 && VP.p < 0.45 && D.hero.classList.contains('playing')) D.hero.classList.remove('playing');
+    VP.p = clamp(VP.p + VP.dir * rdt / (reduce ? 0.3 : VP.dir > 0 ? BOOST : LAND));
+    if (VP.dir > 0 && VP.p >= 1) { VP.dir = 0; boosted(); }
+    else if (VP.dir < 0 && VP.p < 0.28 && D.hero.classList.contains('playing')) D.hero.classList.remove('playing');
     if (VP.dir < 0 && VP.p <= 0) landed();
   }
   const top = G.on && VP.p >= 1, auto = import.meta.env.MODE === 'test' && T.auto;
@@ -106,7 +106,6 @@ export function orbitTick(now: number, hp: number) {
   if (auto && G.card && (G.mode === 'level' || G.mode === 'cache')) { T.botT += rdt; if (T.botT > 0.85) choose(botPick()); }
   const t = reduce ? 0 : now / 1000, sy = clamp(scrollY / H, 0, 1.2);
   Object.assign(F, { now, rdt, dt, t, sy, scroll: reduce ? 0 : scrollY });
-  if (!reduce) D.copy.style.setProperty('--cy', `${(-scrollY * 0.18).toFixed(1)}px`);
   D.hero.style.setProperty('--ho', ((1 - clamp(sy * 4)) * HI.cue).toFixed(3));
   const fly = sstep(0, 0.41, VP.p).toFixed(3); if (fly !== flyShown) { flyShown = fly; D.cv.style.setProperty('--fly', fly); }
 
@@ -158,7 +157,8 @@ export function orbitTick(now: number, hp: number) {
   G.shake = Math.max(0, G.shake - rdt * 1.9);
   const amp = reduce ? 0 : G.shake * G.shake * 16 * V.U;
   C.sx = amp * (Math.sin(now * 0.053) * 0.6 + Math.sin(now * 0.031 + 1.3) * 0.4); C.sy = amp * (Math.sin(now * 0.047 + 2.1) * 0.6 + Math.sin(now * 0.029) * 0.4);
-  dive(VP.p);
+  boost(VP.p);
+  if (!reduce) D.copy.style.setProperty('--cy', `${(-scrollY * 0.18 + DV.drop * 0.7).toFixed(1)}px`);
   C.wz = DV.gz; C.dz = V.DPR * C.wz; C.ox = DV.tx - ship.x * C.wz + C.sx; C.oy = DV.ty - ship.y * C.wz + C.sy;
   C.x0 = (C.sx - C.ox) / C.wz; C.x1 = (W + C.sx - C.ox) / C.wz; C.y0 = (C.sy - C.oy) / C.wz; C.y1 = (H + C.sy - C.oy) / C.wz;
 
@@ -179,20 +179,22 @@ export function orbitTick(now: number, hp: number) {
 
   ctx.save();
   screen();
-  if (!VP.p || (VP.p < 1 && (reduce || VP.p < 0.72))) { scene.vp.x = W * 0.5; drawOrbit(); }
+  const orbit = !VP.p || (VP.p < 1 && (reduce || VP.p < 0.6));
+  if (VP.p > 0 && !reduce) drawSpace(t, DV.ga);
+  if (orbit) { scene.vp.x = W * 0.5; drawOrbit(); }
   const dfx = G.card ? 0 : rdt * scale;
   if (VP.p > 0) {
     ctx.imageSmoothingQuality = 'medium';
-    drawGround(t);
+    if (reduce) drawSpace(t, DV.ga);
     base();
     if (G.on || WS.nE) { drawTele(dfx, t); drawShards(t); drawCache(t); if (G.on) { ctx.globalCompositeOperation = 'lighter'; drawNova(); ctx.globalCompositeOperation = 'source-over'; } drawEnemies(); }
     drawDebris(dfx);
     ctx.imageSmoothingQuality = 'low';
   }
-  if (A.ship && VP.p < 1) { if (!VP.p) drawRear(rs.x, rs.y, restW(), 1, 1, rs.vx, rs.vy, 0); else drawRear(DV.rx, DV.ry, DV.rw, DV.rsq, DV.ra, 0, 0, 1); }
+  if (A.ship && VP.p < 1) { if (!VP.p) drawRear(rs.x, rs.y, restW(), 1, 1, rs.vx, rs.vy, 0); else drawRear(DV.rx, DV.ry, DV.rw, DV.rsq, DV.ra, 0, 0, 1, DV.punch); }
   if (VP.p > 0) {
     ctx.imageSmoothingQuality = 'medium';
-    if (A.shipTop && !G.dead) { drawTrail(dfx); drawTop(DV.tx, DV.ty, DV.tw, DV.tsq, DV.ta * (1 - VP.rv), DV.sho, t); }
+    if (A.shipTop && !G.dead) { drawTrail(dfx); drawTop(DV.tx, DV.ty, DV.tw, DV.tsq, DV.ta * (1 - VP.rv), t); }
     base();
     if (top && !G.dead) drawWings();
     ctx.globalCompositeOperation = 'lighter';

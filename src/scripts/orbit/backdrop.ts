@@ -1,12 +1,13 @@
 import { reduce } from '../state';
-import { A, C, CLOUDT, clamp, ctx, D, DV, F, G, rand, scene, screen, ship, sm, sprite, TAU, TILE, V, VP } from './core';
+import { A, C, cam, clamp, ctx, D, DV, F, G, rand, scene, screen, ship, sm, sprite, TAU, V, VP } from './core';
 import { S, SPR, TX } from './art';
 
 type Star = { x: number; y: number; r: number; p: number; s: number };
 type Dust = { a: number; d: number; s: number };
 type Rock = { x: number; y: number; r: number; v: number; rot: number; vr: number; d: number; img: HTMLCanvasElement };
 type Mote = { x: number; y: number; s: number; l: number };
-let stars: Star[] = [], dust: Dust[] = [], rocks: Rock[] = [], streaks: Dust[] = [], motes: Mote[] = [];
+type Twinkle = { x: number; y: number; r: number; p: number; s: number };
+let stars: Star[] = [], dust: Dust[] = [], rocks: Rock[] = [], streaks: Dust[] = [], motes: Mote[] = [], twinkles: Twinkle[] = [];
 const sats = [{ p: 0.1, v: 0.012, y: 0.12, warm: false }, { p: 0.62, v: 0.008, y: 0.2, warm: true }];
 const PM = new DOMMatrix();
 let vg: CanvasGradient | null = null, vgK = '';
@@ -50,27 +51,35 @@ export function initBackdrop() {
   stars = Array.from({ length: 150 }, () => ({ x: rand(), y: rand(), r: rand() * 1.1 + 0.3, p: rand() * 6.28, s: 0.6 + rand() * 1.8 }));
   dust = Array.from({ length: 70 }, () => ({ a: rand() * 6.28, d: rand(), s: 0.3 + rand() * 0.7 }));
   rocks = Array.from({ length: 6 }, () => { const r = 4 + rand() * 9, pts = Array.from({ length: 7 }, () => 0.72 + rand() * 0.4); return { x: rand(), y: 0.12 + rand() * 0.8, r, v: 0.004 + rand() * 0.01, rot: rand() * 6.28, vr: (rand() - 0.5) * 0.4, d: 0.4 + rand() * 0.6, img: rockSprite(r, pts) }; });
-  streaks = Array.from({ length: 46 }, () => ({ a: rand() * TAU, d: rand(), s: 0.5 + rand() }));
+  streaks = Array.from({ length: 54 }, () => ({ a: rand(), d: rand(), s: 0.5 + rand() }));
   motes = Array.from({ length: 34 }, () => ({ x: rand(), y: rand(), s: 0.6 + rand() * 0.8, l: 0.6 + rand() * 0.8 }));
+  twinkles = Array.from({ length: 26 }, () => ({ x: rand(), y: rand(), r: 2.2 + rand() * 2.6, p: rand() * TAU, s: 0.5 + rand() * 1.1 }));
 }
 
-function cover(img: HTMLImageElement | null, ox: number, oy: number, z: number) {
+const FEATHER = 16;
+function cover(img: HTMLImageElement | null, ox: number, oy: number, z: number, fk = 0) {
   const { W, H } = V;
   if (!img) { ctx.fillStyle = '#0a0e1c'; ctx.fillRect(0, 0, W, H); return { s: 1, x: 0, y: 0, w: W, h: H }; }
-  const s = Math.max(W / img.width, H / img.height) * z, w = img.width * s, h = img.height * s;
-  ctx.drawImage(img, (W - w) / 2 + ox, (H - h) / 2 + oy, w, h);
-  return { s, x: (W - w) / 2 + ox, y: (H - h) / 2 + oy, w, h };
+  const s = Math.max(W / img.width, H / img.height) * z, w = img.width * s, h = img.height * s, x = (W - w) / 2 + ox, y = (H - h) / 2 + oy;
+  if (fk <= 0) ctx.drawImage(img, x, y, w, h);
+  else {
+    const a0 = ctx.globalAlpha, band = 0.13, nw = img.naturalWidth, nh = img.naturalHeight, sb = nh * band / FEATHER, db = h * band / FEATHER;
+    ctx.drawImage(img, 0, nh * band, nw, nh * (1 - band), x, y + h * band, w, h * (1 - band));
+    for (let i = 0; i < FEATHER; i++) { const q = (i + 0.5) / FEATHER; ctx.globalAlpha = a0 * (1 - fk * (1 - q * q * (3 - 2 * q))); ctx.drawImage(img, 0, sb * i, nw, sb + 0.5 * nh / h, x, y + db * i, w, db + 0.5); }
+    ctx.globalAlpha = a0;
+  }
+  return { s, x, y, w, h };
 }
 
 export function drawOrbit() {
   const { W, H, DPR } = V, { t, rdt, now } = F, px = G.px, py = G.py, scrollOff = F.scroll;
-  const k = DV.k, fx0 = VP.rx, fy0 = VP.ry + H * 0.05, ox = fx0 * (1 - k), oy = fy0 * (1 - k) - DV.lift, OZ = DPR * k, fade = 1 - sm(0, 0.35, VP.p);
-  ctx.setTransform(OZ, 0, 0, OZ, (ox + C.sx) * DPR, (oy + C.sy) * DPR);
-  const B = cover(A.bg, -px * 18 + Math.sin(t * 0.03) * W * 0.012, -py * 10 + scrollOff * 0.42, 1.07 + Math.sin(t * 0.05) * 0.008);
-  if (DV.zb > 0.02 && A.bg) {
-    for (const [m, al] of [[1.035, 0.24], [1.075, 0.16]]) { const k2 = k * m; ctx.setTransform(DPR * k2, 0, 0, DPR * k2, (fx0 * (1 - k2) + C.sx) * DPR, (fy0 * (1 - k2) - DV.lift + C.sy) * DPR); ctx.globalAlpha = al * DV.zb; ctx.drawImage(A.bg, B.x, B.y, B.w, B.h); }
-    ctx.globalAlpha = 1; ctx.setTransform(OZ, 0, 0, OZ, (ox + C.sx) * DPR, (oy + C.sy) * DPR);
-  }
+  const kx = DV.kx, ky = DV.ky, fx0 = W * 0.5, fy0 = H * 1.05, fade = 1 - sm(0, 0.35, VP.p);
+  const place = (lift: number) => ctx.setTransform(kx * DPR, 0, 0, ky * DPR, (fx0 * (1 - kx) + C.sx) * DPR, (fy0 * (1 - ky) + DV.drop - lift + C.sy) * DPR);
+  const bx = -px * 18 + Math.sin(t * 0.03) * W * 0.012, by = -py * 10 + scrollOff * 0.42, bz = 1.07 + Math.sin(t * 0.05) * 0.008;
+  place(0); ctx.globalAlpha = DV.ba;
+  const B = cover(A.bg, bx, by, bz, DV.fk);
+  if (DV.zb > 0.02 && A.bg) { for (const [m, al] of [[0.035, 0.22], [0.08, 0.12]]) { place(H * m * DV.zb * (VP.dir < 0 ? -1 : 1)); ctx.globalAlpha = al * DV.zb * DV.ba; cover(A.bg, bx, by, bz, DV.fk); } place(0); }
+  ctx.globalAlpha = 1;
   scene.vp.y = B.y + scene.limb * B.h + H * 0.03;
 
   const sx = B.x + scene.sun.x * B.w, sunY = B.y + scene.sun.y * B.h;
@@ -109,29 +118,40 @@ export function drawOrbit() {
   }
   ctx.globalAlpha = 1;
   screen();
-  if (DV.dark > 0.003) { ctx.globalAlpha = DV.dark; ctx.fillStyle = '#04060d'; ctx.fillRect(-20, -20, W + 40, H + 40); ctx.globalAlpha = 1; }
 }
 
-export function drawGround(t: number) {
-  const a = DV.ga, { W, H, DPR, U } = V, cv = D.cv; if (a <= 0.003 || !S.gpat || !S.cpat) return;
+export function drawSpace(t: number, a: number) {
+  const { W, H, DPR, U, Z } = V, cv = D.cv; if (a <= 0.003 || !S.neb) return;
+  const zk = C.wz / Z, lift = (DV.th - 1) * H * 1.75;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  const pat = (P: CanvasPattern, kk: number, ox: number, oy: number, al: number) => { PM.a = kk; PM.d = kk; PM.e = ox; PM.f = oy; P.setTransform(PM); ctx.globalAlpha = al; ctx.fillStyle = P; ctx.fillRect(0, 0, cv.width, cv.height); };
-  const k = TILE * U * C.wz * DPR / S.gpot;
-  pat(S.gpat, k, C.ox * DPR, C.oy * DPR, a);
-  if (DV.zb > 0.05) for (const m of [1.03, 1.065]) pat(S.gpat, k * m, (DV.tx + C.sx + (C.ox - DV.tx - C.sx) * m) * DPR, (DV.ty + C.sy + (C.oy - DV.ty - C.sy) * m) * DPR, a * 0.22 * DV.zb);
-  const q = 1.12, kc = CLOUDT * U * C.wz * DPR / TX.cloud.width;
-  pat(S.cpat, kc, (DV.tx - ship.x * C.wz * q + t * 16 * U * C.wz + C.sx) * DPR, (DV.ty - ship.y * C.wz * q + t * 6 * U * C.wz + C.sy) * DPR, a * 0.55);
-  ctx.globalAlpha = a; ctx.fillStyle = 'rgba(4,6,13,0.22)'; ctx.fillRect(0, 0, cv.width, cv.height);
-  const vk = `${cv.width},${cv.height}`;
-  if (vk !== vgK || !vg) { vgK = vk; const cx = cv.width / 2, cy = cv.height / 2, r = Math.hypot(cx, cy); vg = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r); vg.addColorStop(0, 'rgba(4,6,13,0)'); vg.addColorStop(0.5, 'rgba(4,6,13,0.26)'); vg.addColorStop(1, 'rgba(4,6,13,0.7)'); }
-  ctx.fillStyle = vg; ctx.fillRect(0, 0, cv.width, cv.height);
+  const pat = (L: { pat: CanvasPattern; size: number; k: number }, dev: number) => {
+    const k = L.k, z = 1 + (zk - 1) * k, sc = dev * z / L.size, cx = W / 2 * DPR, cy = H / 2 * DPR;
+    PM.a = sc; PM.d = sc; PM.e = cx + (C.sx - cam.x * k * C.wz) * DPR * z; PM.f = cy + (C.sy - cam.y * k * C.wz + lift * (0.55 + 0.45 * k)) * DPR * z;
+    L.pat.setTransform(PM); ctx.fillStyle = L.pat; ctx.fillRect(0, 0, cv.width, cv.height);
+  };
+  ctx.globalAlpha = a;
+  pat(S.neb, Math.max(S.neb.size, Math.max(W, H) * 1.1 * DPR));
+  for (const L of S.stars) pat(L, L.size);
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  const spx = W + 80, spy = H + 80, par = 1.5 * C.wz, vxs = 40 * U - ship.vx * par, vys = 14 * U - ship.vy * par, vs = Math.hypot(vxs, vys) || 1, nx = vxs / vs, ny = vys / vs;
-  ctx.strokeStyle = 'rgb(255,214,170)'; ctx.globalAlpha = a * 0.16; ctx.lineWidth = 1.1; ctx.lineCap = 'round'; ctx.beginPath();
+  ctx.globalCompositeOperation = 'lighter';
+  const tw = W + 120, th = H + 120;
+  for (const s of twinkles) {
+    let x = (s.x * tw - cam.x * 0.75 * C.wz) % tw; if (x < 0) x += tw;
+    let y = (s.y * th - cam.y * 0.75 * C.wz + lift * 0.89) % th; if (y < 0) y += th;
+    const k = reduce ? 0.5 : Math.max(0, Math.sin(t * s.s + s.p)); if (k < 0.04) continue;
+    sprite(SPR.star, x - 60 + C.sx, y - 60 + C.sy, s.r * U, a * 0.55 * k * k);
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  const vk = `${cv.width},${cv.height}`;
+  if (vk !== vgK || !vg) { vgK = vk; const cx = cv.width / 2, cy = cv.height / 2, r = Math.hypot(cx, cy); vg = ctx.createRadialGradient(cx, cy, r * 0.45, cx, cy, r); vg.addColorStop(0, 'rgba(2,3,8,0)'); vg.addColorStop(0.55, 'rgba(2,3,8,0.22)'); vg.addColorStop(1, 'rgba(2,3,8,0.62)'); }
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = a; ctx.fillStyle = vg; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const spx = W + 80, spy = H + 80, par = 1.5 * C.wz, vxs = 18 * U - ship.vx * par, vys = 8 * U - ship.vy * par, vs = Math.hypot(vxs, vys) || 1, nx = vxs / vs, ny = vys / vs;
+  ctx.strokeStyle = 'rgb(206,224,255)'; ctx.globalAlpha = a * 0.13; ctx.lineWidth = 1; ctx.lineCap = 'round'; ctx.beginPath();
   for (const m of motes) {
-    let x = (m.x * spx + t * 40 * U * m.s - ship.x * par) % spx; if (x < 0) x += spx;
-    let y = (m.y * spy + t * 14 * U * m.s - ship.y * par) % spy; if (y < 0) y += spy;
-    x -= 40; y -= 40; const L = (2 + vs * 0.02) * m.l * U;
+    let x = (m.x * spx + t * 18 * U * m.s - ship.x * par) % spx; if (x < 0) x += spx;
+    let y = (m.y * spy + t * 8 * U * m.s - ship.y * par + lift * 1.3) % spy; if (y < 0) y += spy;
+    x -= 40; y -= 40; const L = (1.5 + vs * 0.02) * m.l * U;
     ctx.moveTo(x, y); ctx.lineTo(x - nx * L, y - ny * L);
   }
   ctx.stroke(); ctx.globalAlpha = 1;
@@ -139,13 +159,13 @@ export function drawGround(t: number) {
 
 export function drawStreaks(rdt: number) {
   if (reduce || DV.zb < 0.01) return;
-  const { W, H, DPR, U } = V, R = Math.hypot(W, H) * 0.72, cx = DV.tx, cy = DV.ty, sp = rdt * 1.4 * (VP.dir < 0 ? -1 : 1), tex = TX.streak[1];
+  const { W, H, DPR, U } = V, vx = W * 0.5, vy = -H * 1.6, R = Math.hypot(W, H * 2.6), spread = Math.atan(W / (4.2 * H)) * 2.6, sp = rdt * 1.5 * (VP.dir < 0 ? -1 : 1), tex = TX.dust;
   ctx.globalCompositeOperation = 'lighter';
   for (const s of streaks) {
-    s.d += s.s * sp; if (s.d > 1) { s.d -= 1; s.a = rand() * TAU; } else if (s.d < 0) { s.d += 1; s.a = rand() * TAU; }
-    const r = (0.16 + s.d * s.d) * R, len = r * (0.22 + 0.3 * DV.zb), th = (2 + s.d * 5) * U, c = Math.cos(s.a), sn = Math.sin(s.a);
-    ctx.globalAlpha = DV.zb * 0.42 * clamp(s.d * 3) * (1 - s.d * 0.5);
-    ctx.setTransform(c * DPR, sn * DPR, -sn * DPR, c * DPR, (cx + c * r + C.sx) * DPR, (cy + sn * r + C.sy) * DPR);
+    s.d += s.s * sp * DV.zb; if (s.d > 1) { s.d -= 1; s.a = rand(); } else if (s.d < 0) { s.d += 1; s.a = rand(); }
+    const ang = Math.PI / 2 + (s.a - 0.5) * spread, c = Math.cos(ang), sn = Math.sin(ang), r = R * (0.52 + s.d * 0.62), len = (60 + 260 * DV.zb * s.s) * U, th = (1.4 + s.s * 2) * U;
+    ctx.globalAlpha = DV.zb * 0.5 * clamp(s.d * 4) * clamp((1 - s.d) * 4);
+    ctx.setTransform(c * DPR, sn * DPR, -sn * DPR, c * DPR, (vx + c * r + C.sx) * DPR, (vy + sn * r + C.sy) * DPR);
     ctx.drawImage(tex, -len / 2, -th / 2, len, th);
   }
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; screen();

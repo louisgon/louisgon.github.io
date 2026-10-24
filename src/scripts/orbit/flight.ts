@@ -1,6 +1,6 @@
 import { reduce } from '../state';
 import { $ } from '../util';
-import { A, addShake, cam, clamp, D, DV, egg, ein, eio, eout, fmtT, G, GZ0, input, lerp, restW, rs, sayT, ship, shipW, sm, STICK, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
+import { A, addShake, cam, clamp, D, DV, egg, eio, eout, fmtT, G, GZ0, input, lerp, restW, rs, sayT, ship, shipW, sm, STICK, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
 import { AR, BM, BO, DB, EB, EN, fx, MI, NR, QR, query, RB, resetWorld, SH, SP, sparks, TG, TQ, WS } from './world';
 import { deathBurst } from './enemies';
 import { mkW, needFor } from './weapons';
@@ -14,7 +14,7 @@ export const cancelInput = () => { input.charge = null; input.keys.clear(); inpu
 export function start(kind?: Kind) {
   G.run++; store.set('lg01-played', 1); egg.whisper = -1; egg.over = false; D.hero.style.cursor = '';
   resetWorld();
-  Object.assign(G, { on: true, over: false, dead: false, card: false, mode: '', clock: 0, kills: 0, level: 1, xp: 0, need: needFor(1), pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, W: [], wm: {}, B: [], bm: {}, miss: {}, opts: [], spawnAcc: 2.5, dartT: 26, nextBoss: 100, bossN: 0, boss: null, cache: null, warned: false, regen: 0, killsF: 0, msgT: -1e9, novaId: 0, arcId: 0, tips: {}, newBest: false });
+  Object.assign(G, { on: true, over: false, dead: false, card: false, mode: '', clock: 0, kills: 0, level: 1, xp: 0, need: needFor(1), pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, W: [], wm: {}, B: [], bm: {}, miss: {}, opts: [], spawnAcc: 2.5, dartT: 26, nextBoss: 100, bossN: 0, boss: null, cache: null, warned: false, regen: 0, killsF: 0, msgT: -1e9, novaId: 0, arcId: 0, tips: {}, newBest: false, fac: 0, lap: 0, switching: false });
   if (import.meta.env.MODE === 'test') Object.assign(T, { botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [] });
   const w = mkW('pulse'); G.W.push(w); G.wm.pulse = w;
   renderHull(); renderBuild(); resetHud();
@@ -23,14 +23,15 @@ export function start(kind?: Kind) {
   if (kind) setLast(kind);
   if (kind === 'key') input.focusBack = document.activeElement as HTMLElement | null;
   if (VP.p < 1) {
+    if (!VP.p) addShake(0.2);
     VP.dir = 1; VP.rx = rs.x; VP.ry = rs.y; VP.rw = restW(); VP.rv = 0;
     ship.x = ship.y = cam.x = cam.y = 0; ship.vx = ship.vy = ship.cx = ship.cy = 0; ship.h = ship.hv = ship.bank = 0;
-  } else dived();
+  } else boosted();
   input.gx = ship.x; input.gy = ship.y; input.follow = kind === 'mouse'; input.mlock = false;
   buzz(8);
 }
 
-export function dived() {
+export function boosted() {
   D.hero.classList.add('flying'); D.hud.inert = false;
   if (input.last === 'key') D.hud.focus({ preventScroll: true });
   clearTimeout(lateT); lateT = window.setTimeout(() => D.hero.classList.add('late'), 9000);
@@ -84,7 +85,7 @@ export function hurt(src = '') {
 function die() {
   const U = V.U;
   G.over = true; G.dead = true; G.inv = 99; if (!reduce) G.slow = 0.7; G.stop = reduce ? 0 : 0.08; addShake(1);
-  deathBurst(ship.x, ship.y, shipW() * 1.1, T_HV, 1); sparks(ship.x, ship.y, 30, 520 * U, 2, 11); fx(2, ship.x, ship.y, 340 * U, 0.8, 0);
+  deathBurst(ship.x, ship.y, shipW() * 1.1, T_HV, 1, 0); sparks(ship.x, ship.y, 30, 520 * U, 2, 11); fx(2, ship.x, ship.y, 340 * U, 0.8, 0);
   ship.vx = ship.vy = ship.cx = ship.cy = 0; ship.hv = 0;
   D.hero.classList.remove('bossing');
   const nb = G.clock > P.best; if (nb) { P.best = G.clock; store.set('lg01-top-best', P.best.toFixed(2)); }
@@ -95,19 +96,20 @@ function die() {
 
 export const pause = () => { if (G.on && VP.p >= 1 && !G.card && !G.over) { cancelInput(); showCard('pause'); } };
 
-export function dive(p: number) {
+export function boost(p: number) {
   const { W, H, Z } = V, sx = W / 2 + (ship.x - cam.x) * Z, sy = H / 2 + (ship.y - cam.y) * Z;
-  DV.tx = sx; DV.ty = sy; DV.tw = shipW() * Z; DV.tsq = 1; DV.sho = 1; DV.k = 1; DV.lift = 0; DV.dark = 0; DV.zb = 0; DV.gz = Z; DV.rsq = 1;
-  if (!p) { DV.ga = 0; DV.ra = 1; DV.ta = 0; DV.rx = rs.x; DV.ry = rs.y; DV.rw = restW(); return; }
+  DV.tx = sx; DV.ty = sy; DV.tw = shipW() * Z; DV.tsq = 1; DV.th = 1; DV.drop = 0; DV.kx = DV.ky = 1; DV.fk = 0; DV.ba = 1; DV.punch = 0; DV.zb = 0; DV.gz = Z; DV.rsq = 1;
+  if (!p) { DV.th = 0; DV.ga = 0; DV.ra = 1; DV.ta = 0; DV.rx = rs.x; DV.ry = rs.y; DV.rw = restW(); return; }
   if (reduce) { DV.ga = p; DV.ra = 1 - p; DV.ta = p; DV.rx = VP.rx; DV.ry = VP.ry; DV.rw = VP.rw; return; }
-  const e = eio(clamp(p / 0.92)), es = eio(p);
-  DV.k = 1 + 2.3 * ein(clamp(p / 0.72)); DV.lift = H * 0.2 * eio(clamp(p / 0.72));
-  DV.dark = 0.82 * sm(0.08, 0.6, p); DV.zb = Math.sin(Math.PI * clamp(p / 0.86));
-  DV.ga = sm(0.26, 0.7, p); DV.gz = lerp(GZ0, 1, eio(sm(0.45, 1, p))) * Z;
-  DV.rx = DV.tx = lerp(VP.rx, sx, e); DV.ry = DV.ty = lerp(VP.ry, sy, e) + H * 0.035 * Math.sin(Math.PI * clamp(p / 0.55));
+  const up = VP.dir >= 0, th = eio(clamp((p - 0.05) / 0.95)), dk = clamp((p - 0.04) / 0.58), e = eio(clamp((p - 0.03) / 0.9)), es = eio(p);
+  DV.th = th; DV.drop = H * 1.3 * dk ** 1.7; DV.kx = 1 - 0.05 * dk; DV.ky = 1 - 0.18 * dk;
+  DV.fk = clamp(DV.drop / (H * 0.15)); DV.ba = 1 - sm(0.42, 0.58, p); DV.zb = Math.sin(Math.PI * th);
+  DV.punch = up ? sm(0, 0.05, p) * (1 - sm(0.28, 0.62, p)) : 0;
+  DV.ga = 1; DV.gz = lerp(GZ0, 1, eio(sm(0.45, 1, p))) * Z;
+  DV.rx = DV.tx = lerp(VP.rx, sx, e); DV.ry = DV.ty = lerp(VP.ry, sy, e) + (up ? H * 0.022 * Math.sin(Math.PI * clamp(p / 0.16)) : 0);
   DV.rw = DV.tw = lerp(VP.rw, shipW() * Z, es);
   DV.rsq = 1 - 0.5 * sm(0.12, 0.5, p); DV.ra = 1 - sm(0.42, 0.56, p); DV.ta = sm(0.42, 0.56, p);
-  DV.tsq = lerp(A.tsq0, 1, eout(sm(0.44, 0.9, p))); DV.sho = lerp(2.4, 1, eout(sm(0.45, 1, p)));
+  DV.tsq = lerp(A.tsq0, 1, eout(sm(0.44, 0.9, p)));
 }
 
 export function steerHead(k: number) {

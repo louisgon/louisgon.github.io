@@ -74,6 +74,8 @@
 #hero .hud .msg b { display: block; font: 700 clamp(22px, 2.8vw, 38px)/1.1 "Syncopate", sans-serif; text-transform: uppercase; text-shadow: 0 4px 24px rgb(0 0 0 / 70%); }
 #hero .hud .msg span { display: block; margin-top: 10px; color: var(--gold); text-shadow: 0 2px 12px rgb(0 0 0 / 85%); }
 #hero .hud .msg.gold b { color: var(--gold); }
+#hero .hud .msg[data-f="pirate"] b { color: #ffab74; }
+#hero .hud .msg[data-f="alien"] b { color: #f6a2ff; }
 #hero .hud .boss { position: absolute; left: 50%; top: 24px; width: min(420px, 40vw); text-align: center; color: var(--gold); opacity: 0; transform: translate3d(-50%, -8px, 0); transition: opacity .4s ease, transform .5s var(--ease-out); will-change: transform, opacity; backface-visibility: hidden; }
 #hero .hud .boss.on { opacity: 1; transform: translate3d(-50%, 0, 0); }
 #hero .hud .boss i { position: relative; display: block; height: 4px; margin-top: 8px; overflow: hidden; border-radius: 2px; background: rgb(255 207 138 / 16%); }
@@ -91,6 +93,8 @@
 #hero .panel .sub em { font-style: normal; color: var(--gold); }
 #hero .panel .rs { display: flex; justify-content: center; gap: 34px; margin-top: 22px; padding-top: 18px; border-top: 1px solid rgb(255 207 138 / 14%); color: var(--dim); }
 #hero .panel .rs b { display: block; margin-top: 8px; font: 700 22px/1 "Syncopate", sans-serif; letter-spacing: .02em; color: var(--fg); }
+#hero .panel .far { margin-top: 16px; color: var(--dim); }
+#hero .panel .far em { font-style: normal; color: var(--gold); }
 #hero .panel .bld { justify-content: center; margin-top: 20px; }
 #hero .panel .hc { justify-content: center; margin-top: 24px; }
 #hero .panel .btn { cursor: pointer; font-family: "Inter Tight", sans-serif; }
@@ -159,7 +163,7 @@
   #hero .hud .ctl { opacity: 0; bottom: 74px; }
   #hero.tip .hud .ctl { opacity: 1; }
   #hero .hud .boss { top: 118px; width: 62vw; }
-  #hero .hud .msg { top: 22%; }
+  #hero .hud .msg { top: 22%; width: calc(100% - 24px); white-space: normal; }
   #hero .panel { top: 71%; padding: 20px 14px 14px; }
   #hero .panel .opts { grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
   #hero .panel .opt { flex-direction: row; align-items: center; gap: 14px; padding: 14px 14px 12px; text-align: left; }
