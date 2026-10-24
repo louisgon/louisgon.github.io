@@ -3,7 +3,7 @@ import { HI, reduce } from '../state';
 import { $, out, sstep } from '../util';
 import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, F, FAC, G, HOLD, initCore, input, LAND, lerp, restW, rs, scene, screen, ship, shipR, STICK, TYPES, V, VP } from './core';
 import { initArt, prepSprites, S } from './art';
-import { analyse, drawOrbit, drawSpace, drawStreaks, initBackdrop, nozzles } from './backdrop';
+import { analyse, drawOrbit, drawSpace, drawStreaks, initBackdrop, nozzles, prepMoons } from './backdrop';
 import { compact, EN, gridBuild, sizeWorld, TQ, WS } from './world';
 import { separate, spawner, updEnemies } from './enemies';
 import { spdM, updBolts, updBullets, updMissiles, updNova, updShards, updWeapons, updWing } from './weapons';
@@ -26,7 +26,7 @@ const load = (src: string) => new Promise<HTMLImageElement | null>((r) => { cons
 function useBg(img: HTMLImageElement | null) {
   A.bg = img && img.naturalWidth ? img : null; if (!A.bg) return;
   let m = metas.get(A.bg.currentSrc); if (!m) metas.set(A.bg.currentSrc, (m = analyse(A.bg)));
-  A.meta = m; scene.sun = m.sun; scene.limb = m.limb;
+  A.meta = m; scene.sun = m.sun; scene.limb = m.limb; scene.edge = m.edge; prepMoons(A.bg);
 }
 
 function restLayout() {
@@ -50,7 +50,7 @@ function size() {
   const w = Math.round(V.W * V.DPR), h = Math.round(V.H * V.DPR); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
   ctx.setTransform(V.DPR, 0, 0, V.DPR, 0, 0);
   const { W, H } = V, tall = (V.tall = W / H < 0.85);
-  if (A.meta) { scene.sun = A.meta.sun; scene.limb = A.meta.limb; }
+  if (A.meta) { scene.sun = A.meta.sun; scene.limb = A.meta.limb; scene.edge = A.meta.edge; }
   restLayout();
   V.U = clamp(Math.min(W, H) / 900, 0.55, 1.3); V.Z = clamp(Math.min(W, H) / (V.U * 860), 0.8, 1); V.vw = W / V.Z; V.vh = H / V.Z;
   ship.play = 172 * V.U * (tall ? 1.12 : 1);
