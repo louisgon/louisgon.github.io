@@ -48,10 +48,10 @@ function beamTex(rgb: string, core: string, mid = '255,255,255') {
 }
 function shardTex(rgb: string, hi: string) {
   const s = 48, c = mk(s), x = c.getContext('2d')!;
-  const g = x.createRadialGradient(24, 24, 0, 24, 24, 24); g.addColorStop(0, `rgba(${rgb},0.6)`); g.addColorStop(0.45, `rgba(${rgb},0.16)`); g.addColorStop(1, `rgba(${rgb},0)`); x.fillStyle = g; x.fillRect(0, 0, s, s);
+  const g = x.createRadialGradient(24, 24, 0, 24, 24, 24); g.addColorStop(0, `rgba(${rgb},0.85)`); g.addColorStop(0.45, `rgba(${rgb},0.3)`); g.addColorStop(1, `rgba(${rgb},0)`); x.fillStyle = g; x.fillRect(0, 0, s, s);
   x.beginPath(); x.moveTo(24, 9); x.lineTo(32.5, 24); x.lineTo(24, 39); x.lineTo(15.5, 24); x.closePath();
   const f = x.createLinearGradient(16, 9, 32, 39); f.addColorStop(0, '#ffffff'); f.addColorStop(0.42, `rgb(${hi})`); f.addColorStop(1, `rgb(${rgb})`);
-  x.fillStyle = f; x.fill(); x.strokeStyle = 'rgba(10,6,4,0.55)'; x.lineWidth = 1.2; x.stroke();
+  x.strokeStyle = 'rgba(2,10,6,0.92)'; x.lineWidth = 3; x.lineJoin = 'round'; x.stroke(); x.fillStyle = f; x.fill();
   x.beginPath(); x.moveTo(24, 9); x.lineTo(24, 39); x.moveTo(15.5, 24); x.lineTo(32.5, 24); x.strokeStyle = 'rgba(255,255,255,0.4)'; x.lineWidth = 0.8; x.stroke();
   return c;
 }
@@ -104,7 +104,7 @@ export function initArt() {
     pulse: capsule('110,200,255', '210,245,255'), miss: capsule('255,170,80', '255,236,200'), hive: capsule('255,200,120', '255,250,235'),
     beamG: beamTex('255,170,80', '255,236,200'), beamC: beamTex('255,176,90', '255,214,150', '255,238,205'),
     ringA: ringTex('255,170,90', 0.12, 0.03), ringG: ringTex('255,200,130', 0.1, 0.06), ringH: ringTex('110,200,255', 0.11, 0.06),
-    shard: [shardTex('70,170,255', '190,236,255'), shardTex('90,220,240', '220,255,250'), shardTex('255,160,70', '255,232,180')],
+    shard: [shardTex('50,235,140', '196,255,222'), shardTex('40,255,180', '214,255,238'), shardTex('180,255,80', '238,255,196')],
     dust: streak('205,225,255'),
   });
   TX.fx0 = [SPR.blast, SPR.gold, SPR.hit, glow([[0, 'rgba(255,240,222,0.9)'], [0.14, 'rgba(255,172,92,0.62)'], [0.42, 'rgba(255,112,40,0.18)'], [1, 'rgba(255,90,30,0)']]), glow([[0, 'rgba(252,236,255,0.9)'], [0.14, 'rgba(255,140,240,0.6)'], [0.42, 'rgba(110,210,255,0.18)'], [1, 'rgba(90,220,255,0)']])];

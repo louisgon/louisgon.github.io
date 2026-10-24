@@ -118,7 +118,7 @@ export function drawShards(t: number) {
   const P = SH, U = V.U;
   for (let i = 0; i < P.n; i++) {
     if (!onView(P.x[i], P.y[i], 30)) continue;
-    const k = P.k[i], bs = (k === 2 ? 34 : k === 1 ? 26 : 21) * U * (P.st[i] ? 1.12 : 1), bob = P.st[i] ? 0 : Math.sin(P.a[i] * 3 + P.ph[i]) * 2.2 * U;
+    const k = P.k[i], bs = (k === 2 ? 54 : k === 1 ? 44 : 36) * U * (V.tall ? 1.35 : 1) * (P.st[i] ? 1.12 : 1 + Math.sin(t * 5 + P.ph[i] * 6) * 0.1), bob = P.st[i] ? 0 : Math.sin(P.a[i] * 3 + P.ph[i]) * 2.2 * U;
     ctx.globalAlpha = Math.min(1, P.a[i] * 6);
     ctx.drawImage(TX.shard[k], P.x[i] - bs / 2, P.y[i] - bs / 2 + bob, bs, bs);
   }
