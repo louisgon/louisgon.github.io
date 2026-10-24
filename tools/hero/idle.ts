@@ -37,7 +37,11 @@ export async function idle(c: Ctx) {
     c.ok(`${name} eyebrow and stats each sit on one line inside the screen`, t.every((e) => e.lines === 1 && e.box[0] >= 0 && e.box[2] <= e.vw - 12), t.map((e) => `${e.lines} line, right ${Math.round(e.box[2])} of ${e.vw}`));
     let gap = Infinity;
     for (let i = 0; i < 8; i++) { gap = Math.min(gap, (await p.evaluate((r) => (window as unknown as { __lg: { shipGap: (r: number[][]) => number } }).__lg.shipGap(r), t.map((e) => e.box))) as number); await p.waitForTimeout(200); }
-    c.ok(`${name} keeps the eyebrow and stats clear of LG-01`, gap >= 16, `closest ${Math.round(gap)}px`);
+    c.ok(`${name} keeps the eyebrow and stats at least 32px clear of LG-01`, gap >= 32, `closest ${Math.round(gap)}px`);
+    if (opts.isMobile && opts.viewport!.height > opts.viewport!.width) {
+      const s = await st(p), W = opts.viewport!.width, H = opts.viewport!.height, cue = await p.evaluate(() => document.querySelector('#hero .hint')!.getBoundingClientRect().top);
+      c.ok(`${name} rests LG-01 at 55 to 62 percent of the width in the lower third, clear of the cue`, s.rw0 / W >= 0.54 && s.rw0 / W <= 0.63 && s.ry / H >= 0.66 && cue - (s.ry + s.rh0 / 2) >= 48, { width: +(s.rw0 / W).toFixed(2), centre: +(s.ry / H).toFixed(2), cueGap: Math.round(cue - s.ry - s.rh0 / 2) });
+    }
     if (name.startsWith('iPhone SE')) await shot(c, p, `idle-${name.replace(/ /g, '-').toLowerCase()}`);
     c.ok(`${name} console clean`, !errors.length, errors);
     await context.close();
