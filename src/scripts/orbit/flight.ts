@@ -1,6 +1,6 @@
 import { reduce } from '../state';
 import { $ } from '../util';
-import { A, addShake, cam, clamp, D, DV, egg, ein, eio, eout, fmtT, G, GZ0, input, lerp, restW, rs, sayT, ship, shipW, sm, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
+import { A, addShake, cam, clamp, D, DV, egg, ein, eio, eout, fmtT, G, GZ0, input, lerp, restW, rs, sayT, ship, shipW, sm, STICK, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
 import { AR, BM, BO, DB, EB, EN, fx, MI, NR, QR, query, RB, resetWorld, SH, SP, sparks, TG, TQ, WS } from './world';
 import { deathBurst } from './enemies';
 import { mkW, needFor } from './weapons';
@@ -112,10 +112,12 @@ export function dive(p: number) {
 
 export function steerHead(k: number) {
   if (k <= 0) return;
-  const U = V.U, landing = VP.dir < 0, sp = Math.hypot(ship.vx, ship.vy);
+  const U = V.U, landing = VP.dir < 0, sp = Math.hypot(ship.vx, ship.vy), thumb = !!input.stick && VP.p >= 1;
   let tgt = ship.h;
-  if (landing) tgt = 0; else if (sp > 60 * U && VP.p >= 1 && Math.hypot(ship.cx, ship.cy) > 90 * U && ship.vx * ship.cx + ship.vy * ship.cy > 0) tgt = Math.atan2(ship.vx, -ship.vy);
-  const MX = landing ? TURN * 1.7 : TURN, AC = MX / 0.09, df = wrapA(tgt - ship.h);
+  if (landing) tgt = 0;
+  else if (thumb) { if (Math.hypot(ship.cx, ship.cy) > 90 * U) tgt = Math.atan2(ship.cx, -ship.cy); }
+  else if (sp > 60 * U && VP.p >= 1 && Math.hypot(ship.cx, ship.cy) > 90 * U && ship.vx * ship.cx + ship.vy * ship.cy > 0) tgt = Math.atan2(ship.vx, -ship.vy);
+  const MX = landing ? TURN * 1.7 : thumb ? TURN * STICK.turn : TURN, AC = MX / (thumb ? STICK.spin : 0.09), df = wrapA(tgt - ship.h);
   const want = Math.sign(df) * Math.min(MX, Math.sqrt(2 * AC * Math.abs(df)), Math.abs(df) / k);
   ship.hv += clamp(want - ship.hv, -AC * k, AC * k);
   ship.h = wrapA(ship.h + ship.hv * k);
