@@ -49,6 +49,7 @@ export async function boost(c: Ctx) {
       steered = !b.card && !d.card && b.x > a.x + 300 && d.y > b.y + 200 && angErr(b.hd, 90) < 25;
     }
     c.ok('the mouse steers in world space and the ship faces where it flies', steered, `(${a.x},${a.y}) to (${b.x},${b.y}) ${b.hd}, then (${d.x},${d.y}) ${d.hd}`);
+    c.ok('the camera keeps LG-01 centred on desktop', Math.abs(d.sx - 720) < 1440 * 0.04 && Math.abs(d.sy - 450) < 900 * 0.06, `ship at ${Math.round(d.sx)},${Math.round(d.sy)}`);
     c.ok('the camera keeps the ship near the centre', Math.abs(d.sx - 720) < 200 && Math.abs(d.sy - 450) < 200, `${d.sx},${d.sy}`);
     c.ok('steering never scrolls', (await scrolled(p)) === 0);
     await p.mouse.move(720, 450, { steps: 4 });
