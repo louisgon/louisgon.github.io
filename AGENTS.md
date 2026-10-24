@@ -15,7 +15,7 @@ The site is a static Astro project in plain strict TypeScript with bun and no UI
 | `src/content/projects.json` | The eight projects in site order with their `fact` line and case `story`, validated by `src/content.config.ts` |
 | `src/lib/` | Build time helpers. `assets.ts` runs every image through Astro's `getImage`, `site.ts` builds the project list and the data island, `planets.ts` holds the moons and `skills.ts` the stack cards. `case.ts` (the case study markup), `pages.ts` (base aware paths, titles and descriptions) and `icons.ts` run both at build time and in the browser |
 | `src/scripts/` | Client code. `main.ts` runs setup in order and owns the one requestAnimationFrame loop, `state.ts` holds shared state, and each system has its own module |
-| `src/scripts/orbit/` | The hero and its hidden game, hooked into `main.ts` as `initOrbit` and `orbitTick`. `index.ts` runs the frame, the boost and the camera, `core.ts` holds the shared state, the seeded random source, the enemy types and the three factions, `art.ts` the generated textures, the faction palettes, the star tiles and the sprite caches, `backdrop.ts` the planet scene and the space world, `world.ts` the pooled particles, the enemy list and the spatial grid, `enemies.ts` spawning, the capital ships, faction switches and heavy separation, `weapons.ts` the five weapons, six boosts and XP, `upgrades.ts` the level and cache choices, `hud.ts` the HUD and cards, `flight.ts` start, landing and hits, `input.ts` the controls, `render.ts` the ships, effects and the Easter egg cues, `store.ts` the best time, and `test.ts` the hooks only a test build compiles |
+| `src/scripts/orbit/` | The hero and its hidden game, hooked into `main.ts` as `initOrbit` and `orbitTick`. `index.ts` runs the frame, the boost and the camera, `core.ts` holds the shared state, the seeded random source, the enemy types and the three factions, `art.ts` the generated textures, the faction palettes, the star tiles, the sprite caches and the ship light layers, `backdrop.ts` the planet scene (its limb curve, drifting haze, moon parallax and breathing sun) and the space world, `world.ts` the pooled particles, the enemy list and the spatial grid, `enemies.ts` spawning, the capital ships, faction switches and heavy separation, `weapons.ts` the five weapons, six boosts and XP, `upgrades.ts` the level and cache choices, `hud.ts` the HUD and cards, `flight.ts` start, landing and hits, `input.ts` the controls, `render.ts` the ships, effects and the Easter egg cues, `store.ts` the best time, and `test.ts` the hooks only a test build compiles |
 | `src/styles/` | Global CSS split by section, imported by `Base.astro` in cascade order |
 | `src/assets/` | Source images, one WebP each, with the hero art in `hero/`. The build writes WebP at quality 85 everywhere and AVIF at quality 60 for the two hero backgrounds, which a `picture` in `Hero.astro` serves so each device loads only the one it needs |
 | `public/_headers` | Copied to `dist`, sets `X-Robots-Tag: noindex` |
@@ -34,7 +34,7 @@ bun run preview        # build, then wrangler dev
 bun run review         # review build with base /a/8t5qjd6kq3na/, republished to the local artifact host
 bun run deploy         # build, then deploy from this machine (fallback when Actions is down, only when Louis asks)
 bun run parity <check> # compare two builds, see below
-bun run hero           # hero and game checks on a test build, --only egg,boost,fleets,cards,land,pause,a11y,swipe,world,perf
+bun run hero           # hero and game checks on a test build, --only egg,boost,fleets,cards,land,pause,a11y,swipe,world,idle,perf
 ```
 
 ## Parity harness
@@ -73,6 +73,7 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 - The hero is the cockpit moment. You rest in orbit over a dawn planet with the LG-01 ship, and one scroll flies you out into the site. Everything past the hero is a normal, readable, scroll-animated site in the same space theme. Do not reopen other directions.
 - Art direction applies to the hero only. Other sections stay minimal, with thin, exact, code-drawn graphics on near-black and no painted backdrops.
 - The hero is painted planet art on the hero canvas with LG-01 drawn over it and small life in the scene. Improve it by retouching or repainting the art, never by going back to procedural planets.
+- At rest the scene moves like real orbit and stays quiet behind the copy. Sunlit haze drifts toward the viewer across the surface in perspective, the sun breathes on a cycle of about 20 seconds, the moons drift on their own depth and a few stars glint. LG-01 takes its light from the scene, with a warm rim on the edges facing the sun, a cooler shaded underside, a touch of haze and engines that flicker and spill cyan light. Never change the ship's silhouette or soften it. There are no floating rocks.
 - The game stays an Easter egg. No button, banner or copy points to it beyond the ship hover and the single idle whisper.
 - The project planets are the real solar system in project order (Mercury Air Mail to Neptune UMF) with their real moons. Nothing is drawn behind a planet.
 
@@ -90,6 +91,7 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 - Buttons are refined pills, solid white primary and outline secondary, with labels only. No icon on View the work, Get in touch, Case study or Visit site, and never a diagonal external arrow anywhere.
 - Icons are Lucide inline SVG at a 1.5 stroke with round caps, used only for icon-only controls and small nav cues. Never use text glyph arrows.
 - Pilot Log is Big numbers in a divided row. The About timeline is Big years. Hero is the name and title eyebrow, Ready for launch, the proof line and the Scroll to launch cue.
+- The hero copy sits on soft shading anchored to it, never a box. Phones follow one type scale that matches the other sections. The headline holds two lines at 32 to 40px, the subline is 16px, the pills are 12px, and the mono eyebrow and proof line run 11 to 12px and 10.5 to 11.5px with tighter tracking so each holds one line from 360 to 430 wide. LG-01 rests at about 58 percent of the width in the lower third, at least 32px below the copy and well clear of the cue, and the hold hit area follows the drawn ship. On landscape phones it rests to the right of the copy.
 - The native cursor always shows, except while flying the hero game, where the ship takes its place. The targeting cursor is decoration for mouse pointers only.
 - Hover effects apply only under (hover: hover). Tap highlight is off.
 
