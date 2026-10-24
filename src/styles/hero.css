@@ -6,14 +6,15 @@
 #orbit { position: absolute; inset: 0; display: block; width: 100%; height: 100%; opacity: 0; will-change: opacity; }
 #orbit { -webkit-mask-image: linear-gradient(180deg, #000 78%, rgb(0 0 0 / var(--fly, 0))); mask-image: linear-gradient(180deg, #000 78%, rgb(0 0 0 / var(--fly, 0))); }
 #hero .scrim { -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent); mask-image: linear-gradient(180deg, #000 78%, transparent); }
-#hero .scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(3 6 14 / 82%), rgb(3 6 14 / 44%) 36%, transparent 60%), linear-gradient(180deg, rgb(3 6 14 / 45%), transparent 30%); transition: opacity .6s var(--ease-out); }
+#hero .scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(3 6 14 / 74%), rgb(3 6 14 / 36%) 34%, transparent 58%), linear-gradient(180deg, rgb(3 6 14 / 45%), transparent 30%); transition: opacity .6s var(--ease-out); }
 
 #hero .copy { position: absolute; z-index: 5; left: clamp(20px, 5vw, 72px); top: 15vh; width: min(900px, 72vw); transform: translate3d(0, var(--cy, 0px), 0); transition: opacity .5s var(--ease-out); will-change: transform, opacity; backface-visibility: hidden; }
+#hero .copy::before { content: ""; position: absolute; z-index: -1; inset: -25% -20% -45% -15%; pointer-events: none; background: radial-gradient(ellipse 44% 48% at 36% 60%, rgb(3 6 14 / 58%), rgb(3 6 14 / 48%) 25%, rgb(3 6 14 / 31%) 45%, rgb(3 6 14 / 15%) 62%, rgb(3 6 14 / 5%) 78%, transparent); }
 #hero .hl { margin: 0; font-size: clamp(40px, 4.8vw, 92px); line-height: .98; text-shadow: 0 6px 34px rgb(0 0 0 / 55%); }
 #hero .hl span { display: block; }
 #hero .hs { margin: 24px 0 0; max-width: 42ch; color: #c9d6f2; font-size: clamp(17px, 1.35vw, 20px); text-shadow: 0 2px 20px rgb(0 0 0 / 70%); }
 #hero .hc { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
-#hero .proof { margin-top: 22px; color: var(--dim); }
+#hero .proof { margin-top: 22px; color: #b9c7e6; text-shadow: 0 1px 14px rgb(0 0 0 / 70%); }
 #hero .proof b { color: var(--fg); font-weight: 600; }
 #hero .hl .ln > span { opacity: 0; transform: translate3d(0, 38%, 0); transition: opacity .9s var(--ease-out), transform 1.2s var(--ease-out); will-change: transform, opacity; backface-visibility: hidden; }
 #hero.in .hl .ln > span { opacity: 1; transform: none; }
@@ -144,6 +145,7 @@
 
 @media (max-width: 860px) {
   #hero .copy { left: 20px; right: 20px; width: auto; top: clamp(88px, 11.6vh, 112px); }
+  #hero .copy::before { inset: -18% -20px -30% -20px; background: radial-gradient(ellipse 72% 46% at 50% 64%, rgb(3 6 14 / 62%), rgb(3 6 14 / 52%) 25%, rgb(3 6 14 / 33%) 45%, rgb(3 6 14 / 16%) 62%, rgb(3 6 14 / 5%) 78%, transparent); }
   #hero .eyebrow { gap: 10px; margin-bottom: clamp(14px, 2.4vh, 22px); font-size: clamp(10.5px, calc((100vw - 70px) / 27), 12px); letter-spacing: .1em; white-space: nowrap; }
   #hero .eyebrow::before { flex: none; width: 20px; }
   #hero .hl { font-size: 10vw; }
@@ -178,6 +180,7 @@
 }
 @media (max-height: 520px) and (orientation: landscape) {
   #hero .copy { top: calc(env(safe-area-inset-top) + 76px); width: min(560px, 56vw); }
+  #hero .copy::before { inset: -20% -12% -24% -20px; background: radial-gradient(ellipse 50% 50% at 42% 58%, rgb(3 6 14 / 58%), rgb(3 6 14 / 48%) 25%, rgb(3 6 14 / 31%) 45%, rgb(3 6 14 / 15%) 62%, rgb(3 6 14 / 5%) 78%, transparent); }
   #hero .eyebrow { margin-bottom: 10px; font-size: 11px; letter-spacing: .1em; white-space: nowrap; }
   #hero .hl { font-size: min(8.2vh, 4.4vw); }
   #hero .hs { max-width: 40ch; margin-top: 10px; font-size: 14px; line-height: 1.5; }
