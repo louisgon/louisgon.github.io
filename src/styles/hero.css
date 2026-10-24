@@ -81,7 +81,7 @@
 #hero .hud .boss i { position: relative; display: block; height: 4px; margin-top: 8px; overflow: hidden; border-radius: 2px; background: rgb(255 207 138 / 16%); }
 #hero .hud .boss b { display: block; height: 100%; background: linear-gradient(90deg, #ff9a4a, var(--gold)); box-shadow: 0 0 10px rgb(255 170 90 / 70%); transform-origin: 0 50%; transition: transform .15s ease; will-change: transform, opacity; backface-visibility: hidden; }
 
-#hero .panel { position: absolute; left: 50%; top: 22%; width: min(660px, calc(100% - 24px)); padding: 24px 22px 22px; text-align: center; border: 1px solid rgb(255 207 138 / 26%); border-radius: 18px; background: #221815; box-shadow: 0 30px 90px rgb(0 0 0 / 55%), inset 0 1px 0 rgb(255 228 196 / 7%); opacity: 0; visibility: hidden; transform: translate3d(-50%, -50%, 0) scale3d(.96, .96, 1); transition: opacity .3s ease, transform .45s var(--ease-out), visibility 0s .3s; will-change: transform, opacity; backface-visibility: hidden; }
+#hero .panel { position: absolute; left: 50%; top: 22%; width: min(660px, calc(100% - 24px)); padding: 24px 22px 22px; text-align: center; border: 1px solid rgb(255 207 138 / 26%); border-radius: 18px; background: #0b1324; box-shadow: 0 30px 90px rgb(0 0 0 / 55%), inset 0 1px 0 rgb(200 225 255 / 7%); opacity: 0; visibility: hidden; transform: translate3d(-50%, -50%, 0) scale3d(.96, .96, 1); transition: opacity .3s ease, transform .45s var(--ease-out), visibility 0s .3s; will-change: transform, opacity; backface-visibility: hidden; }
 #hero .panel.on { opacity: 1; visibility: visible; pointer-events: auto; transform: translate3d(-50%, -50%, 0) scale3d(1, 1, 1); transition: opacity .3s ease, transform .45s var(--ease-out); }
 #hero .panel[data-mode="over"], #hero .panel[data-mode="pause"] { width: min(460px, calc(100% - 24px)); padding: 28px 26px 26px; }
 #hero .panel[data-n="1"] { width: min(300px, calc(100% - 24px)); }
@@ -101,12 +101,12 @@
 #hero .panel .btn.ghost { background: transparent; }
 #hero .panel .opts { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
 #hero .panel .opts.arm .opt { pointer-events: none; }
-#hero .panel .opt { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 12px 16px; border: 1px solid rgb(143 211 255 / 24%); border-radius: 12px; background: #2b1f1a; color: var(--fg); text-align: center; font: 500 14px/1.35 "Inter Tight", sans-serif; cursor: pointer; transition: border-color .2s ease, background .2s ease, transform .25s var(--ease-pop); will-change: transform, opacity; backface-visibility: hidden; }
+#hero .panel .opt { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 12px 16px; border: 1px solid rgb(143 211 255 / 24%); border-radius: 12px; background: #131d33; color: var(--fg); text-align: center; font: 500 14px/1.35 "Inter Tight", sans-serif; cursor: pointer; transition: border-color .2s ease, background .2s ease, transform .25s var(--ease-pop); will-change: transform, opacity; backface-visibility: hidden; }
 #hero .panel.on .opt { animation: optIn .42s var(--ease-out) backwards; }
 #hero .panel.on .opt:nth-child(2) { animation-delay: .05s; }
 #hero .panel.on .opt:nth-child(3) { animation-delay: .1s; }
 @keyframes optIn { from { opacity: 0; transform: translate3d(0, 14px, 0) scale3d(.97, .97, 1); } to { opacity: 1; transform: translate3d(0, 0, 0) scale3d(1, 1, 1); } }
-#hero .panel .opt:focus-visible { border-color: var(--holo); background: #33251f; transform: translate3d(0, -3px, 0); outline: none; box-shadow: none; }
+#hero .panel .opt:focus-visible { border-color: var(--holo); background: #1a2742; transform: translate3d(0, -3px, 0); outline: none; box-shadow: none; }
 #hero .panel .opt svg { width: 32px; height: 32px; flex: none; color: var(--holo); filter: drop-shadow(0 0 8px rgb(143 211 255 / 45%)); }
 #hero .panel .opt.kb svg { color: #efd9b6; filter: none; }
 #hero .panel .opt.ke { border-color: rgb(255 207 138 / 75%); background: linear-gradient(180deg, #4a3220, #2d2018 70%); box-shadow: 0 0 0 1px rgb(255 207 138 / 18%), 0 12px 40px rgb(255 160 70 / 22%); }
@@ -116,7 +116,7 @@
 #hero .panel .opt.ke::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 38%, rgb(255 236 205 / 16%) 50%, transparent 62%); transform: translate3d(-100%, 0, 0); animation: sheen 2.6s ease-in-out infinite; will-change: transform, opacity; backface-visibility: hidden; }
 @keyframes sheen { 0%, 35% { transform: translate3d(-100%, 0, 0); } 75%, 100% { transform: translate3d(100%, 0, 0); } }
 @media (hover: hover) {
-  #hero .panel .opt:hover { border-color: var(--holo); background: #33251f; transform: translate3d(0, -3px, 0); }
+  #hero .panel .opt:hover { border-color: var(--holo); background: #1a2742; transform: translate3d(0, -3px, 0); }
   #hero .panel .opt.ke:hover { border-color: #ffe2b4; background: linear-gradient(180deg, #553a24, #33251c 70%); }
 }
 #hero .panel .opt .tx { display: flex; flex-direction: column; gap: 5px; }
