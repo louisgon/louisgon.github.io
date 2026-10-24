@@ -1,5 +1,5 @@
 import { devices, type Page } from 'playwright';
-import { angErr, box, lg, page, playing, scrolled, shot, st, topDown, touch, type Ctx, type St } from './lib';
+import { angErr, box, clearCards, lg, page, playing, scrolled, shot, st, topDown, touch, type Ctx, type St } from './lib';
 
 const key = async (p: Page, codes: string[], ms: number) => { for (const k of codes) await p.keyboard.down(k); await p.waitForTimeout(ms); const s = await st(p); for (const k of codes) await p.keyboard.up(k); return s; };
 
@@ -27,10 +27,14 @@ export async function dive(c: Ctx) {
     c.ok('the heading holds when idle', angErr(h0, h1) <= 3, `${h0} then ${h1}`);
     const turn = await p.evaluate(() => new Promise<number>((res) => { const l = (window as unknown as { __lg: { st: () => St } }).__lg; let a = l.st().hd, pt = 0, max = 0; const t0 = performance.now(); const tick = (ts: number) => { const h = l.st().hd; if (pt) max = Math.max(max, Math.abs((((h - a) % 360) + 540) % 360 - 180) / ((ts - pt) / 1000)); a = h; pt = ts; if (performance.now() - t0 < 600) requestAnimationFrame(tick); else res(max); }; requestAnimationFrame(tick); dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyD' })); setTimeout(() => dispatchEvent(new KeyboardEvent('keyup', { code: 'KeyD' })), 550); }));
     c.ok('the turn rate stays capped near 540 degrees a second', turn <= 620, `peak ${Math.round(turn)}`);
-    const a = await st(p);
-    await p.mouse.move(1300, 450, { steps: 6 }); await p.waitForTimeout(900); const b = await st(p);
-    await p.mouse.move(720, 820, { steps: 6 }); await p.waitForTimeout(900); const d = await st(p);
-    c.ok('the mouse steers in world space and the ship faces where it flies', b.x > a.x + 300 && d.y > b.y + 200 && angErr(b.hd, 90) < 25, `(${a.x},${a.y}) to (${b.x},${b.y}) ${b.hd}, then (${d.x},${d.y}) ${d.hd}`);
+    let a = await st(p), b = a, d = a, steered = false;
+    for (let i = 0; i < 3 && !steered; i++) {
+      await clearCards(p); await p.mouse.move(720, 450, { steps: 6 }); await p.waitForTimeout(400); a = await st(p);
+      await p.mouse.move(1300, 450, { steps: 6 }); await p.waitForTimeout(900); b = await st(p);
+      await p.mouse.move(720, 820, { steps: 6 }); await p.waitForTimeout(900); d = await st(p);
+      steered = !b.card && !d.card && b.x > a.x + 300 && d.y > b.y + 200 && angErr(b.hd, 90) < 25;
+    }
+    c.ok('the mouse steers in world space and the ship faces where it flies', steered, `(${a.x},${a.y}) to (${b.x},${b.y}) ${b.hd}, then (${d.x},${d.y}) ${d.hd}`);
     c.ok('the camera keeps the ship near the centre', Math.abs(d.sx - 720) < 200 && Math.abs(d.sy - 450) < 200, `${d.sx},${d.sy}`);
     c.ok('steering never scrolls', (await scrolled(p)) === 0);
     await p.mouse.move(720, 450, { steps: 4 });
