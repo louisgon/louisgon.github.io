@@ -29,6 +29,21 @@ function useBg(img: HTMLImageElement | null) {
   A.meta = m; scene.sun = m.sun; scene.limb = m.limb;
 }
 
+function restLayout() {
+  const { W, H, tall } = V, short = (V.short = !tall && H < 520), pr = D.copy.querySelector<HTMLElement>('.proof'), cue = D.hero.querySelector<HTMLElement>('.hint');
+  let x = 0.5, y = tall ? 0.69 : 0.66, b = tall ? Math.min(W * 0.74, H * 0.42) : Math.min(W * 0.36, H * 0.62);
+  if (tall && pr && cue) {
+    const pad = clamp(H * 0.05, 26, 56), top = D.copy.offsetTop + pr.offsetTop + pr.offsetHeight + pad, room = cue.offsetTop - pad - top;
+    b = Math.max(W * 0.56, Math.min(b, room / A.aspR)); const h = b * A.aspR;
+    y = Math.min(top + h / 2 + Math.max(0, room - h) * 0.42, cue.offsetTop - h * 0.78 - 50) / H;
+  } else if (short) {
+    const r = document.createRange(), x0 = D.hero.getBoundingClientRect().left; let right = 0;
+    for (const el of D.copy.children) { r.selectNodeContents(el); right = Math.max(right, r.getBoundingClientRect().right - x0); }
+    b = Math.min(H * 0.6, W - right - 56); x = (right + W) / 2 / W; y = 0.58;
+  }
+  rs.restX = x; rs.restY = y; rs.base = b;
+}
+
 function size() {
   const r = D.hero.getBoundingClientRect(), oW = V.W, oH = V.H, cv = D.cv;
   V.W = r.width; V.H = r.height; V.DPR = Math.min(devicePixelRatio || 1, coarse ? V.dprCap : 2);
@@ -36,8 +51,7 @@ function size() {
   ctx.setTransform(V.DPR, 0, 0, V.DPR, 0, 0);
   const { W, H } = V, tall = (V.tall = W / H < 0.85);
   if (A.meta) { scene.sun = A.meta.sun; scene.limb = A.meta.limb; }
-  rs.base = tall ? Math.min(W * 0.74, H * 0.42) : Math.min(W * 0.36, H * 0.62);
-  rs.restY = tall ? 0.69 : 0.66;
+  restLayout();
   V.U = clamp(Math.min(W, H) / 900, 0.55, 1.3); V.Z = clamp(Math.min(W, H) / (V.U * 860), 0.8, 1); V.vw = W / V.Z; V.vh = H / V.Z;
   ship.play = 172 * V.U * (tall ? 1.12 : 1);
   sizeWorld();
@@ -56,7 +70,7 @@ export function initOrbit() {
   Promise.all([bg, load(sp.ship)]).then(([b, s]) => {
     useBg(b); A.ship = s; A.base = true;
     if (s) { rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; }
-    size(); addEventListener('resize', size);
+    size(); addEventListener('resize', size); new ResizeObserver(() => restLayout()).observe(D.copy); document.fonts.ready.then(() => restLayout());
     pic.addEventListener('load', () => pic.decode().then(() => useBg(pic), () => useBg(pic)));
     const art = FAC.flatMap((f) => TYPES.map((T) => sp[`${f.id}-${T.role}`]));
     return Promise.all([sp['ship-top'], sp.nebula, ...art].map(load));
@@ -115,9 +129,9 @@ export function orbitTick(now: number, hp: number) {
   if (G.on || VP.p) G.ease = 1;
   if (G.ease) { const k = 1 - Math.exp(-rdt * 3); G.px = lerp(G.px, G.on ? 0 : px, k); G.py = lerp(G.py, G.on ? 0 : py, k); if (!G.on && !VP.p && Math.abs(G.px - px) + Math.abs(G.py - py) < 1e-3) G.ease = 0; }
   else { G.px = px; G.py = py; }
-  if (!rs.x) { rs.x = W * 0.5; rs.y = H * (reduce || HI.skip ? rs.restY : rs.restY + 0.25); }
+  if (!rs.x) { rs.x = W * rs.restX; rs.y = H * (reduce || HI.skip ? rs.restY : rs.restY + 0.25); }
   if (!G.on && !VP.p) {
-    rs.tx = 0.5 + G.px * (0.08 + egg.hover * 0.04) + Math.sin(t * 0.37) * 0.008; rs.ty = rs.restY + G.py * 0.03 + Math.sin(t * 0.61) * 0.006 - (reduce ? 0 : sy * 0.35);
+    rs.tx = rs.restX + G.px * (0.08 + egg.hover * 0.04) + Math.sin(t * 0.37) * 0.008; rs.ty = rs.restY + G.py * 0.03 + Math.sin(t * 0.61) * 0.006 - (reduce ? 0 : sy * 0.35);
     if (reduce) { rs.x = rs.tx * W; rs.y = rs.ty * H; rs.vx = rs.vy = 0; }
     else { rs.vx += ((rs.tx * W - rs.x) * 5 - rs.vx * 4.2) * rdt; rs.vy += ((rs.ty * H - rs.y) * 5 - rs.vy * 4.2) * rdt; rs.x += rs.vx * rdt; rs.y += rs.vy * rdt; }
     rs.sc += ((1 - (reduce ? 0 : sy * 0.25)) - rs.sc) * (reduce ? 1 : 1 - Math.exp(-rdt / 0.2));

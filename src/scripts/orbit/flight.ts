@@ -57,7 +57,7 @@ export function land() {
   if (input.focusBack && input.focusBack.focus) { try { input.focusBack.focus({ preventScroll: true }); } catch {} } input.focusBack = null;
   $('bestLine').hidden = false;
   if (G.dead) { G.dead = false; VP.rv = 1; ship.h = ship.hv = 0; }
-  if (flown) { VP.rx = V.W * 0.5; VP.ry = V.H * rs.restY; VP.rw = rs.base; }
+  if (flown) { VP.rx = V.W * rs.restX; VP.ry = V.H * rs.restY; VP.rw = rs.base; }
   VP.dir = -1; cancelInput();
 }
 
