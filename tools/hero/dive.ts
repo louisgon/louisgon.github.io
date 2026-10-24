@@ -52,9 +52,16 @@ export async function dive(c: Ctx) {
     const a = await st(p);
     for (let i = 1; i <= 14; i++) { await T('touchMove', r.rx - i * 9, r.ry + i * 6); await p.waitForTimeout(30); }
     await p.waitForTimeout(500); const b = await st(p); await T('touchEnd');
-    c.ok('a relative touch drag moves the ship in both axes', b.x < a.x - 60 && b.y > a.y + 30, `(${a.x},${a.y}) to (${b.x},${b.y})`);
+    c.ok('the touch joystick moves the ship in both axes', b.x < a.x - 60 && b.y > a.y + 30, `(${a.x},${a.y}) to (${b.x},${b.y})`);
     await T('touchStart', 300, 700); for (let i = 1; i <= 8; i++) { await T('touchMove', 300, 700 - i * 12); await p.waitForTimeout(25); } await p.waitForTimeout(250); const d = await st(p); await T('touchEnd');
     c.ok('a new touch keeps steering and the ship turns to face up', d.y < b.y - 20 && angErr(d.hd, 0) < 30, `y ${b.y} to ${d.y}, heading ${d.hd}`);
+    await T('touchStart', 200, 600); await T('touchMove', 290, 600); await p.waitForTimeout(150);
+    const h0 = await st(p); await p.waitForTimeout(600); const h1 = await st(p);
+    await T('touchMove', 256, 600); await p.waitForTimeout(250); const s0 = await st(p); await p.waitForTimeout(600); const s1 = await st(p);
+    await T('touchEnd'); await p.waitForTimeout(350); const e0 = await st(p); await p.waitForTimeout(400); const e1 = await st(p);
+    c.ok('a thumb held still at full push keeps the ship flying', h1.x - h0.x > 120, `x ${h0.x} to ${h1.x}`);
+    c.ok('a small push flies slower than a full push', s1.x > s0.x && s1.x - s0.x < (h1.x - h0.x) * 0.6, `small ${s1.x - s0.x} full ${h1.x - h0.x}`);
+    c.ok('lifting the thumb brakes the ship in place', Math.hypot(e1.x - e0.x, e1.y - e0.y) < 12, `(${e0.x},${e0.y}) to (${e1.x},${e1.y})`);
     c.ok('phone drags never scroll', (await scrolled(p)) === 0);
     c.ok('phone pixel ratio is capped at 1.5', d.dpr <= 1.5, d.dpr);
     await p.waitForTimeout(1500); await shot(c, p, 'dive-phone-play');

@@ -1,5 +1,5 @@
 import { reduce } from '../state';
-import { A, at, base, C, clamp, ctx, DV, egg, F, G, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, screen, ship, shipH, shipW, sprite, T_BS, T_HV, TAU, toWorld, TYPES, V, VP } from './core';
+import { A, at, base, C, clamp, ctx, DV, egg, F, G, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, TYPES, V, VP } from './core';
 import { S, SPR, TX } from './art';
 import { AR, BM, BO, DB, EB, EN, FX, MI, NR, RB, rm, SH, SP, TG, WS } from './world';
 import { played, store } from './store';
@@ -385,4 +385,16 @@ export function drawCharge() {
   const k2 = clamp((F.now - c.t0) / HOLD[c.kind]), cx = rs.x, cy = rs.y, r = restW() * 0.55;
   ctx.strokeStyle = 'rgba(255,207,138,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.28); ctx.stroke();
   ctx.strokeStyle = 'rgba(255,214,150,0.95)'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + k2 * 6.28); ctx.stroke();
+}
+
+export function drawStick() {
+  const s = input.stick;
+  if (!s || !G.on || VP.p < 1 || G.card || G.dead) return;
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.beginPath(); ctx.arc(s.ox, s.oy, STICK.r, 0, TAU);
+  ctx.fillStyle = 'rgba(4,6,13,0.22)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(234,240,255,0.24)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(s.x, s.y, 20, 0, TAU);
+  ctx.fillStyle = 'rgba(234,240,255,0.3)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(143,211,255,0.6)'; ctx.stroke();
 }

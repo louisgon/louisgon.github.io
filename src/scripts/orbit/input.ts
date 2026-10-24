@@ -1,5 +1,5 @@
 import { $ } from '../util';
-import { A, D, egg, G, input, rs, restW, ship, V, VP } from './core';
+import { A, D, egg, G, input, rs, restW, STICK, V, VP } from './core';
 import { cancelInput, land, pause, restart } from './flight';
 import { hideCard, setLast } from './hud';
 import { choose } from './upgrades';
@@ -7,13 +7,14 @@ import { choose } from './upgrades';
 export const STEER: Record<string, number[]> = { ArrowLeft: [-1, 0], KeyA: [-1, 0], ArrowRight: [1, 0], KeyD: [1, 0], ArrowUp: [0, -1], KeyW: [0, -1], ArrowDown: [0, 1], KeyS: [0, 1] };
 
 const rel = (cx: number, cy: number) => { const r = D.hero.getBoundingClientRect(); return [(cx - r.left) / V.W, (cy - r.top) / V.H]; };
+const local = (cx: number, cy: number) => { const r = D.hero.getBoundingClientRect(); return [cx - r.left, cy - r.top]; };
+export const grab = (id: number, cx: number, cy: number) => { const [x, y] = local(cx, cy); input.tid = id; input.stick = { ox: x, oy: y, x, y }; input.follow = false; };
 const onShip = (cx: number, cy: number, pad = 1) => { const [x, y] = rel(cx, cy), sw = restW(), sh = sw * A.aspR; return Math.abs(x * V.W - rs.x) < sw * 0.5 * pad && Math.abs(y * V.H - rs.y) < sh * 0.6 * pad; };
 const interactive = (el: EventTarget | null) => el instanceof Element && !!el.closest('a, button, nav, .panel');
 const heroInView = () => { const r = D.hero.getBoundingClientRect(); return r.bottom > V.H * 0.5 && r.top < V.H * 0.5; };
 const findTouch = (list: TouchList) => { for (const t of list) if (t.identifier === input.tid) return t; return null; };
 const onControl = () => !!(document.activeElement && document.activeElement.closest('a, button, input, textarea, select, [contenteditable]'));
 const hover = (on: boolean) => { if (egg.over === on) return; egg.over = on; D.hero.style.cursor = on ? 'pointer' : ''; };
-const goalCap = () => { const dx = input.gx - ship.x, dy = input.gy - ship.y, d = Math.hypot(dx, dy), m = 300 * V.U; if (d > m) { input.gx = ship.x + dx / d * m; input.gy = ship.y + dy / d * m; } };
 const armed = () => D.opts.classList.contains('arm');
 
 export function initInput() {
@@ -23,22 +24,25 @@ export function initInput() {
     if (interactive(e.target)) return;
     if (e.touches.length > 1) { input.charge = null; return; }
     const p = e.changedTouches[0];
-    if (G.on) { if (input.tid === null) { input.tid = p.identifier; input.lx = p.clientX; input.ly = p.clientY; input.follow = false; } return; }
+    if (G.on) { if (input.tid === null) grab(p.identifier, p.clientX, p.clientY); return; }
     if (A.ready && !VP.p && onShip(p.clientX, p.clientY, 1.15)) input.charge = { kind: 'touch', t0: performance.now(), sx: p.clientX, sy: p.clientY, id: p.identifier, x: 0, y: 0 };
   }, { passive: true });
   hero.addEventListener('touchmove', (e) => {
     if (G.on) {
       const p = findTouch(e.changedTouches); if (!p) return;
       e.preventDefault();
-      if (G.card || VP.p < 1) { input.lx = p.clientX; input.ly = p.clientY; return; }
-      input.gx += (p.clientX - input.lx) * 1.35 / V.Z; input.gy += (p.clientY - input.ly) * 1.35 / V.Z; goalCap(); input.follow = false;
-      input.lx = p.clientX; input.ly = p.clientY; return;
+      const [x, y] = local(p.clientX, p.clientY), s = input.stick;
+      if (!s || G.card || VP.p < 1) { input.stick = { ox: x, oy: y, x, y }; return; }
+      s.x = x; s.y = y;
+      const dx = x - s.ox, dy = y - s.oy, d = Math.hypot(dx, dy);
+      if (d > STICK.r) { s.ox = x - dx / d * STICK.r; s.oy = y - dy / d * STICK.r; }
+      return;
     }
     const c = input.charge; if (!c || c.kind !== 'touch') return;
     const p = [...e.changedTouches].find((t) => t.identifier === c.id);
     if (e.touches.length > 1 || (p && Math.hypot(p.clientX - c.sx, p.clientY - c.sy) > 10)) input.charge = null;
   }, { passive: false });
-  const touchEnd = (e: TouchEvent) => { if (input.charge && input.charge.kind === 'touch') input.charge = null; if (findTouch(e.changedTouches)) input.tid = null; };
+  const touchEnd = (e: TouchEvent) => { if (input.charge && input.charge.kind === 'touch') input.charge = null; if (findTouch(e.changedTouches)) { input.tid = null; input.stick = null; } };
   hero.addEventListener('touchend', touchEnd); hero.addEventListener('touchcancel', touchEnd);
 
   hero.addEventListener('pointerdown', (e) => {

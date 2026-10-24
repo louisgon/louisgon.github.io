@@ -26,6 +26,7 @@ export const TYPES = [
 export const TAU = Math.PI * 2, DIVE = 1.45, LAND = 1, TILE = 980, CLOUDT = 2400, GZ0 = 1.15, TURN = Math.PI * 3;
 export const coarse = matchMedia('(pointer: coarse)').matches;
 export const HOLD: Record<Kind, number> = { touch: 300, mouse: 230, key: 230 };
+export const STICK = { r: 54, dz: 6 };
 
 let seed = 0x0b17;
 export const rand = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -46,7 +47,7 @@ export const cam = { x: 0, y: 0 };
 export const VP = { p: 0, dir: 0, rx: 0, ry: 0, rw: 1, rv: 0 };
 export const DV = { k: 1, lift: 0, dark: 0, zb: 0, ga: 0, gz: 1, rx: 0, ry: 0, rw: 1, rsq: 1, ra: 1, tx: 0, ty: 0, tw: 1, tsq: 1, ta: 0, sho: 1 };
 export const C = { ox: 0, oy: 0, wz: 1, dz: 1, x0: 0, x1: 1, y0: 0, y1: 1, sx: 0, sy: 0 };
-export const input = { mx: 0.5, my: 0.5, gx: 0, gy: 0, follow: false, charge: null as Charge | null, tid: null as number | null, lx: 0, ly: 0, keys: new Set<string>(), last: (coarse ? 'touch' : 'mouse') as Kind, moveAcc: 0, wheelAcc: 0, wheelT: 0, focusBack: null as HTMLElement | null, mlock: false, mlockAcc: 0 };
+export const input = { mx: 0.5, my: 0.5, gx: 0, gy: 0, follow: false, charge: null as Charge | null, tid: null as number | null, stick: null as { ox: number; oy: number; x: number; y: number } | null, keys: new Set<string>(), last: (coarse ? 'touch' : 'mouse') as Kind, moveAcc: 0, wheelAcc: 0, wheelT: 0, focusBack: null as HTMLElement | null, mlock: false, mlockAcc: 0 };
 export const G = {
   on: false, run: 0, clock: 0, kills: 0, level: 1, xp: 0, need: 4, pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, over: false, dead: false, card: false, mode: '' as Mode,
   W: [] as Weapon[], wm: {} as Partial<Record<WeapId, Weapon>>, B: [] as BoostId[], bm: {} as Partial<Record<BoostId, number>>, miss: {} as Partial<Record<WeapId, number>>, opts: [] as Option[],

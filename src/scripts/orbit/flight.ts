@@ -9,7 +9,7 @@ import { P, store } from './store';
 import { T } from './test';
 
 let lateT = 0, tipT = 0, toastT = 0;
-export const cancelInput = () => { input.charge = null; input.keys.clear(); input.tid = null; };
+export const cancelInput = () => { input.charge = null; input.keys.clear(); input.tid = null; input.stick = null; };
 
 export function start(kind?: Kind) {
   G.run++; store.set('lg01-played', 1); egg.whisper = -1; egg.over = false; D.hero.style.cursor = '';
