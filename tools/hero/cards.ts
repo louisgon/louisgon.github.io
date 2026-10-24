@@ -19,7 +19,7 @@ export async function cards(c: Ctx) {
     await p.waitForTimeout(1000); await hold(p); await topDown(p);
     let card = false; const t0 = Date.now();
     while (Date.now() - t0 < 30000) { const s = await st(p); if (s.card && s.mode === 'level') { card = true; break; } const k = (Date.now() - t0) / 1000; await p.mouse.move(720 + Math.sin(k) * 260, 450 + Math.cos(k) * 200, { steps: 2 }); await p.waitForTimeout(120); }
-    await p.waitForTimeout(600);
+    if (card) await p.waitForFunction(() => document.querySelectorAll('#opts .opt').length === 3, null, { timeout: 3000 }).catch(() => {});
     const n = await p.evaluate(() => document.querySelectorAll('#opts .opt').length);
     c.ok('levelling pauses on a card with three choices', card && n === 3, `options ${n}, level ${(await st(p)).level}`);
     await shot(c, p, 'cards-level');
@@ -50,7 +50,7 @@ export async function cards(c: Ctx) {
     c.ok('choosing from the cache evolves the weapon', (await st(p)).evos.includes('railstorm'), (await st(p)).evos);
     await p.waitForTimeout(600); await shot(c, p, 'cards-evolved');
     await clearCards(p);
-    await lg(p, 'cache()');
+    await lg(p, 'cache(0)');
     const rw = await toCache(p, 1440, 900);
     c.ok('a cache with nothing to evolve offers a strong reward card', rw.mode === 'cache' && rw.opts.length === 3 && rw.opts.every((o) => o.startsWith('x:')), rw);
     await p.waitForTimeout(450); await p.keyboard.press('Digit1'); await clearCards(p); await lg(p, 'god(false)');

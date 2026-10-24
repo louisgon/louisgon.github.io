@@ -75,7 +75,7 @@ export function initTest() {
     time: (t: number) => { G.clock = t; G.nextBoss = Math.max(G.nextBoss, t < 100 ? 100 : 100 + 180 * Math.ceil((t + 1 - 100) / 180)); },
     boss: () => spawnBoss(),
     killBoss: () => { if (G.boss) hit(G.boss, 1e9); },
-    cache: () => { G.cache = { x: ship.x + 150 * V.U, y: ship.y, t: 0 }; },
+    cache: (dx = 150) => { G.cache = { x: ship.x + dx * V.U, y: ship.y, t: 0 }; },
     opts: () => G.opts.map((o) => `${o.kind}:${o.id}`),
     darts: () => dartLine(),
     heavies: (n: number) => { for (let i = 0; i < n; i++) spawn(T_HV, ship.x + 260 * V.U + rnd(-4, 4), ship.y + rnd(-4, 4)); },
