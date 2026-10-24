@@ -13,6 +13,7 @@ export const launch = () => chromium.launch({ args: process.platform === 'darwin
 export async function page(c: Ctx, opts: BrowserContextOptions) {
   const context = await c.browser.newContext(opts), errors: string[] = [];
   const p = await context.newPage();
+  await (await context.newCDPSession(p)).send('Emulation.setFocusEmulationEnabled', { enabled: true });
   p.on('pageerror', (e) => errors.push(e.message)); p.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('requestfailed', (r) => errors.push(`failed ${r.url()}`)); p.on('response', (r) => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
   await p.goto(c.url, { waitUntil: 'networkidle' });
