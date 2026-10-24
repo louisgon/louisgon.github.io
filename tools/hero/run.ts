@@ -4,7 +4,8 @@ import { join, resolve } from 'node:path';
 import { arg, site } from '../parity/lib';
 import { launch, type Ctx } from './lib';
 import { egg } from './egg';
-import { dive } from './dive';
+import { boost } from './boost';
+import { fleets } from './fleets';
 import { cards } from './cards';
 import { land } from './land';
 import { pause } from './pause';
@@ -13,7 +14,7 @@ import { swipe } from './swipe';
 import { world } from './world';
 import { perf } from './perf';
 
-const CHECKS = { egg, dive, cards, land, pause, a11y, swipe, world, perf };
+const CHECKS = { egg, boost, fleets, cards, land, pause, a11y, swipe, world, perf };
 const only = arg('only')?.split(','), out = resolve(arg('out', join(tmpdir(), `hero-${Date.now()}`))!);
 let dist = arg('dist');
 mkdirSync(out, { recursive: true });

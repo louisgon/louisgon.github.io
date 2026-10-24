@@ -10,7 +10,7 @@ export async function a11y(c: Ctx) {
     c.ok('reduced motion keeps the resting hero still', Buffer.compare(a, b) === 0);
     const tr = views(p, 900); await space(p); const vs = await tr;
     const up = vs.findIndex((v) => v > 0), full = vs.findIndex((v) => v === 1), frames = full - up;
-    c.ok('reduced motion replaces the dive with a 300ms crossfade', up >= 0 && full > up && frames >= 14 && frames <= 24 && vs.some((v) => v > 0.3 && v < 0.7), `${frames} frames`);
+    c.ok('reduced motion replaces the boost with a 300ms crossfade', up >= 0 && full > up && frames >= 14 && frames <= 24 && vs.some((v) => v > 0.3 && v < 0.7), `${frames} frames`);
     await p.waitForTimeout(150); await shot(c, p, 'a11y-reduced-fade');
     await p.waitForTimeout(2000);
     await lg(p, 'hurt()'); await p.waitForTimeout(50);
@@ -30,9 +30,9 @@ export async function a11y(c: Ctx) {
     await p.evaluate(() => (document.activeElement as HTMLElement).blur());
     await top(p); await p.waitForTimeout(600);
     await p.mouse.move(150, 300); await space(p);
-    c.ok('the HUD stays inert during the dive', await p.evaluate(() => (document.getElementById('hud') as HTMLElement).inert));
+    c.ok('the HUD stays inert during the boost', await p.evaluate(() => (document.getElementById('hud') as HTMLElement).inert));
     await topDown(p); await p.waitForTimeout(100);
-    c.ok('a keyboard start moves focus to the flight HUD once the dive lands', (await focused(p)).id === 'hud', await focused(p));
+    c.ok('a keyboard start moves focus to the flight HUD once the boost lands', (await focused(p)).id === 'hud', await focused(p));
     c.ok('the live region announces the flight', /Flight started/.test(await p.evaluate(() => document.getElementById('live')!.textContent ?? '')));
     await p.keyboard.press('Tab');
     const land = await focused(p);

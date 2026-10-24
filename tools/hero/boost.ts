@@ -1,9 +1,9 @@
 import { devices, type Page } from 'playwright';
-import { angErr, box, clearCards, lg, page, playing, scrolled, shot, st, topDown, touch, type Ctx, type St } from './lib';
+import { angErr, box, clearCards, lg, luma, monotone, page, playing, scrolled, shot, st, topDown, touch, track, type Ctx, type St } from './lib';
 
 const key = async (p: Page, codes: string[], ms: number) => { for (const k of codes) await p.keyboard.down(k); await p.waitForTimeout(ms); const s = await st(p); for (const k of codes) await p.keyboard.up(k); return s; };
 
-export async function dive(c: Ctx) {
+export async function boost(c: Ctx) {
   {
     const { p, context, errors } = await page(c, { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
     await p.waitForTimeout(1200);
@@ -11,13 +11,27 @@ export async function dive(c: Ctx) {
     await p.mouse.move(s0.rx, s0.ry, { steps: 6 }); await p.waitForTimeout(300);
     await p.mouse.down(); await p.waitForTimeout(100); await p.mouse.up();
     c.ok('a click on the ship does not start', !(await playing(p)));
-    const diveT = p.evaluate(() => new Promise<number>((res) => { const l = (window as unknown as { __lg: { st: () => St } }).__lg; let t1 = 0; const tick = (ts: number) => { const s = l.st(); if (!t1 && s.on) t1 = ts; if (t1 && s.top) res(ts - t1); else requestAnimationFrame(tick); }; requestAnimationFrame(tick); setTimeout(() => res(-1), 6000); }));
+    const top0 = await luma(p, 0.02, 0.2), low0 = await luma(p, 0.62, 0.78);
+    const boostT = p.evaluate(() => new Promise<number>((res) => { const l = (window as unknown as { __lg: { st: () => St } }).__lg; let t1 = 0; const tick = (ts: number) => { const s = l.st(); if (!t1 && s.on) t1 = ts; if (t1 && s.top) res(ts - t1); else requestAnimationFrame(tick); }; requestAnimationFrame(tick); setTimeout(() => res(-1), 6000); }));
+    const tr = track(p, 1800, ['view', 'drop', 'punch', 'th', 'ba']);
     await p.mouse.down(); await p.waitForTimeout(340); await p.mouse.up();
-    const ms = await diveT;
-    c.ok('the dive completes into the top down view in 1.3 to 1.6 seconds', ms >= 1300 && ms <= 1600 && (await st(p)).view === 1, `${Math.round(ms)}ms`);
-    for (const v of [0.25, 0.5, 0.75]) { await lg(p, `hold(${v})`); await p.waitForTimeout(80); await shot(c, p, `dive-${v * 100}`); }
+    const ms = await boostT, k = await tr, on = k.view.map((v, i) => [v, i] as const).filter(([v]) => v > 0).map(([, i]) => i), drops = on.map((i) => k.drop[i]), ths = on.map((i) => k.th[i]);
+    c.ok('the boost completes into the top down view in 1.3 to 1.6 seconds', ms >= 1300 && ms <= 1600 && (await st(p)).view === 1, `${Math.round(ms)}ms`);
+    const early = on.filter((i) => k.view[i] < 0.15), punch = Math.max(...early.map((i) => k.punch[i]));
+    c.ok('the engines punch at the start of the boost before the planet moves far', punch > 0.6 && early.every((i) => k.drop[i] < 0.12), `peak ${punch}, drop by then ${Math.max(...early.map((i) => k.drop[i]))}`);
+    c.ok('the planet slides down and out of frame in one continuous move', monotone(drops, 1) && drops[drops.length - 1] >= 1.2 && monotone(ths, 1) && ths[ths.length - 1] === 1, `drop ${drops[0]} to ${drops[drops.length - 1]} over ${drops.length} frames`);
+    c.ok('the orbit backdrop has faded by the time the space view settles', on.filter((i) => k.view[i] > 0.6).every((i) => k.ba[i] === 0));
+    await lg(p, 'hold(0.32)'); await p.waitForTimeout(120);
+    const top1 = await luma(p, 0.02, 0.2), low1 = await luma(p, 0.62, 0.78); await shot(c, p, 'boost-32');
+    c.ok('space fades in from above while the planet falls away', top1 < top0 * 0.6 && top1 < low1 * 0.5, { rest: [top0, low0], mid: [top1, low1] });
+    await lg(p, 'hold(0.49)'); await p.waitForTimeout(80);
+    const hand = await st(p); await shot(c, p, 'boost-49');
+    c.ok('the rear view ship hands off to the top down sprite at matching size', hand.rw === hand.tw && Math.abs(hand.ra + hand.ta - 1) < 0.02 && hand.ra > 0.2 && hand.ta > 0.2, hand);
+    await lg(p, 'hold(0.8)'); await p.waitForTimeout(120);
+    const dark = await luma(p, 0, 1); await shot(c, p, 'boost-80');
+    c.ok('the space view is dark enough for ships to read', dark < 40, dark);
     await lg(p, 'go(1)'); await topDown(p);
-    c.ok('the HUD shows once the dive completes and is not inert', await p.evaluate(() => document.getElementById('hero')!.classList.contains('flying') && !(document.getElementById('hud') as HTMLElement).inert));
+    c.ok('the HUD shows once the boost completes and is not inert', await p.evaluate(() => document.getElementById('hero')!.classList.contains('flying') && !(document.getElementById('hud') as HTMLElement).inert));
     await p.mouse.move(720, 450, { steps: 4 }); await p.waitForTimeout(300);
     const dirs: [string[], number][] = [[['KeyD'], 90], [['KeyS'], 180], [['KeyA'], 270], [['KeyW'], 0], [['KeyD', 'KeyS'], 135], [['ArrowLeft', 'ArrowUp'], 315], [['ArrowRight', 'ArrowUp'], 45], [['KeyA', 'KeyS'], 225]];
     const got: string[] = []; let worst = 0;
@@ -41,7 +55,7 @@ export async function dive(c: Ctx) {
     let peak = 0; for (let i = 0; i < 24; i++) { const s = await st(p); peak = Math.max(peak, s.shots); if (s.card) await p.keyboard.press('Digit1'); await p.waitForTimeout(150); }
     const s1 = await st(p);
     c.ok('weapons fire on their own with no clicks', peak > 0 && s1.kills > 0, `peak shots ${peak}, kills ${s1.kills} at ${s1.clock}s`);
-    await shot(c, p, 'dive-play');
+    await shot(c, p, 'boost-play');
     c.ok('desktop flight console clean', !errors.length, errors);
     await context.close();
   }
@@ -52,7 +66,7 @@ export async function dive(c: Ctx) {
     await T('touchStart', r.rx, r.ry); await p.waitForTimeout(450);
     c.ok('phone hold on the ship starts', await playing(p));
     await topDown(p, 5000);
-    c.ok('phone dive completes into the top down view', (await st(p)).view === 1);
+    c.ok('phone boost completes into the top down view', (await st(p)).view === 1);
     const a = await st(p);
     for (let i = 1; i <= 14; i++) { await T('touchMove', r.rx - i * 9, r.ry + i * 6); await p.waitForTimeout(30); }
     await p.waitForTimeout(500); const b = await st(p); await T('touchEnd');
@@ -74,7 +88,7 @@ export async function dive(c: Ctx) {
     c.ok('a full push gets most of the way to top speed within 0.12s', q.vx > full * 0.5, `vx ${Math.round(q.vx)} of about ${Math.round(full)}`);
     c.ok('phone drags never scroll', (await scrolled(p)) === 0);
     c.ok('phone pixel ratio is capped at 1.5', d.dpr <= 1.5, d.dpr);
-    await p.waitForTimeout(1500); await shot(c, p, 'dive-phone-play');
+    await p.waitForTimeout(1500); await shot(c, p, 'boost-phone-play');
     const [lx, ly] = await box(p, 'land'); await p.touchscreen.tap(lx, ly); await p.waitForTimeout(1300);
     c.ok('phone Land tap lands back at the orbit hero', !(await playing(p)) && (await st(p)).view === 0);
     c.ok('phone flight console clean', !errors.length, errors);

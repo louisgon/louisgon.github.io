@@ -1,14 +1,16 @@
-import { atRest, box, hold, lg, monotone, page, playing, scrolled, shot, space, st, topDown, views, type Ctx } from './lib';
+import { atRest, box, hold, lg, luma, monotone, page, playing, scrolled, shot, space, st, topDown, track, views, type Ctx } from './lib';
 
 export async function land(c: Ctx) {
   const { p, context, errors } = await page(c, { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
   await p.waitForTimeout(1000); await hold(p); await topDown(p);
   await p.mouse.move(720, 450); await p.waitForTimeout(2000);
-  const tr = views(p, 1300); await p.keyboard.press('Escape'); const vs = await tr;
-  const zeroAt = vs.findIndex((v) => v === 0);
-  c.ok('Escape lands by playing the dive in reverse in about a second', vs[0] > 0.9 && zeroAt > 30 && zeroAt < 80 && monotone(vs, -1), `${vs.length} frames, zero at ${zeroAt}`);
-  const rl = await st(p);
-  c.ok('landing returns the orbit hero at rest', (await atRest(p)) && Math.abs(rl.rx - 720) < 30 && Math.abs(rl.ry - 594) < 30, `${rl.rx},${rl.ry}`);
+  const space0 = await luma(p, 0.62, 0.78);
+  const tr = track(p, 1300, ['view', 'drop', 'th']); await p.keyboard.press('Escape'); const k = await tr, vs = k.view;
+  const zeroAt = vs.findIndex((v) => v === 0), drops = k.drop.slice(0, zeroAt + 1);
+  c.ok('Escape lands by playing the boost in reverse in about a second', vs[0] > 0.9 && zeroAt > 30 && zeroAt < 80 && monotone(vs, -1), `${vs.length} frames, zero at ${zeroAt}`);
+  c.ok('landing brings the planet back up into view as space recedes', monotone(drops, -1) && monotone(k.th.slice(0, zeroAt + 1), -1) && drops.some((d) => d > 1) && drops[drops.length - 1] === 0, `drop ${Math.max(...drops)} to ${drops[drops.length - 1]}`);
+  const rl = await st(p), planet = await luma(p, 0.62, 0.78);
+  c.ok('landing returns the orbit hero at rest', (await atRest(p)) && Math.abs(rl.rx - 720) < 30 && Math.abs(rl.ry - 594) < 30 && rl.drop === 0 && planet > space0 * 2, `${rl.rx},${rl.ry} planet ${planet} against space ${space0}`);
   c.ok('the HUD is inert after landing', await p.evaluate(() => (document.getElementById('hud') as HTMLElement).inert));
   c.ok('landing shows the toast', await p.evaluate(() => document.getElementById('toast')!.classList.contains('on')));
   await shot(c, p, 'land-toast');
@@ -25,7 +27,7 @@ export async function land(c: Ctx) {
   c.ok('a scroll lands', !(await st(p)).on);
   await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(1200);
   await space(p); await p.waitForTimeout(500); const md = await st(p); await p.keyboard.press('Escape');
-  c.ok('Escape mid dive reverses from where it was', md.view > 0 && md.view < 1 && (await atRest(p)), md.view);
+  c.ok('Escape mid boost reverses from where it was', md.view > 0 && md.view < 1 && (await atRest(p)), md.view);
   await space(p); await topDown(p);
   for (let i = 0; i < 3; i++) { await lg(p, 'hurt()'); await p.waitForTimeout(150); }
   await p.waitForTimeout(1700);
@@ -36,7 +38,7 @@ export async function land(c: Ctx) {
   await space(p); await p.waitForTimeout(300);
   await p.evaluate(() => (window as unknown as { __y: (id: string, k: number) => void }).__y('work', 0)); await p.waitForTimeout(800);
   await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(1500);
-  c.ok('leaving the hero mid dive lands and settles at rest', await atRest(p));
+  c.ok('leaving the hero mid boost lands and settles at rest', await atRest(p));
   c.ok('landing console clean', !errors.length, errors);
   await context.close();
 }

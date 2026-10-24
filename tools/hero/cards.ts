@@ -35,12 +35,12 @@ export async function cards(c: Ctx) {
     const lo = (await lg(p, 'opts()')) as string[];
     c.ok('level cards never offer an evolution, even with a maxed weapon and its boost', lo.length > 0 && !lo.some((o) => o.startsWith('e:')), lo);
     await clearCards(p);
-    c.ok('the first Monolith is scheduled 100 seconds in', (await st(p)).nb === 100, (await st(p)).nb);
+    c.ok('the first capital ship is scheduled 100 seconds in', (await st(p)).nb === 100, (await st(p)).nb);
     await lg(p, 'boss()'); await p.waitForTimeout(2500); await shot(c, p, 'cards-boss');
-    c.ok('the Monolith shows its health bar', await p.evaluate(() => document.getElementById('bossBar')!.classList.contains('on')));
+    c.ok('the capital ship shows its health bar', await p.evaluate(() => document.getElementById('bossBar')!.classList.contains('on')));
     await lg(p, 'killBoss()'); await p.waitForTimeout(1600);
     const cs = await st(p);
-    c.ok('a Monolith kill drops a gold cache', cs.cache && cs.eligible.includes('pulse'), cs);
+    c.ok('a capital ship kill drops a gold cache', cs.cache && cs.eligible.includes('pulse'), cs);
     await p.waitForTimeout(150); await shot(c, p, 'cards-cache');
     const ev = await toCache(p, 1440, 900);
     await p.waitForTimeout(450); await shot(c, p, 'cards-cache-card');
