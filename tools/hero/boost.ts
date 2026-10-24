@@ -80,12 +80,14 @@ export async function boost(c: Ctx) {
     c.ok('a thumb held still at full push keeps the ship flying', h1.x - h0.x > 120, `x ${h0.x} to ${h1.x}`);
     c.ok('a small push flies slower than a full push', s1.x > s0.x && s1.x - s0.x < (h1.x - h0.x) * 0.6, `small ${s1.x - s0.x} full ${h1.x - h0.x}`);
     c.ok('lifting the thumb brakes the ship in place', Math.hypot(e1.x - e0.x, e1.y - e0.y) < 12, `(${e0.x},${e0.y}) to (${e1.x},${e1.y})`);
-    await p.waitForTimeout(300); await T('touchStart', 200, 600); await T('touchMove', 290, 600); await p.waitForTimeout(600);
+    await p.waitForTimeout(300); await T('touchStart', 200, 600); await T('touchMove', 290, 600); await p.waitForTimeout(600); const cx0 = await p.evaluate(() => (window as unknown as { __lg: { st: () => St } }).__lg.st().sx - innerWidth / 2);
     await T('touchMove', 120, 600); await p.waitForTimeout(350); const rv = await st(p); await T('touchEnd');
     c.ok('the ship faces a reversed thumb within 0.35s', angErr(rv.hd, 270) < 35, `heading ${rv.hd}`);
+    const cx1 = rv.sx - (await p.evaluate(() => innerWidth / 2)), lim = (await p.evaluate(() => innerWidth)) * 0.06;
+    c.ok('the camera keeps LG-01 centred while steering by thumb', Math.abs(cx0) < lim && Math.abs(cx1) < lim, `off centre ${Math.round(cx0)} then ${Math.round(cx1)} px, limit ${Math.round(lim)}`);
     await p.waitForTimeout(600); await T('touchStart', 200, 600); await T('touchMove', 290, 600); await p.waitForTimeout(120); const q = await st(p); await T('touchEnd');
     const full = (h1.x - h0.x) / 0.6;
-    c.ok('a full push gets most of the way to top speed within 0.12s', q.vx > full * 0.5, `vx ${Math.round(q.vx)} of about ${Math.round(full)}`);
+    c.ok('a full push gets well on its way to top speed within 0.12s', q.vx > full * 0.4, `vx ${Math.round(q.vx)} of about ${Math.round(full)}`);
     c.ok('phone drags never scroll', (await scrolled(p)) === 0);
     c.ok('phone pixel ratio is capped at 1.5', d.dpr <= 1.5, d.dpr);
     await p.waitForTimeout(1500); await shot(c, p, 'boost-phone-play');

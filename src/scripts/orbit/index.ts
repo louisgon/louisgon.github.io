@@ -126,7 +126,7 @@ export function orbitTick(now: number, hp: number) {
 
   const px0 = ship.x, py0 = ship.y;
   if (top && !G.card && !G.dead) {
-    const maxV = 640 * V.U * spdM() * (V.tall && !input.stick ? 1.1 : 1);
+    const maxV = 640 * V.U * spdM() * (input.stick ? STICK.speed : V.tall ? 1.1 : 1);
     let dvx = 0, dvy = 0;
     if (input.keys.size && !auto) {
       let kx = 0, ky = 0; input.keys.forEach((k) => { kx += STEER[k][0]; ky += STEER[k][1]; });

@@ -36,7 +36,7 @@ export const FAC: readonly Faction[] = [
 export const TAU = Math.PI * 2, BOOST = 1.45, LAND = 1, CAPH = 300, GZ0 = 1.15, TURN = Math.PI * 3;
 export const coarse = matchMedia('(pointer: coarse)').matches;
 export const HOLD: Record<Kind, number> = { touch: 300, mouse: 230, key: 230 };
-export const STICK = { r: 64, dz: 10, curve: 1.7, ease: 20, turn: 1.6, spin: 0.06 };
+export const STICK = { r: 64, dz: 10, curve: 1.7, ease: 9, turn: 1.6, spin: 0.06, speed: 0.9 };
 
 let seed = 0x0b17;
 export const rand = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };

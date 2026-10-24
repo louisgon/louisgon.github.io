@@ -132,8 +132,8 @@ export function updCam(k: number, mx: number, my: number, rk: number) {
   if (VP.dir < 0) { const f = 1 - Math.exp(-k * 7); cam.x += (ship.x - cam.x) * f; cam.y += (ship.y - cam.y) * f; return; }
   if (VP.p < 1) { cam.x = ship.x; cam.y = ship.y; return; }
   if (k <= 0) return;
-  const L = input.follow && !(import.meta.env.MODE === 'test' && T.auto) && !input.keys.size ? 0.07 : 0.16, cap = Math.min(vw, vh) * 0.16;
+  const locked = input.last === 'touch', L = locked ? 0 : input.follow && !(import.meta.env.MODE === 'test' && T.auto) && !input.keys.size ? 0.07 : 0.16, cap = Math.min(vw, vh) * 0.16;
   let lx = ship.vx * L, ly = ship.vy * L; const ll = Math.hypot(lx, ly); if (ll > cap) { lx *= cap / ll; ly *= cap / ll; }
-  const f = 1 - Math.exp(-k * 3.5);
+  const f = 1 - Math.exp(-k * (locked ? 14 : 3.5));
   cam.x += mx + (ship.x + lx - cam.x) * f; cam.y += my + (ship.y + ly - cam.y) * f;
 }
