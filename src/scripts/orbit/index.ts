@@ -32,7 +32,7 @@ function useBg(img: HTMLImageElement | null) {
 const SHIP = { w: 0.58, y: 0.72 };
 
 function restLayout() {
-  const { W, H, tall } = V, short = (V.short = !tall && H < 520), pr = D.copy.querySelector<HTMLElement>('.proof'), cue = D.hero.querySelector<HTMLElement>('.hint');
+  const { W, H, tall } = V, short = !tall && H < 520, pr = D.copy.querySelector<HTMLElement>('.proof'), cue = D.hero.querySelector<HTMLElement>('.hint');
   let x = 0.5, y = tall ? 0.69 : 0.66, b = tall ? Math.min(W * 0.74, H * 0.42) : Math.min(W * 0.36, H * 0.62);
   if (tall && pr && cue) {
     const top = D.copy.offsetTop + pr.offsetTop + pr.offsetHeight + 32, bot = cue.offsetTop - 50;
