@@ -1,7 +1,7 @@
 import { getCollection } from 'astro:content';
 import { webp } from './assets';
 
-const SPRITES = ['ship', 'drone', 'dart', 'heavy', 'boss'] as const;
+const SPRITES = ['ship', 'ship-top', 'drone-top', 'dart-top', 'heavy-top', 'boss-top', 'dunes'] as const;
 
 export async function getProjects() {
   const entries = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);

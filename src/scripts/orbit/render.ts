@@ -1,81 +1,388 @@
 import { reduce } from '../state';
-import { A, clamp, ctx, egg, F, G, HOLD, input, rnd, ship, sprite, SPR, V } from './core';
-import { odLen, odOn } from './upgrades';
+import { A, at, base, C, clamp, ctx, DV, egg, F, G, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, screen, ship, shipH, shipW, sprite, T_BS, T_HV, TAU, toWorld, TYPES, V, VP } from './core';
+import { S, SPR, TX } from './art';
+import { AR, BM, BO, DB, EB, EN, FX, MI, NR, RB, rm, SH, SP, TG, WS } from './world';
 import { played, store } from './store';
 
-export function drawShip() {
+type Trail = { x: number; y: number; life: number; max: number; r: number; j: number; done?: boolean };
+let trail: Trail[] = [], RBc = 0;
+const DASH = [7, 9], NODASH: number[] = [], DCOL = ['#2a2019', '#4a3a2c', '#17130f', '#6a4f37'], JIT = new Float32Array(256);
+
+export function drawRear(x: number, y: number, sw: number, sqy: number, al: number, vx: number, vy: number, boost: number) {
   if (!A.ship) return;
-  const { rdt, t } = F, sw = F.sw, shh = F.sh, shipY = ship.y + ship.kick * 2.5;
-  if ((G.on && !G.card) || Math.hypot(ship.vx, ship.vy) > 40) {
-    G.trailAcc += rdt * (G.on ? 60 : 30);
-    while (G.trailAcc >= 1) { G.trailAcc -= 1; const n = ship.noz[(G.trail.length + F.fc) & 1]; G.trail.push({ x: ship.x + (n[0] - 0.5) * sw * (1 - Math.abs(ship.bank) * 0.18) + rnd(-2, 2), y: shipY + (n[1] - 0.5) * shh, life: 0, max: G.on ? rnd(0.25, 0.4) : 0.2, r: sw * 0.026, j: rnd(0.7, 1) }); }
+  const { rdt, t } = F, shh = sw * A.aspR;
+  screen();
+  ctx.globalCompositeOperation = 'lighter';
+  if (boost || Math.hypot(vx, vy) > 40) {
+    G.trailAcc += rdt * (boost ? 60 : 30);
+    while (G.trailAcc >= 1) { G.trailAcc -= 1; const n = rs.noz[(trail.length + F.fc) & 1]; trail.push({ x: x + (n[0] - 0.5) * sw * (1 - Math.abs(rs.bank) * 0.18) + rnd(-2, 2), y: y + (n[1] - 0.5) * shh * sqy, life: 0, max: boost ? rnd(0.22, 0.34) : 0.2, r: sw * 0.026, j: rnd(0.7, 1) }); }
   }
-  for (const p of G.trail) { p.life += rdt; p.y += rdt * V.H * 0.5; if (p.life >= p.max) { p.done = true; continue; } const f = p.life / p.max; sprite(SPR.trail, p.x, p.y, p.r * (1.6 + f * 1.4), 0.75 * (1 - f) * p.j); }
-  G.trail = G.trail.filter((p) => !p.done); if (G.trail.length > 120) G.trail.splice(0, G.trail.length - 120);
+  for (const p of trail) { p.life += rdt; p.y += rdt * V.H * 0.5; if (p.life >= p.max) { p.done = true; continue; } const f = p.life / p.max; sprite(SPR.trail, p.x, p.y, p.r * (1.6 + f * 1.4), 0.75 * (1 - f) * p.j * al); }
+  trail = trail.filter((p) => !p.done); if (trail.length > 120) trail.splice(0, trail.length - 120);
+  if (al <= 0.004) return;
 
   ctx.globalCompositeOperation = 'source-over';
-  ctx.save(); ctx.translate(ship.x, shipY); ctx.rotate(ship.bank * 0.55); ctx.scale(1 - Math.abs(ship.bank) * 0.18, 1);
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rs.bank * 0.55); ctx.scale(1 - Math.abs(rs.bank) * 0.18, sqy);
+  if (al < 1) ctx.globalAlpha = al;
   ctx.drawImage(A.ship, -sw / 2, -shh / 2, sw, shh);
+  ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'lighter';
-  const thr = (G.on ? 1 : 0.55 + egg.hover * 0.35) + (reduce ? 0 : 0.08 * Math.sin(t * 23)) + clamp(Math.hypot(ship.vx, ship.vy) / V.W) * 0.6;
-  for (const n of ship.noz) {
+  const thr = (boost ? 1 : 0.55 + egg.hover * 0.35) + (reduce ? 0 : 0.08 * Math.sin(t * 23)) + clamp(Math.hypot(vx, vy) / V.W) * 0.6;
+  for (const n of rs.noz) {
     const nx = (n[0] - 0.5) * sw, ny = (n[1] - 0.5) * shh;
-    sprite(SPR.cyan, nx, ny, sw * 0.13 * thr, 0.95);
+    sprite(SPR.cyan, nx, ny, sw * 0.13 * thr, 0.95 * al);
     const pl = sw * (0.1 + 0.16 * thr), wd = sw * 0.032, fl = reduce ? 1 : 0.85 + 0.15 * Math.sin(t * 37 + nx);
-    const g = ctx.createLinearGradient(nx, ny, nx, ny + pl * fl); g.addColorStop(0, `rgba(170,232,255,${0.6 * thr})`); g.addColorStop(0.5, `rgba(110,200,255,${0.25 * thr})`); g.addColorStop(1, 'rgba(80,170,255,0)');
+    const g = ctx.createLinearGradient(nx, ny, nx, ny + pl * fl); g.addColorStop(0, `rgba(170,232,255,${0.6 * thr * al})`); g.addColorStop(0.5, `rgba(110,200,255,${0.25 * thr * al})`); g.addColorStop(1, 'rgba(80,170,255,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(nx - wd, ny); ctx.quadraticCurveTo(nx - wd * 0.7, ny + pl * 0.45 * fl, nx, ny + pl * fl); ctx.quadraticCurveTo(nx + wd * 0.7, ny + pl * 0.45 * fl, nx + wd, ny); ctx.closePath(); ctx.fill();
   }
-  if (ship.muzzle > 0) for (const sgn of [-1, 1]) sprite(SPR.hit, sgn * sw * 0.21, -shh * 0.32, sw * 0.07 * ship.muzzle, 0.9 * ship.muzzle);
-  if (G.on && G.shield > 0 && ship.hit <= 0) { ctx.strokeStyle = 'rgba(143,211,255,0.32)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.ellipse(0, 0, sw * 0.6, shh * 0.92, 0, 0, 6.28); ctx.stroke(); ctx.setLineDash([]); }
-  if (G.on && odLen()) { const c = (G.clock % 8) / 8, on = odOn(); ctx.strokeStyle = on ? 'rgba(160,235,255,0.9)' : 'rgba(255,207,138,0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, shh * 0.62, sw * 0.08, -Math.PI / 2, -Math.PI / 2 + (on ? 6.28 : c / ((8 - odLen()) / 8) * 6.28)); ctx.stroke(); if (on) sprite(SPR.cyan, 0, -shh * 0.1, sw * 0.5, 0.25); }
-  if (ship.hit > 0) { const k = Math.min(1, ship.hit / 0.3); ctx.strokeStyle = `rgba(143,211,255,${0.65 * k})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, sw * 0.62, shh * 0.95, 0, 0, 6.28); ctx.stroke(); sprite(SPR.trail, 0, 0, sw * 0.7, 0.25 * k); }
   ctx.restore();
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+export function drawTrail(k: number) {
+  const U = V.U, sw = shipW(), sh = shipH(), sqx = 1 - 0.12 * Math.abs(ship.bank), bx = -Math.sin(ship.h) * 90 * U, by = Math.cos(ship.h) * 90 * U;
+  RBc += k;
+  for (const R of RB) for (let m = 0; m < R.n; m++) { R.x[m] += R.vx[m] * k; R.y[m] += R.vy[m] * k; }
+  if (G.on && VP.p > 0.85 && !G.dead && k > 0 && RBc - RB[0].last > 1 / 75) for (let j = 0; j < 2; j++) {
+    const n = ship.tnoz[j], R = RB[j]; toWorld((n[0] - 0.5) * sw * sqx, (n[1] - 0.5) * sh + sh * 0.05);
+    R.h = (R.h + 1) % 32; R.x[R.h] = LP.x; R.y[R.h] = LP.y; R.vx[R.h] = bx; R.vy[R.h] = by; R.t[R.h] = RBc; R.n = Math.min(32, R.n + 1); R.last = RBc;
+  }
+  base(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+  for (const R of RB) for (let pass = 0; pass < 2; pass++) {
+    ctx.strokeStyle = pass ? '#e4f8ff' : '#5ec0ff';
+    for (let m = 0; m < R.n - 1; m++) {
+      const a = (R.h - m + 32) % 32, b = (a + 31) % 32, f = (RBc - R.t[b]) / 0.42; if (f >= 1) break;
+      ctx.globalAlpha = (1 - f) * (1 - f) * (pass ? 0.5 : 0.16); ctx.lineWidth = (pass ? 2.4 : 11) * U * (1 - f * 0.55);
+      ctx.beginPath(); ctx.moveTo(R.x[a], R.y[a]); ctx.lineTo(R.x[b], R.y[b]); ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+}
+
+export function drawTop(x: number, y: number, sw: number, sqy: number, al: number, shOff: number, t: number) {
+  if (!A.shipTop) return;
+  const { DPR, U, Z } = V, sh = sw * A.aspT, c = Math.cos(ship.h), s = Math.sin(ship.h), sqx = 1 - 0.12 * Math.abs(ship.bank);
+  const ma = c * sqx * DPR, mb = s * sqx * DPR, mc = -s * sqy * DPR, md = c * sqy * DPR, kx = -s * ship.kick * 2 * U * Z, ky = c * ship.kick * 2 * U * Z;
+  if (S.shipS) { const so = 30 * U * Z * shOff, k = sw / S.shipS.iw, w2 = S.shipS.w * k, h2 = S.shipS.h * k; ctx.globalAlpha = 0.52 * al * DV.ga; ctx.setTransform(ma, mb, mc, md, (x + so * 0.6 + C.sx) * DPR, (y + so + C.sy) * DPR); ctx.drawImage(S.shipS.c, -w2 / 2, -h2 / 2, w2, h2); }
+  const blink = G.blinkT > 0 && !reduce && Math.floor(G.blinkT * 16) % 2 === 0;
+  ctx.setTransform(ma, mb, mc, md, (x + kx + C.sx) * DPR, (y + ky + C.sy) * DPR);
+  ctx.globalAlpha = (blink ? 0.28 : 1) * al;
+  ctx.drawImage(S.shipT && sw * DPR <= S.shipT.width * 1.05 ? S.shipT : A.shipTop, -sw / 2, -sh / 2, sw, sh);
+  ctx.globalCompositeOperation = 'lighter';
+  const spd = Math.hypot(ship.vx, ship.vy), thr = 0.62 + clamp(spd / (640 * U)) * 0.5 + (reduce ? 0 : 0.08 * Math.sin(t * 23)) + (VP.dir ? 0.3 : 0);
+  for (const n of ship.tnoz) {
+    const nx = (n[0] - 0.5) * sw, ny = (n[1] - 0.5) * sh;
+    sprite(SPR.cyan, nx, ny, sw * 0.11 * thr, 0.95 * al);
+    const pl = sw * (0.12 + 0.24 * thr), wd = sw * 0.05, fl = reduce ? 1 : 0.85 + 0.15 * Math.sin(t * 37 + nx);
+    ctx.globalAlpha = clamp(thr) * al; ctx.drawImage(SPR.plume, nx - wd, ny - sh * 0.02, wd * 2, pl * fl);
+  }
+  if (ship.muzzle > 0) sprite(G.wm.pulse && G.wm.pulse.evo ? SPR.gold : SPR.hit, 0, -sh * 0.5, sw * 0.12 * ship.muzzle, 0.9 * Math.min(1, ship.muzzle) * al);
+  if (G.blinkT > 0) { const k2 = Math.min(1, G.blinkT / 0.4); ctx.globalAlpha = 0.65 * k2; ctx.strokeStyle = 'rgb(143,211,255)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, sw * 0.62, 0, TAU); ctx.stroke(); sprite(SPR.trail, 0, 0, sw * 0.7, 0.25 * k2); }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+}
+
+export function drawEnemies() {
+  const U = V.U;
+  for (let i = 0; i < WS.nE; i++) {
+    const e = EN[i]; if (e.dead || e.mode === -1 || e.alpha <= 0.01 || !onView(e.x, e.y, e.w * 1.6)) continue;
+    const Sh = S.s[e.t]; if (!Sh) continue;
+    const sc = e.w / Sh.iw, sw = Sh.w * sc, sh = Sh.h * sc, so = TYPES[e.t].sh * U;
+    ctx.globalAlpha = e.alpha * 0.48; at(e.x + so * 0.6, e.y + so, Math.cos(e.rot), Math.sin(e.rot)); ctx.drawImage(Sh.c, -sw / 2, -sh / 2, sw, sh);
+  }
+  for (let pass = 0; pass < 2; pass++) for (let i = 0; i < WS.nE; i++) {
+    const e = EN[i]; if (e.dead || e.mode === -1 || e.alpha <= 0.01 || (e.t >= T_HV) !== (pass === 0) || !onView(e.x, e.y, e.w * 1.6)) continue;
+    const Sp = e.elite ? S.e[e.t] : S.n[e.t]; if (!Sp) continue;
+    const sc = e.w / Sp.iw, sw = Sp.w * sc, sh = Sp.h * sc;
+    ctx.globalAlpha = e.alpha; at(e.x, e.y, Math.cos(e.rot), Math.sin(e.rot)); ctx.drawImage(Sp.c, -sw / 2, -sh / 2, sw, sh);
+    if (e.flash > 0) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(1, e.flash / 0.04) * (e.t === T_BS ? 0.3 : e.t === T_HV ? 0.45 : 0.55) * e.alpha; ctx.drawImage(S.w[e.t].c, -sw / 2, -sh / 2, sw, sh); ctx.globalCompositeOperation = 'source-over'; }
+  }
+  ctx.globalAlpha = 1; base();
+}
+
+export function drawEnemyGlows(t: number) {
+  for (let i = 0; i < WS.nE; i++) {
+    const e = EN[i]; if (e.dead || e.mode === -1 || !onView(e.x, e.y, e.w)) continue;
+    if (e.t === T_HV && e.charge > 0) sprite(SPR.core, e.x + Math.sin(e.rot) * e.w * 0.5, e.y - Math.cos(e.rot) * e.w * 0.5, e.w * (0.25 + 0.4 * e.charge), e.alpha);
+    else if (e.t === T_BS) { const ch = e.mode === 1 ? clamp(e.st / 1.05) : e.mode === 2 ? 1 : 0; sprite(SPR.core, e.x, e.y, e.w * (0.5 + 0.35 * ch), (0.5 + 0.25 * Math.sin(t * 5)) * e.alpha + ch * 0.4); }
+    else if (e.elite) sprite(SPR.gold, e.x, e.y, e.w * 0.42, (0.16 + 0.1 * Math.sin(t * 6 + e.ph)) * e.alpha);
+  }
+}
+
+export function drawShards(t: number) {
+  const P = SH, U = V.U;
+  for (let i = 0; i < P.n; i++) {
+    if (!onView(P.x[i], P.y[i], 30)) continue;
+    const k = P.k[i], bs = (k === 2 ? 34 : k === 1 ? 26 : 21) * U * (P.st[i] ? 1.12 : 1), bob = P.st[i] ? 0 : Math.sin(P.a[i] * 3 + P.ph[i]) * 2.2 * U;
+    ctx.globalAlpha = Math.min(1, P.a[i] * 6);
+    ctx.drawImage(TX.shard[k], P.x[i] - bs / 2, P.y[i] - bs / 2 + bob, bs, bs);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < P.n; i++) { const tw = Math.sin(t * 2.3 + P.ph[i] * 7); if (tw > 0.92 && onView(P.x[i], P.y[i], 30)) sprite(SPR.star, P.x[i] + 3 * U, P.y[i] - 4 * U, (P.k[i] === 2 ? 16 : 10) * U, (tw - 0.92) * 12); }
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+}
+
+export function drawCache(t: number) {
+  const c = G.cache; if (!c || !onView(c.x, c.y, 120)) return;
+  const U = V.U, r = 30 * U, pu = 0.5 + 0.5 * Math.sin(t * 4);
+  ctx.globalCompositeOperation = 'lighter';
+  for (let k = 0; k < 2; k++) { const f = (c.t * 0.8 + k * 0.5) % 1, rr = r * (1.2 + f * 3.2); ctx.globalAlpha = (1 - f) * 0.5; ctx.drawImage(TX.ringG, c.x - rr, c.y - rr, rr * 2, rr * 2); }
+  sprite(SPR.gold, c.x, c.y, r * (2.4 + pu * 0.6), 0.45 + 0.2 * pu);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 0.45; ctx.fillStyle = '#0c0502'; ctx.beginPath(); ctx.ellipse(c.x + r * 0.35, c.y + r * 0.55, r * 1.05, r * 1.05, 0, 0, TAU); ctx.fill();
+  const bob = Math.sin(t * 2.2) * 3 * U, rot = c.t * 0.6;
+  ctx.globalAlpha = 1; at(c.x, c.y + bob, Math.cos(rot), Math.sin(rot)); ctx.drawImage(SPR.cache, -r * 1.25, -r * 1.25, r * 2.5, r * 2.5); base();
+  ctx.globalAlpha = 1;
+}
+
+export function drawCachePointer(t: number) {
+  const c = G.cache; if (!c || !G.on || VP.p < 1) return;
+  const { W, H, DPR } = V, sx = c.x * C.wz + C.ox, sy = c.y * C.wz + C.oy, m = 46;
+  if (sx > m && sx < W - m && sy > m + 60 && sy < H - m) return;
+  const cx = W / 2, cy = H / 2, dx = sx - cx, dy = sy - cy, k = Math.min((W / 2 - m) / Math.abs(dx || 1e-6), (H / 2 - m - 30) / Math.abs(dy || 1e-6)), px = cx + dx * k, py = cy + dy * k, a = Math.atan2(dy, dx);
+  ctx.setTransform(Math.cos(a) * DPR, Math.sin(a) * DPR, -Math.sin(a) * DPR, Math.cos(a) * DPR, px * DPR, py * DPR);
+  ctx.globalCompositeOperation = 'lighter'; sprite(SPR.gold, 0, 0, 26, 0.5 + 0.25 * Math.sin(t * 6)); ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 0.95; ctx.fillStyle = 'rgb(255,207,138)'; ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(-7, -9); ctx.lineTo(-3, 0); ctx.lineTo(-7, 9); ctx.closePath(); ctx.fill();
+  ctx.globalAlpha = 1; screen();
+}
+
+const enter = (x: number, y: number, dx: number, dy: number, m: number) => {
+  let t0 = 0, t1 = 1e9;
+  for (const [p, d, lo, hi] of [[x, dx, C.x0 + m, C.x1 - m], [y, dy, C.y0 + m, C.y1 - m]]) {
+    if (Math.abs(d) < 1e-6) { if (p < lo || p > hi) return -1; continue; }
+    let a = (lo - p) / d, b = (hi - p) / d; if (a > b) { const s = a; a = b; b = s; }
+    t0 = Math.max(t0, a); t1 = Math.min(t1, b);
+  }
+  return t0 <= t1 ? t0 : -1;
+};
+function band(x: number, y: number, dx: number, dy: number, w: number, len: number) { const px = -dy * w * 0.5, py = dx * w * 0.5; ctx.beginPath(); ctx.moveTo(x + px, y + py); ctx.lineTo(x + dx * len + px, y + dy * len + py); ctx.lineTo(x + dx * len - px, y + dy * len - py); ctx.lineTo(x - px, y - py); ctx.closePath(); }
+function chevrons(x: number, y: number, dx: number, dy: number, s: number, n: number, gap: number, ph: number) {
+  const px = -dy, py = dx; ctx.beginPath();
+  for (let k = 0; k < n; k++) { const o = k * gap + ph, cx = x + dx * o, cy = y + dy * o; ctx.moveTo(cx + dx * s, cy + dy * s); ctx.lineTo(cx - dx * s * 0.4 + px * s, cy - dy * s * 0.4 + py * s); ctx.lineTo(cx - dx * s * 0.1, cy - dy * s * 0.1); ctx.lineTo(cx - dx * s * 0.4 - px * s, cy - dy * s * 0.4 - py * s); ctx.closePath(); }
+  ctx.fill();
+}
+export function drawTele(dt: number, t: number) {
+  const U = V.U, len = Math.hypot(C.x1 - C.x0, C.y1 - C.y0) * 1.3;
+  for (const Sg of TG) {
+    if (!Sg.on) continue;
+    Sg.t += dt; const f = Sg.t / Sg.d; if (f >= 1) { Sg.on = false; continue; }
+    const a = clamp(f * 4) * (1 - clamp((f - 0.8) / 0.2)) * (reduce ? 1 : 0.75 + 0.25 * Math.sin(t * 28));
+    ctx.globalAlpha = a * 0.55; ctx.fillStyle = 'rgba(70,14,4,0.6)'; band(Sg.x, Sg.y, Sg.dx, Sg.dy, 34 * U, len); ctx.fill();
+    ctx.globalAlpha = a * 0.7; ctx.strokeStyle = 'rgba(255,120,79,0.8)'; ctx.lineWidth = 1.2; band(Sg.x, Sg.y, Sg.dx, Sg.dy, 34 * U, len); ctx.stroke();
+    ctx.globalAlpha = a; ctx.strokeStyle = 'rgba(255,150,100,0.95)'; ctx.lineWidth = 2; ctx.setLineDash(DASH);
+    ctx.beginPath(); ctx.moveTo(Sg.x, Sg.y); ctx.lineTo(Sg.x + Sg.dx * len, Sg.y + Sg.dy * len); ctx.stroke(); ctx.setLineDash(NODASH);
+    const te = enter(Sg.x, Sg.y, Sg.dx, Sg.dy, 24 * U);
+    if (te >= 0) { ctx.fillStyle = 'rgba(255,130,90,0.95)'; chevrons(Sg.x + Sg.dx * te, Sg.y + Sg.dy * te, Sg.dx, Sg.dy, 8 * U, 3, 22 * U, (Sg.t * 90 * U) % (22 * U)); }
+  }
+  const b = G.boss;
+  if (b && b.mode === 1) {
+    const f = clamp(b.st / 1.05), w = b.w * 1.15, x0 = b.x - b.dx * b.L, y0 = b.y - b.dy * b.L;
+    ctx.globalAlpha = 0.22 + 0.32 * f; ctx.fillStyle = 'rgba(90,20,6,0.7)'; band(x0, y0, b.dx, b.dy, w, len); ctx.fill();
+    ctx.globalAlpha = 0.18 + 0.3 * f; ctx.fillStyle = 'rgba(255,110,60,0.55)'; band(x0, y0, b.dx, b.dy, w * (0.25 + 0.75 * f), len); ctx.fill();
+    ctx.globalAlpha = 0.55 + 0.45 * f; ctx.strokeStyle = 'rgba(255,207,138,0.85)'; ctx.lineWidth = 2; band(x0, y0, b.dx, b.dy, w, len); ctx.stroke();
+    ctx.setLineDash(DASH); ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(b.x + b.dx * len, b.y + b.dy * len); ctx.stroke(); ctx.setLineDash(NODASH);
+    ctx.fillStyle = 'rgba(255,190,120,0.9)'; ctx.globalAlpha = 0.4 + 0.5 * f; chevrons(b.x + b.dx * b.L * 1.4, b.y + b.dy * b.L * 1.4, b.dx, b.dy, 14 * U, 5, 46 * U, (b.st * 160 * U) % (46 * U));
+  }
+  ctx.globalAlpha = 1;
+}
+
+export function drawDebris(dt: number) {
+  const P = DB, X = P.x, Y = P.y;
+  for (let i = P.n - 1; i >= 0; i--) {
+    P.l[i] += dt; if (P.l[i] >= P.m[i]) { rm(P, i); continue; }
+    const dr = Math.exp(-dt * 2.6); P.vx[i] *= dr; P.vy[i] *= dr; X[i] += P.vx[i] * dt; Y[i] += P.vy[i] * dt; P.a[i] += P.va[i] * dt * dr;
+    const f = P.l[i] / P.m[i], s = P.s[i], c = Math.cos(P.a[i]), sn = Math.sin(P.a[i]);
+    ctx.globalAlpha = 1 - f * f;
+    at(X[i], Y[i], c, sn);
+    ctx.fillStyle = DCOL[P.c[i]]; ctx.fillRect(-s, -s * 0.55, s * 2, s * 1.1);
+    ctx.fillStyle = 'rgba(255,190,120,0.55)'; ctx.fillRect(-s, -s * 0.55, s * 2, Math.max(0.8, s * 0.22));
+  }
+  ctx.globalAlpha = 1; base();
+}
+
+export function drawSparks(dt: number) {
+  const P = SP, X = P.x, Y = P.y, VX = P.vx, VY = P.vy;
+  for (let i = P.n - 1; i >= 0; i--) {
+    P.l[i] += dt; if (P.l[i] >= P.m[i]) { rm(P, i); continue; }
+    const dr = Math.exp(-dt * P.dr[i]); VX[i] *= dr; VY[i] *= dr; X[i] += VX[i] * dt; Y[i] += VY[i] * dt;
+    const f = P.l[i] / P.m[i], c = P.c[i];
+    if (c < 4) {
+      const sp = Math.hypot(VX[i], VY[i]) || 1, len = Math.max(P.s[i] * 0.6, Math.min(sp * 0.045, P.s[i] * 3.2)) * (1 - f * 0.5), cs = VX[i] / sp, sn = VY[i] / sp;
+      ctx.globalAlpha = 1 - f;
+      at(X[i], Y[i], cs, sn);
+      ctx.drawImage(TX.streak[c], -len, -len * 0.26, len * 2, len * 0.52);
+    } else {
+      const r = P.s[i] * (c === 6 ? 1 - f * 0.6 : 0.6 + f * 0.6);
+      ctx.globalAlpha = c === 5 ? (1 - f) * 0.7 : 1 - f;
+      at(X[i], Y[i], 1, 0);
+      ctx.drawImage(TX.soft[c - 4] || SPR.star, -r, -r, r * 2, r * 2);
+    }
+  }
+  ctx.globalAlpha = 1; base();
+}
+
+export function drawFX(dt: number, rt: number) {
+  for (let i = WS.nFX - 1; i >= 0; i--) {
+    const f = FX[i]; f.t += f.k === 2 ? rt : dt; const p = f.t / f.d;
+    if (p >= 1) { const j = --WS.nFX; FX[i] = FX[j]; FX[j] = f; continue; }
+    if (f.k === 0) { const r = f.r * (0.55 + 0.55 * p); sprite(f.c === 1 ? SPR.gold : f.c === 2 ? SPR.hit : SPR.blast, f.x, f.y, r, f.a * Math.pow(1 - p, 1.6)); }
+    else if (f.k === 1) { const r = f.r * (0.3 + 0.7 * (1 - Math.pow(1 - p, 3))); ctx.globalAlpha = f.a * (1 - p) * (1 - p); ctx.drawImage(f.c === 1 ? TX.ringG : f.c === 2 ? TX.ringH : TX.ringA, f.x - r, f.y - r, r * 2, r * 2); }
+    else if (f.k === 2) { const e = 1 - Math.pow(1 - p, 3), r = f.r * (0.1 + 0.9 * e), r2 = f.r * 0.8 * (0.1 + 0.9 * (1 - Math.pow(1 - p, 2))); ctx.globalAlpha = (1 - p) * f.a; ctx.drawImage(TX.ringG, f.x - r, f.y - r, r * 2, r * 2); ctx.globalAlpha = (1 - p) * 0.8 * f.a; ctx.drawImage(TX.ringH, f.x - r2, f.y - r2, r2 * 2, r2 * 2); }
+    else if (f.k === 3) sprite(f.c === 1 ? SPR.gold : SPR.hit, f.x, f.y, f.r * (1 - p * 0.3), f.a * (1 - p));
+  }
+  ctx.globalAlpha = 1;
+}
+
+export function drawNova() {
+  for (const Sg of NR) {
+    if (!Sg.on) continue;
+    const f = Sg.t / Sg.d, cr = Sg.r * (1 - Math.pow(1 - f, 3)), a = Math.pow(1 - f, 0.8), tex = Sg.c === 1 ? TX.ringG : TX.ringH;
+    ctx.globalAlpha = a; ctx.drawImage(tex, Sg.x - cr, Sg.y - cr, cr * 2, cr * 2);
+    if (Sg.c === 1) { ctx.drawImage(tex, Sg.x - cr, Sg.y - cr, cr * 2, cr * 2); const r2 = cr * 0.92, r3 = cr * 1.06; ctx.globalAlpha = a * 0.7; ctx.drawImage(TX.ringA, Sg.x - r2, Sg.y - r2, r2 * 2, r2 * 2); ctx.globalAlpha = a * 0.35; ctx.drawImage(TX.ringA, Sg.x - r3, Sg.y - r3, r3 * 2, r3 * 2); }
+  }
+  ctx.globalAlpha = 1;
+}
+
+export function drawBolts() {
+  const P = BO, len = 40 * V.U;
+  for (let i = 0; i < P.n; i++) {
+    const sp = Math.hypot(P.vx[i], P.vy[i]) || 1;
+    at(P.x[i], P.y[i], P.vx[i] / sp, P.vy[i] / sp);
+    ctx.drawImage(TX.pulse, -len * 1.4, -len * 0.21, len * 1.6, len * 0.42);
+  }
+  base();
+}
+
+export function drawBeams(dt: number) {
+  const U = V.U; toWorld(0, -shipH() * 0.48); const nx = LP.x, ny = LP.y, att = G.on && !G.dead;
+  let nb = 0; for (const Sg of BM) if (Sg.on) nb++;
+  const k = 0.65 / (1 + 0.3 * Math.max(0, nb - 1));
+  let flash = 0;
+  for (const Sg of BM) {
+    if (!Sg.on) continue;
+    Sg.t += dt; const f = Sg.t / Sg.d; if (f >= 1) { Sg.on = false; continue; }
+    if (att) { const ox = nx - Sg.x0, oy = ny - Sg.y0; Sg.x0 = nx; Sg.y0 = ny; Sg.x1 += ox; Sg.y1 += oy; }
+    const dx = Sg.x1 - Sg.x0, dy = Sg.y1 - Sg.y0, l = Math.hypot(dx, dy) || 1, w = Sg.w * (1.6 - f) * 2;
+    at(Sg.x0, Sg.y0, dx / l, dy / l);
+    ctx.globalAlpha = (1 - f) * k; ctx.drawImage(TX.beamG, 0, -w * 1.1, l, w * 2.2);
+    ctx.globalAlpha = (1 - f) * k * 0.9; ctx.drawImage(TX.beamC, 0, -w * 0.4, l, w * 0.8);
+    flash = Math.max(flash, (1 - f) * w);
+  }
+  if (flash > 0) { base(); sprite(SPR.gold, nx, ny, flash * 2.2, 0.55 * Math.min(1, flash / (8 * U))); }
+  ctx.globalAlpha = 1; base();
+}
+
+export function drawArcs(dt: number) {
+  const U = V.U; toWorld(0, -shipH() * 0.46); const nx = LP.x, ny = LP.y, att = G.on && !G.dead;
+  for (const Sg of AR) {
+    if (!Sg.on) continue;
+    Sg.t += dt; const f = Sg.t / Sg.d; if (f >= 1) { Sg.on = false; continue; }
+    if (att) { Sg.p[0] = nx; Sg.p[1] = ny; }
+    let m = 0; const amp = (Sg.g ? 20 : 14) * U;
+    JIT[m++] = Sg.p[0]; JIT[m++] = Sg.p[1];
+    for (let k = 1; k < Sg.n; k++) {
+      const x0 = Sg.p[k * 2 - 2], y0 = Sg.p[k * 2 - 1], x1 = Sg.p[k * 2], y1 = Sg.p[k * 2 + 1], dx = x1 - x0, dy = y1 - y0, l = Math.hypot(dx, dy) || 1, steps = clamp(Math.round(l / (20 * U)), 2, 9), px = -dy / l, py = dx / l;
+      for (let s = 1; s < steps && m < 250; s++) { const q = s / steps, j = rnd(-1, 1) * Math.min(amp, l * 0.22); JIT[m++] = x0 + dx * q + px * j; JIT[m++] = y0 + dy * q + py * j; }
+      if (m < 254) { JIT[m++] = x1; JIT[m++] = y1; }
+    }
+    const a = (1 - f) * (reduce ? 1 : 0.7 + 0.3 * rand());
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a * 0.45; ctx.strokeStyle = '#0b0a12'; ctx.lineWidth = (Sg.g ? 9 : 5) * U;
+    ctx.beginPath(); ctx.moveTo(JIT[0], JIT[1]); for (let k = 2; k < m; k += 2) ctx.lineTo(JIT[k], JIT[k + 1]); ctx.stroke();
+    ctx.globalCompositeOperation = 'lighter';
+    for (let pass = 0; pass < 3; pass++) {
+      ctx.globalAlpha = a * (pass === 0 ? (Sg.g ? 0.3 : 0.26) : pass === 1 ? 0.7 : 1);
+      ctx.strokeStyle = pass === 2 ? (Sg.g ? '#fff6e6' : '#ffffff') : Sg.g ? '#ffb45a' : '#6cc0ff';
+      ctx.lineWidth = (pass === 0 ? (Sg.g ? 28 : 13) : pass === 1 ? (Sg.g ? 9 : 4.5) : Sg.g ? 3.2 : 1.7) * U;
+      ctx.beginPath(); ctx.moveTo(JIT[0], JIT[1]); for (let k = 2; k < m; k += 2) ctx.lineTo(JIT[k], JIT[k + 1]); ctx.stroke();
+    }
+    if (Sg.g) {
+      ctx.globalAlpha = a * 0.85; ctx.strokeStyle = '#ffe1b0'; ctx.lineWidth = 2 * U; ctx.beginPath();
+      for (let k = 2; k < m - 2; k += 4) { const bx = JIT[k], by = JIT[k + 1], ang = rand() * TAU, l = rnd(16, 40) * U; ctx.moveTo(bx, by); ctx.lineTo(bx + Math.cos(ang) * l * 0.5 + rnd(-6, 6) * U, by + Math.sin(ang) * l * 0.5 + rnd(-6, 6) * U); ctx.lineTo(bx + Math.cos(ang) * l, by + Math.sin(ang) * l); }
+      ctx.stroke();
+    }
+    for (let k = 1; k < Sg.n; k++) sprite(Sg.g ? SPR.gold : SPR.hit, Sg.p[k * 2], Sg.p[k * 2 + 1], (Sg.g ? 38 : 18) * U, a);
+    if (Sg.g) sprite(SPR.gold, Sg.p[0], Sg.p[1], 46 * U, a);
+  }
+  ctx.globalAlpha = 1;
+}
+
+export function drawMissiles() {
+  const P = MI, U = V.U;
+  for (let i = 0; i < P.n; i++) {
+    const sp = Math.hypot(P.vx[i], P.vy[i]) || 1, len = (P.g[i] ? 26 : 22) * U, tl = Math.min(3.2, 1.2 + sp / (300 * U));
+    at(P.x[i], P.y[i], P.vx[i] / sp, P.vy[i] / sp);
+    ctx.drawImage(P.g[i] ? TX.hive : TX.miss, -len * tl, -len * 0.22, len * (tl + 0.3), len * 0.44);
+  }
+  base();
+  for (let i = 0; i < P.n; i++) sprite(P.g[i] ? SPR.gold : SPR.blast, P.x[i], P.y[i], (P.g[i] ? 11 : 9) * U, 0.9);
 }
 
 export function drawWings() {
-  if (!G.on || !G.wings.length || !A.ship) return;
-  const img = A.ship, ws = F.sw * 0.34, wh = ws * img.height / img.width;
-  G.wings.forEach((w, i) => {
-    const side = i === 0 ? -1 : 1, tx = clamp(ship.x + side * F.sw * 0.78, ws * 0.6, V.W - ws * 0.6), ty = ship.y + F.sh * 0.35, f = 1 - Math.exp(-F.rdt / 0.12);
-    w.x += (tx - w.x) * f; w.y += (ty - w.y) * f;
-    ctx.save(); ctx.translate(w.x, w.y); ctx.rotate(ship.bank * 0.5); ctx.drawImage(img, -ws / 2, -wh / 2, ws, wh);
-    ctx.globalCompositeOperation = 'lighter'; for (const n of ship.noz) sprite(SPR.cyan, (n[0] - 0.5) * ws, (n[1] - 0.5) * wh, ws * 0.16, 0.85); ctx.restore();
-  });
+  const w = G.wm.wing; if (!w || !S.mini || !S.minig) return;
+  const U = V.U, n = w.n, R = w.R, ws = (w.evo ? 54 : 48) * U, wh = ws * A.aspT;
+  ctx.globalCompositeOperation = 'lighter';
+  if (w.evo) {
+    for (let pass = 0; pass < 3; pass++) {
+      ctx.globalAlpha = pass === 0 ? 0.13 : pass === 1 ? 0.32 : 0.75; ctx.strokeStyle = pass === 0 ? '#7cc8ff' : pass === 1 ? '#ffb866' : '#fff3dc';
+      ctx.lineWidth = (pass === 0 ? 22 : pass === 1 ? 7 : 1.6) * U; ctx.beginPath(); ctx.arc(ship.x, ship.y, R, 0, TAU); ctx.stroke();
+    }
+    for (let k = 0; k < 3; k++) { const a = -w.a * 1.7 + k / 3 * TAU; sprite(SPR.gold, ship.x + Math.cos(a) * R, ship.y + Math.sin(a) * R, 34 * U, 0.55); }
+  } else {
+    ctx.lineCap = 'round';
+    for (let i = 0; i < n; i++) {
+      const a = w.a + i / n * TAU;
+      for (let s = 0; s < 3; s++) { ctx.globalAlpha = 0.34 - s * 0.1; ctx.strokeStyle = '#8fd3ff'; ctx.lineWidth = (5 - s * 1.4) * U; ctx.beginPath(); ctx.arc(ship.x, ship.y, R, a - 0.22 - s * 0.22, a - s * 0.22); ctx.stroke(); }
+    }
+  }
+  for (let i = 0; i < n; i++) sprite(w.evo ? SPR.gold : SPR.cyan, w.px[i], w.py[i], ws * 0.5, 0.25);
+  ctx.globalCompositeOperation = 'source-over';
+  for (let i = 0; i < n; i++) {
+    const a = w.a + i / n * TAU, r = Math.atan2(-Math.sin(a), -Math.cos(a)), c = Math.cos(r), s = Math.sin(r);
+    if (S.shipS) { const so = 16 * U, k = ws / S.shipS.iw; ctx.globalAlpha = 0.42; at(w.px[i] + so * 0.6, w.py[i] + so, c, s); ctx.drawImage(S.shipS.c, -S.shipS.w * k / 2, -S.shipS.h * k / 2, S.shipS.w * k, S.shipS.h * k); }
+    ctx.globalAlpha = 1; at(w.px[i], w.py[i], c, s); ctx.drawImage(w.evo ? S.minig : S.mini, -ws / 2, -wh / 2, ws, wh);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const nz of ship.tnoz) sprite(SPR.cyan, (nz[0] - 0.5) * ws, (nz[1] - 0.5) * wh, ws * 0.14, 0.9);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  ctx.globalAlpha = 1; base();
 }
 
-export function drawPops() {
+export function drawBullets(t: number) {
+  const P = EB, U = V.U;
+  for (let i = 0; i < P.n; i++) sprite(SPR.bolt, P.x[i], P.y[i], 15 * U * (1 + 0.08 * Math.sin(t * 18 + i)), Math.min(1, P.l[i] * 6));
+  ctx.globalAlpha = 1;
+}
+
+export function drawDim() {
   ctx.globalCompositeOperation = 'source-over';
-  ctx.font = `600 ${V.tall ? 12 : 14}px "JetBrains Mono", monospace`; ctx.textAlign = 'center';
-  G.pops.forEach((p, i) => { p.life += F.rdt; if (p.life > 0.9) { p.done = true; return; } const f = p.life / 0.9, yy = p.y - 20 - f * 40 - i * 14; ctx.fillStyle = `rgba(0,0,0,${0.6 * (1 - f * f)})`; ctx.fillText(p.txt, p.x + 1, yy + 1); ctx.fillStyle = `rgba(255,214,150,${1 - f * f})`; ctx.fillText(p.txt, p.x, yy); });
-  G.pops = G.pops.filter((p) => !p.done);
-  if (G.flash > 0) { ctx.fillStyle = `rgba(255,120,80,${G.flash * 0.22})`; ctx.fillRect(0, 0, V.W, V.H); }
   if (F.sy > 0) { ctx.fillStyle = `rgba(4,6,13,${clamp(F.sy * 0.7, 0, 0.75)})`; ctx.fillRect(0, 0, V.W, V.H); }
 }
 
 export function drawEgg() {
   const { rdt, sy } = F;
-  egg.hover += ((egg.over && !G.on && sy < 0.05 ? 1 : 0) - egg.hover) * (1 - Math.exp(-rdt / 0.12));
-  if (!G.on && A.ready && !played() && egg.shown < 2 && egg.whisper < 0 && scrollY < 10 && !input.charge) { egg.idleT += rdt; if (egg.idleT > 8) { egg.whisper = 0; egg.shown++; store.set('lg01-whisper', egg.shown); } } else if (scrollY >= 10) egg.idleT = 0;
+  egg.hover += ((egg.over && !G.on && !VP.p && sy < 0.05 ? 1 : 0) - egg.hover) * (1 - Math.exp(-rdt / 0.12));
+  if (!G.on && !VP.p && A.ready && !played() && egg.shown < 2 && egg.whisper < 0 && scrollY < 10 && !input.charge) { egg.idleT += rdt; if (egg.idleT > 8) { egg.whisper = 0; egg.shown++; store.set('lg01-whisper', egg.shown); } } else if (scrollY >= 10) egg.idleT = 0;
   if (egg.whisper >= 0 && !G.on) { egg.whisper += rdt; if (egg.whisper > 4.2) { egg.whisper = -1; egg.idleT = -1e9; } }
   const wA = egg.whisper >= 0 ? clamp(egg.whisper / 0.6) * clamp((4.2 - egg.whisper) / 0.6) : 0, hA = egg.hover;
-  if (!G.on && (wA > 0.01 || hA > 0.01) && sy < 0.05) {
-    const sw = F.sw, sh = F.sh, bx = sw * 0.62, by = sh * 0.78, c = 14, a = Math.max(hA, wA * 0.6);
+  if (!G.on && !VP.p && (wA > 0.01 || hA > 0.01) && sy < 0.05) {
+    const sw = restW(), sh = restH(), bx = sw * 0.62, by = sh * 0.78, c = 14, a = Math.max(hA, wA * 0.6);
     ctx.strokeStyle = `rgba(255,207,138,${0.95 * a})`; ctx.lineWidth = 2; ctx.beginPath();
-    for (const [ux, uy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) { const X = ship.x + ux * bx, Y = ship.y + uy * by; ctx.moveTo(X, Y - uy * c); ctx.lineTo(X, Y); ctx.lineTo(X - ux * c, Y); }
+    for (const [ux, uy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) { const X = rs.x + ux * bx, Y = rs.y + uy * by; ctx.moveTo(X, Y - uy * c); ctx.lineTo(X, Y); ctx.lineTo(X - ux * c, Y); }
     ctx.stroke();
     ctx.font = `600 ${V.tall ? 11 : 12}px "JetBrains Mono", monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const txt = (hA > wA ? 'LG-01 · Hold to fly' : input.last === 'touch' ? 'Hold the ship to fly' : 'Hold the ship or Space to fly').toUpperCase().split('').join(String.fromCharCode(8202));
-    const ta = Math.max(hA, wA), tw = ctx.measureText(txt).width + 24, ty = ship.y + by + 26;
-    ctx.fillStyle = `rgba(4,6,13,${0.72 * ta})`; ctx.beginPath(); ctx.roundRect(ship.x - tw / 2, ty - 14, tw, 28, 14); ctx.fill();
+    const ta = Math.max(hA, wA), tw = ctx.measureText(txt).width + 24, ty = rs.y + by + 26;
+    ctx.fillStyle = `rgba(4,6,13,${0.72 * ta})`; ctx.beginPath(); ctx.roundRect(rs.x - tw / 2, ty - 14, tw, 28, 14); ctx.fill();
     ctx.strokeStyle = `rgba(255,207,138,${0.4 * ta})`; ctx.lineWidth = 1; ctx.stroke();
-    ctx.fillStyle = `rgba(255,214,150,${ta})`; ctx.fillText(txt, ship.x, ty + 1); ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = `rgba(255,214,150,${ta})`; ctx.fillText(txt, rs.x, ty + 1); ctx.textBaseline = 'alphabetic';
   }
 }
 
 export function drawCharge() {
   const c = input.charge;
-  if (!c || G.on) return;
-  const k2 = clamp((F.now - c.t0) / HOLD[c.kind]), cx = ship.x, cy = ship.y, r = F.sw * 0.55;
+  if (!c || G.on || VP.p) return;
+  const k2 = clamp((F.now - c.t0) / HOLD[c.kind]), cx = rs.x, cy = rs.y, r = restW() * 0.55;
   ctx.strokeStyle = 'rgba(255,207,138,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.28); ctx.stroke();
   ctx.strokeStyle = 'rgba(255,214,150,0.95)'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + k2 * 6.28); ctx.stroke();
 }

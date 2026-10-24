@@ -1,18 +1,22 @@
 import { DATA } from '../data';
 import { HI, reduce } from '../state';
 import { $, out, sstep } from '../util';
-import { A, clamp, coarse, ctx, D, egg, F, fmt, G, HOLD, initCore, input, lerp, rand, scene, ship, V } from './core';
-import { P, played, store } from './store';
-import { analyse, drawBackdrop, initBackdrop, nozzles } from './backdrop';
-import { drawArcs, drawBolts, drawEnemyBolts, drawParts, drawTele, fireTick } from './combat';
-import { drawDrones, waveTick } from './enemies';
-import { gxc, gyc, land, limX, start } from './flight';
-import { showRank, updateLabels } from './hud';
+import { A, base, C, cam, clamp, coarse, ctx, D, DIVE, DV, egg, F, G, HOLD, initCore, input, LAND, lerp, restW, rs, scene, screen, ship, shipR, V, VP } from './core';
+import { initArt, prepSprites, S, TX } from './art';
+import { analyse, drawGround, drawOrbit, drawStreaks, initBackdrop, nozzles } from './backdrop';
+import { compact, EN, gridBuild, sizeWorld, TQ, WS } from './world';
+import { separate, spawner, updEnemies } from './enemies';
+import { spdM, updBolts, updBullets, updMissiles, updNova, updShards, updWeapons, updWing } from './weapons';
+import { dive, dived, land, landed, start, steerHead, updCam } from './flight';
+import { hudTick, showBest, showCard, updateLabels } from './hud';
+import { choose, openCache } from './upgrades';
 import { initInput, STEER } from './input';
-import { drawCharge, drawEgg, drawPops, drawShip, drawWings } from './render';
+import { drawArcs, drawBeams, drawBolts, drawBullets, drawCache, drawCachePointer, drawCharge, drawDebris, drawDim, drawEgg, drawEnemies, drawEnemyGlows, drawFX, drawMissiles, drawNova, drawRear, drawShards, drawSparks, drawTele, drawTop, drawTrail, drawWings } from './render';
+import { played, store } from './store';
+import { bot, botPick, initTest, T } from './test';
 
 const metas = new Map<string, ReturnType<typeof analyse>>();
-let last = 0, slowFrames = 0, shown = '';
+let last = 0, slowFrames = 0, shown = '', flyShown = '0.000';
 
 export let starVis = 0;
 export const heroEnd = () => $('hero').offsetHeight * 0.85;
@@ -30,31 +34,41 @@ function size() {
   V.W = r.width; V.H = r.height; V.DPR = Math.min(devicePixelRatio || 1, coarse ? V.dprCap : 2);
   const w = Math.round(V.W * V.DPR), h = Math.round(V.H * V.DPR); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
   ctx.setTransform(V.DPR, 0, 0, V.DPR, 0, 0);
-  const { W, H } = V, tall = (V.tall = W / H < 0.85); V.CAP = coarse ? 200 : 400;
+  const { W, H } = V, tall = (V.tall = W / H < 0.85);
   if (A.meta) { scene.sun = A.meta.sun; scene.limb = A.meta.limb; }
-  ship.base = tall ? Math.min(W * 0.74, H * 0.42) : Math.min(W * 0.36, H * 0.62);
-  ship.restY = tall ? 0.69 : 0.66;
-  ship.play = tall ? Math.min(W * 0.44, H * 0.24) : ship.base * 0.8;
-  if (oW && ship.x && (oW !== W || oH !== H)) { ship.x *= W / oW; ship.y *= H / oH; G.bolts = []; G.enemyBolts = []; G.parts = []; G.pops = []; G.trail = []; G.tele = []; }
-  V.barBottom = D.bossBar.getBoundingClientRect().bottom - r.top;
+  rs.base = tall ? Math.min(W * 0.74, H * 0.42) : Math.min(W * 0.36, H * 0.62);
+  rs.restY = tall ? 0.69 : 0.66;
+  V.U = clamp(Math.min(W, H) / 900, 0.55, 1.3); V.Z = clamp(Math.min(W, H) / (V.U * 860), 0.8, 1); V.vw = W / V.Z; V.vh = H / V.Z;
+  ship.play = 172 * V.U * (tall ? 1.12 : 1);
+  sizeWorld();
+  if (oW && rs.x && (oW !== W || oH !== H)) { rs.x *= W / oW; rs.y *= H / oH; }
+  prepSprites();
 }
 
 export function initOrbit() {
-  initCore(); initBackdrop(); initInput();
+  initCore(); initBackdrop(); initArt(); initInput();
   egg.shown = store.get('lg01-whisper');
-  $('best0').textContent = $('best1').textContent = fmt(P.best);
-  showRank(); updateLabels(); $('bestLine').hidden = !played();
+  showBest(); updateLabels(); $('bestLine').hidden = !played();
   size();
   const pic = D.hero.querySelector<HTMLImageElement>('.bg img')!;
   const bg = new Promise<HTMLImageElement | null>((r) => { if (pic.complete) r(pic.naturalWidth ? pic : null); else { pic.addEventListener('load', () => r(pic), { once: true }); pic.addEventListener('error', () => r(null), { once: true }); } }).then((i) => (i ? i.decode().then(() => i, () => i) : null));
-  Promise.all([bg, load(DATA.sprites.ship)]).then(([b, s]) => {
+  const sp = DATA.sprites;
+  Promise.all([bg, load(sp.ship)]).then(([b, s]) => {
     useBg(b); A.ship = s; A.base = true;
-    if (s) ship.noz = nozzles(s);
+    if (s) { rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; }
     size(); addEventListener('resize', size);
     pic.addEventListener('load', () => pic.decode().then(() => useBg(pic), () => useBg(pic)));
-    return Promise.all([DATA.sprites.drone, DATA.sprites.dart, DATA.sprites.heavy, DATA.sprites.boss].map(load));
-  }).then(([d, dt, hv, bs]) => { A.drone = d; A.dart = dt; A.heavy = hv; A.boss = bs; A.ready = !!(A.ship && d && dt && hv && bs); });
+    return Promise.all([sp['ship-top'], sp['drone-top'], sp['dart-top'], sp['heavy-top'], sp['boss-top'], sp.dunes].map(load));
+  }).then(([st, d, dt, hv, bs, dn]) => {
+    Object.assign(A, { shipTop: st, drone: d, dart: dt, heavy: hv, boss: bs, dunes: dn });
+    A.ready = !!(A.ship && st && d && dt && hv && bs && dn);
+    if (!A.ready || !st) return;
+    A.aspT = st.height / st.width; A.tsq0 = A.aspR * 0.5 / A.aspT; ship.tnoz = nozzles(st, ship.tnoz);
+    S.cpat = ctx.createPattern(TX.cloud, 'repeat');
+    prepSprites();
+  });
   new IntersectionObserver((es) => { V.vis = es[0].isIntersecting; if (!V.vis) land(); }).observe(D.hero);
+  if (import.meta.env.MODE === 'test') initTest();
 }
 
 function intro(now: number) {
@@ -72,69 +86,124 @@ export function orbitTick(now: number, hp: number) {
   intro(now);
   starVis = HI.space * sstep(0, 0.5, hp);
   const fade = HI.planet.toFixed(3); if (fade !== shown) { shown = fade; D.cv.style.opacity = fade; }
-  if (!V.vis || !A.base) { last = now; return; }
-  if (!G.on && coarse && !input.charge && (++F.fc & 1)) return;
+  if (!V.vis || !A.base) { if (VP.dir < 0) landed(); last = now; return; }
+  if (!G.on && !VP.p && coarse && !input.charge && (++F.fc & 1)) return;
   F.fc++;
-  const { W, H } = V, rdt = Math.min((now - last) / 1000, 0.05); last = now;
-  if (coarse && rdt > 0.021 && G.on) { if (++slowFrames > 90 && V.dprCap > 1.01) { V.dprCap = V.dprCap > 1.3 ? 1.25 : 1; slowFrames = 0; size(); } } else slowFrames = Math.max(0, slowFrames - 1);
+  const w0 = performance.now(), { W, H } = V, rdt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (coarse && rdt > 0.021 && G.on) { if (++slowFrames > 90 && V.dprCap > 1.01) { V.dprCap = V.dprCap > 1.3 ? 1.25 : 1; slowFrames = 0; S.key = ''; size(); } } else slowFrames = Math.max(0, slowFrames - 1);
+  if (VP.dir) {
+    VP.p = clamp(VP.p + VP.dir * rdt / (reduce ? 0.3 : VP.dir > 0 ? DIVE : LAND));
+    if (VP.dir > 0 && VP.p >= 1) { VP.dir = 0; dived(); }
+    else if (VP.dir < 0 && VP.p < 0.45 && D.hero.classList.contains('playing')) D.hero.classList.remove('playing');
+    if (VP.dir < 0 && VP.p <= 0) landed();
+  }
+  const top = G.on && VP.p >= 1, auto = import.meta.env.MODE === 'test' && T.auto;
+  if (G.stop > 0) G.stop -= rdt;
   G.slow = Math.max(0, G.slow - rdt);
-  const dt = G.card ? 0 : rdt * (G.slow > 0 ? 0.3 : 1);
-  if (G.on) G.clock += dt;
+  const scale = G.stop > 0 || (import.meta.env.MODE === 'test' && T.frozen) ? 0 : G.slow > 0 ? 0.3 : 1, dt = top && !G.card ? rdt * scale : 0;
+  if (top && !G.over) G.clock += dt;
+  if (top && G.lvlT > 0 && !G.card) { G.lvlT -= rdt; if (G.lvlT <= 0 && G.pend > 0 && !G.over) showCard('level'); }
+  if (auto && G.card && (G.mode === 'level' || G.mode === 'cache')) { T.botT += rdt; if (T.botT > 0.85) choose(botPick()); }
   const t = reduce ? 0 : now / 1000, sy = clamp(scrollY / H, 0, 1.2);
   Object.assign(F, { now, rdt, dt, t, sy, scroll: reduce ? 0 : scrollY });
   if (!reduce) D.copy.style.setProperty('--cy', `${(-scrollY * 0.18).toFixed(1)}px`);
   D.hero.style.setProperty('--ho', ((1 - clamp(sy * 4)) * HI.cue).toFixed(3));
+  const fly = sstep(0, 0.41, VP.p).toFixed(3); if (fly !== flyShown) { flyShown = fly; D.cv.style.setProperty('--fly', fly); }
 
-  if (input.charge && !G.on && now - input.charge.t0 > HOLD[input.charge.kind]) { const c = input.charge; if (c.kind === 'touch') { input.tid = c.id; input.lx = c.sx; input.ly = c.sy; } input.charge = null; start(c.kind); }
-  if (G.on && !G.card && input.keys.size) {
-    let kx = 0, ky = 0; input.keys.forEach((k) => { kx += STEER[k][0]; ky += STEER[k][1]; });
-    const m = Math.hypot(kx, ky) || 1, pw = 1 - limX() * 2;
-    input.gx = gxc(input.gx + kx / m * pw * 0.95 * rdt); input.gy = gyc(input.gy + ky / m * 0.46 * 0.75 * rdt);
-  }
+  if (input.charge && !G.on && !VP.p && now - input.charge.t0 > HOLD[input.charge.kind]) { const c = input.charge; if (c.kind === 'touch') { input.tid = c.id; input.lx = c.sx; input.ly = c.sy; } input.charge = null; start(c.kind); }
 
   const px = coarse || reduce ? 0 : input.mx - 0.5, py = coarse || reduce ? 0 : input.my - 0.5;
-  F.px = px; F.py = py;
-  if (!ship.x) { ship.x = W * 0.5; ship.y = H * (reduce || HI.skip ? ship.restY : ship.restY + 0.25); }
-  const ox = ship.x, oy = ship.y;
-  if (G.on) {
-    ship.ease = Math.max(0, ship.ease - rdt);
-    const f = 1 - Math.exp(-rdt / (ship.ease > 0 ? 0.15 : 0.045));
-    if (!G.card) { ship.x += (input.gx * W - ship.x) * f; ship.y += (input.gy * H - ship.y) * f; }
-    ship.vx = (ship.x - ox) / Math.max(rdt, 1e-3); ship.vy = (ship.y - oy) / Math.max(rdt, 1e-3);
-  } else {
-    ship.tx = 0.5 + px * (0.08 + egg.hover * 0.04) + Math.sin(t * 0.37) * 0.008; ship.ty = ship.restY + py * 0.03 + Math.sin(t * 0.61) * 0.006 - (reduce ? 0 : sy * 0.35);
-    if (reduce) { ship.x = ship.tx * W; ship.y = ship.ty * H; ship.vx = ship.vy = 0; }
-    else { ship.vx += ((ship.tx * W - ship.x) * 5 - ship.vx * 4.2) * rdt; ship.vy += ((ship.ty * H - ship.y) * 5 - ship.vy * 4.2) * rdt; ship.x += ship.vx * rdt; ship.y += ship.vy * rdt; }
-  }
-  ship.sc += ((G.on ? ship.play / ship.base : 1 - (reduce ? 0 : sy * 0.25)) - ship.sc) * (reduce ? 1 : 1 - Math.exp(-rdt / 0.2));
-  ship.bank = lerp(ship.bank, clamp(-ship.vx / (W * 1.6), -0.32, 0.32), 1 - Math.exp(-rdt * 10));
-  ship.hit = Math.max(0, ship.hit - dt); ship.kick = Math.max(0, ship.kick - rdt * 30); ship.muzzle = Math.max(0, ship.muzzle - rdt * 14);
-  G.shake = Math.max(0, G.shake - rdt * 2.5); G.flash = Math.max(0, G.flash - rdt * 3);
-  scene.vp.x = W * 0.5;
-  F.sw = ship.base * ship.sc; F.sh = F.sw * (A.ship ? A.ship.height / A.ship.width : 0.4);
+  if (G.on || VP.p) G.ease = 1;
+  if (G.ease) { const k = 1 - Math.exp(-rdt * 3); G.px = lerp(G.px, G.on ? 0 : px, k); G.py = lerp(G.py, G.on ? 0 : py, k); if (!G.on && !VP.p && Math.abs(G.px - px) + Math.abs(G.py - py) < 1e-3) G.ease = 0; }
+  else { G.px = px; G.py = py; }
+  if (!rs.x) { rs.x = W * 0.5; rs.y = H * (reduce || HI.skip ? rs.restY : rs.restY + 0.25); }
+  if (!G.on && !VP.p) {
+    rs.tx = 0.5 + G.px * (0.08 + egg.hover * 0.04) + Math.sin(t * 0.37) * 0.008; rs.ty = rs.restY + G.py * 0.03 + Math.sin(t * 0.61) * 0.006 - (reduce ? 0 : sy * 0.35);
+    if (reduce) { rs.x = rs.tx * W; rs.y = rs.ty * H; rs.vx = rs.vy = 0; }
+    else { rs.vx += ((rs.tx * W - rs.x) * 5 - rs.vx * 4.2) * rdt; rs.vy += ((rs.ty * H - rs.y) * 5 - rs.vy * 4.2) * rdt; rs.x += rs.vx * rdt; rs.y += rs.vy * rdt; }
+    rs.sc += ((1 - (reduce ? 0 : sy * 0.25)) - rs.sc) * (reduce ? 1 : 1 - Math.exp(-rdt / 0.2));
+    rs.bank = lerp(rs.bank, clamp(-rs.vx / (W * 1.6), -0.32, 0.32), 1 - Math.exp(-rdt * 10));
+  } else rs.bank = lerp(rs.bank, 0, 1 - Math.exp(-rdt * 6));
 
-  const shk = reduce ? 0 : G.shake * 10;
+  const px0 = ship.x, py0 = ship.y;
+  if (top && !G.card && !G.dead) {
+    const maxV = 640 * V.U * spdM() * (V.tall ? 1.1 : 1);
+    let dvx = 0, dvy = 0;
+    if (input.keys.size && !auto) {
+      let kx = 0, ky = 0; input.keys.forEach((k) => { kx += STEER[k][0]; ky += STEER[k][1]; });
+      const m = Math.hypot(kx, ky) || 1; dvx = kx / m * maxV; dvy = ky / m * maxV;
+      input.gx = ship.x; input.gy = ship.y; input.follow = false;
+    } else {
+      if (auto && dt > 0) { gridBuild(); bot(rdt); }
+      else if (input.follow && !input.mlock) { input.gx = cam.x + (input.mx - 0.5) * V.vw; input.gy = cam.y + (input.my - 0.5) * V.vh; }
+      else if (input.last === 'key') { input.gx = ship.x; input.gy = ship.y; }
+      const dx = input.gx - ship.x, dy = input.gy - ship.y, d = Math.hypot(dx, dy);
+      if (d > 0.5) { const s = Math.min(maxV, d * 9); dvx = dx / d * s; dvy = dy / d * s; }
+    }
+    const f = 1 - Math.exp(-dt * 16);
+    ship.cx = dvx; ship.cy = dvy;
+    ship.vx += (dvx - ship.vx) * f; ship.vy += (dvy - ship.vy) * f;
+    ship.x += ship.vx * dt; ship.y += ship.vy * dt;
+  } else if (top && G.card) { ship.vx *= 0.9; ship.vy *= 0.9; ship.cx = ship.cy = 0; }
+  else if (VP.dir < 0) { const k = Math.exp(-rdt * 4); ship.vx *= k; ship.vy *= k; ship.x += ship.vx * rdt; ship.y += ship.vy * rdt; }
+  if (VP.p > 0) { const k = top ? dt : rdt; steerHead(k); updCam(k, ship.x - px0, ship.y - py0, rdt); }
+  ship.kick = Math.max(0, ship.kick - rdt * 30); ship.muzzle = Math.max(0, ship.muzzle - rdt * 14);
+  G.inv = Math.max(0, G.inv - dt); G.blinkT = Math.max(0, G.blinkT - dt);
+  VP.rv = Math.max(0, VP.rv - rdt * 2.5);
+
+  G.shake = Math.max(0, G.shake - rdt * 1.9);
+  const amp = reduce ? 0 : G.shake * G.shake * 16 * V.U;
+  C.sx = amp * (Math.sin(now * 0.053) * 0.6 + Math.sin(now * 0.031 + 1.3) * 0.4); C.sy = amp * (Math.sin(now * 0.047 + 2.1) * 0.6 + Math.sin(now * 0.029) * 0.4);
+  dive(VP.p);
+  C.wz = DV.gz; C.dz = V.DPR * C.wz; C.ox = DV.tx - ship.x * C.wz + C.sx; C.oy = DV.ty - ship.y * C.wz + C.sy;
+  C.x0 = (C.sx - C.ox) / C.wz; C.x1 = (W + C.sx - C.ox) / C.wz; C.y0 = (C.sy - C.oy) / C.wz; C.y1 = (H + C.sy - C.oy) / C.wz;
+
+  if (top && dt > 0 && A.ready) {
+    G.killsF = 0;
+    gridBuild();
+    if (!G.over) spawner(dt);
+    updEnemies(dt, rdt); separate(dt);
+    if (!G.over) updWeapons(dt);
+    updBolts(dt); updMissiles(dt); updNova(dt); updShards(dt); updBullets(dt);
+    if (G.cache && !G.over) { G.cache.t += dt; if (!G.card && Math.hypot(ship.x - G.cache.x, ship.y - G.cache.y) < shipR() + 46 * V.U) openCache(); }
+    for (let i = TQ.length - 1; i >= 0; i--) { const q = TQ[i]; q.t -= dt; if (q.t <= 0) { TQ.splice(i, 1); if (q.run === G.run && G.on) q.fn(); } }
+    compact();
+  } else if (top && A.ready) {
+    for (let i = 0; i < WS.nE; i++) EN[i].flash -= rdt;
+    if (G.wm.wing) updWing(G.wm.wing, 0);
+  } else if (WS.nE) { updEnemies(rdt, rdt); compact(); }
+
   ctx.save();
-  ctx.translate((rand() - 0.5) * shk, (rand() - 0.5) * shk);
-  drawBackdrop();
-
-  if (G.on && !G.over && !G.card && A.ready) waveTick();
-  D.msg.style.opacity = (G.on && !G.card ? clamp(1 - (now - G.msgT - G.msgHold) / 400) * clamp((now - G.msgT) / 200) : 0).toFixed(2);
-  const cmb = G.on && G.combo > 1 ? clamp(1 - (G.clock - G.comboT) / 1.6) : 0;
-  if (cmb <= 0 && G.combo > 1) G.combo = 1;
-  D.combo.classList.toggle('on', cmb > 0); if (cmb > 0) { D.comboN.textContent = `Combo ×${G.combo}`; D.comboFill.style.transform = `scale3d(${cmb.toFixed(3)}, 1, 1)`; }
-
-  drawDrones();
-  drawArcs();
-  drawTele();
-  if (G.on && !G.over && !G.card && A.ready) fireTick();
-  drawBolts();
-  drawEnemyBolts();
-  drawParts();
-  drawShip();
-  drawWings();
-  drawPops();
+  screen();
+  if (!VP.p || (VP.p < 1 && (reduce || VP.p < 0.72))) { scene.vp.x = W * 0.5; drawOrbit(); }
+  const dfx = G.card ? 0 : rdt * scale;
+  if (VP.p > 0) {
+    ctx.imageSmoothingQuality = 'medium';
+    drawGround(t);
+    base();
+    if (G.on || WS.nE) { drawTele(dfx, t); drawShards(t); drawCache(t); if (G.on) { ctx.globalCompositeOperation = 'lighter'; drawNova(); ctx.globalCompositeOperation = 'source-over'; } drawEnemies(); }
+    drawDebris(dfx);
+    ctx.imageSmoothingQuality = 'low';
+  }
+  if (A.ship && VP.p < 1) { if (!VP.p) drawRear(rs.x, rs.y, restW(), 1, 1, rs.vx, rs.vy, 0); else drawRear(DV.rx, DV.ry, DV.rw, DV.rsq, DV.ra, 0, 0, 1); }
+  if (VP.p > 0) {
+    ctx.imageSmoothingQuality = 'medium';
+    if (A.shipTop && !G.dead) { drawTrail(dfx); drawTop(DV.tx, DV.ty, DV.tw, DV.tsq, DV.ta * (1 - VP.rv), DV.sho, t); }
+    base();
+    if (top && !G.dead) drawWings();
+    ctx.globalCompositeOperation = 'lighter';
+    drawEnemyGlows(t);
+    drawBeams(dfx); drawBolts(); drawMissiles(); drawArcs(dfx); drawFX(dfx, G.card ? 0 : rdt); drawSparks(dfx);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    drawBullets(t);
+  }
+  screen();
+  drawStreaks(rdt);
+  drawCachePointer(t);
+  drawDim();
   drawEgg();
   drawCharge();
   ctx.restore();
+  hudTick(rdt, now);
+  if (import.meta.env.MODE === 'test') T.work[T.wi++ % T.work.length] = performance.now() - w0;
 }

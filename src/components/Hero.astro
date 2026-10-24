@@ -7,6 +7,7 @@ const [wideAvif, wideWebp, tallAvif, tallWebp] = await Promise.all([avif('hero/b
 <section id="hero" aria-label="LG-01 above a desert world.">
   <picture class="bg" aria-hidden="true"><source media={tall} type="image/avif" srcset={tallAvif}><source media={tall} type="image/webp" srcset={tallWebp}><source type="image/avif" srcset={wideAvif}><img src={wideWebp} alt="" fetchpriority="high"></picture>
   <canvas id="orbit" aria-hidden="true"></canvas>
+  <div class="vig" id="vig" aria-hidden="true"></div>
   <div class="scrim"></div>
   <div class="copy">
     <div class="eyebrow mono k fade">Louis Gonzalez · Senior web developer</div>
@@ -16,28 +17,25 @@ const [wideAvif, wideWebp, tallAvif, tallWebp] = await Promise.all([avif('hero/b
     <div class="proof mono fade"><b>13</b> years · <b>170+</b> projects · <b>6+</b> year partnerships</div>
   </div>
   <div class="hint mono" aria-hidden="true">Scroll to launch</div>
-  <div class="best mono" aria-hidden="true" id="bestLine" hidden>LG-01 · <span id="rank0">Rank 1</span> · Best <b id="best0">000 000</b></div>
+  <div class="best mono" aria-hidden="true" id="bestLine" hidden>LG-01 · Best <b id="best0">00<i class="sep"></i>00</b></div>
   <div class="hud" id="hud" tabindex="-1" aria-label="LG-01 flight" inert>
-    <div class="sc" aria-hidden="true"><b id="score">000 000</b><span class="mono" id="wave">Wave 01</span></div>
-    <div class="bs mono" aria-hidden="true">Best<b id="best1">000 000</b></div>
+    <div class="clk" aria-hidden="true"><b id="clock">00<i class="sep"></i>00</b><div class="lvl mono" id="lvl"><span id="lvN">Level 01</span><i class="bar"><b id="xpFill"></b></i></div><div class="build" id="build"></div></div>
+    <div class="kc mono" aria-hidden="true">Kills<b id="kills">0</b><span class="bt">Best <em id="best1">00<i class="sep"></i>00</em></span></div>
     <div class="lv" aria-hidden="true" id="lv"><i></i><i></i><i></i></div>
-    <div class="mods" aria-hidden="true" id="mods"></div>
-    <div class="combo" aria-hidden="true" id="combo"><span id="comboN">×2</span><i><b id="comboFill"></b></i></div>
     <div class="ctl mono" aria-hidden="true" id="ctl">Mouse or <kbd>WASD</kbd> to steer</div>
     <button type="button" class="land mono" id="land">Land <kbd>Esc</kbd></button>
-    <div class="boss" id="bossBar" aria-hidden="true"><span class="mono">Monolith</span><i><b id="bossFill"></b></i></div>
-    <div class="msg" id="msg" aria-hidden="true"><b id="msgB">Wave 01</b><span class="mono" id="msgS">Incoming</span></div>
+    <div class="boss" id="bossBar" aria-hidden="true"><span class="mono" id="bossName">Monolith</span><i><b id="bossFill"></b></i></div>
+    <div class="msg" id="msg" aria-hidden="true"><b id="msgB"></b><span class="mono" id="msgS"></span></div>
     <div class="panel" id="card" role="dialog" aria-labelledby="cardT">
-      <div class="mono" id="cardT">Sortie complete</div>
-      <b id="cardScore">000 000</b>
+      <div class="mono" id="cardT">Level 02</div>
+      <b class="big" id="cardBig">00<i class="sep"></i>00</b>
       <div class="sub mono" id="cardSub">New best</div>
-      <div class="rank mono" id="cardRank"><div id="rankT">Rank 1</div><div class="bar"><b id="rankFill"></b></div></div>
-      <div class="lbl2 mono" id="optsT">Choose a relic to keep flying</div>
+      <div class="rs mono" id="cardStats"></div>
+      <div class="bld" id="cardBuild"></div>
       <div class="opts" id="opts"></div>
-      <div class="heat mono" id="heat"><span>Heat</span><button type="button" data-h="0">0</button><button type="button" data-h="1">1</button><button type="button" data-h="2">2</button><button type="button" data-h="3">3</button></div>
-      <div class="hc" id="cardActions"><a class="btn" href="#work" id="cardBack">Back to the portfolio</a><button type="button" class="btn ghost" id="cardMore">Fly again</button></div>
+      <div class="hc" id="cardActions"><button type="button" class="btn" id="cardMore">Fly again</button><button type="button" class="btn ghost" id="cardBack">Land</button></div>
     </div>
   </div>
-  <div class="toast" id="toast" aria-hidden="true"><b id="toastB">000 000</b><span class="mono" id="toastS">Best 000 000</span></div>
+  <div class="toast" id="toast" aria-hidden="true"><b id="toastB">00<i class="sep"></i>00</b><span class="mono" id="toastS">Best</span></div>
   <div class="sr" aria-live="polite" id="live"></div>
 </section>
