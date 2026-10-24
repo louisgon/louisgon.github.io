@@ -8,6 +8,7 @@ export type St = {
   bossMode: number; cache: boolean; csx: number; csy: number; eligible: string[]; nb: number; hv: number; gap: number; sw: number; sh: number;
   fac: number; faction: string; lap: number; switching: boolean; fe: number[]; peel: number; fresh: string[]; sprites: boolean[]; banner: string; bannerSub: string; bannerOn: number; bossName: string; bsx: number; bsy: number;
   drop: number; th: number; ba: number; punch: number; ra: number; ta: number; rw: number; tw: number;
+  rw0: number; rh0: number; light: boolean; lit: number;
 };
 
 export const launch = () => chromium.launch({ args: process.platform === 'darwin' ? ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] : [] });
