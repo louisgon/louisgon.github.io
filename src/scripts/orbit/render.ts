@@ -383,7 +383,7 @@ export function drawHurt(rdt: number) {
   const { W, H } = V, k = G.hitT / HIT, c = Math.cos(G.hitA), s = Math.sin(G.hitA), x0 = DV.tx, y0 = DV.ty;
   const d = Math.min(c > 1e-6 ? (W - x0) / c : c < -1e-6 ? -x0 / c : 1e9, s > 1e-6 ? (H - y0) / s : s < -1e-6 ? -y0 / s : 1e9), x = x0 + c * d, y = y0 + s * d, r = Math.min(W, H) * 0.42;
   const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-  g.addColorStop(0, `rgba(255,96,60,${0.62 * k})`); g.addColorStop(0.35, `rgba(220,52,28,${0.26 * k})`); g.addColorStop(1, 'rgba(160,26,12,0)');
+  g.addColorStop(0, `rgba(255,96,60,${0.72 * k})`); g.addColorStop(0.35, `rgba(220,52,28,${0.3 * k})`); g.addColorStop(1, 'rgba(160,26,12,0)');
   ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
 }
 

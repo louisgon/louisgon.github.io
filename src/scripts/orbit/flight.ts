@@ -75,7 +75,7 @@ export function hurt(src = '', hx = ship.x, hy = ship.y) {
   if (import.meta.env.MODE === 'test') { T.hits.push(`${G.clock.toFixed(1)}s ${src}`); if (T.god) { G.inv = 0.6; return; } }
   const U = V.U;
   G.hull--; G.inv = 1.4; G.blinkT = 1.4; G.vig = 1; G.regen = 0;
-  if (Math.hypot(hx - ship.x, hy - ship.y) > 1) { G.hitA = Math.atan2(hy - ship.y, hx - ship.x); G.hitT = HIT; }
+  if (Math.hypot(hx - ship.x, hy - ship.y) > 1) { G.hitA = Math.atan2(hy - ship.y, hx - ship.x); G.hitT = HIT; G.vig = 0.6; }
   addShake(0.55); buzz(30); setHull(true);
   sparks(ship.x, ship.y, 22, 420 * U, 2, 9); fx(1, ship.x, ship.y, shipW() * 0.9, 0.35, 2); fx(0, ship.x, ship.y, shipW() * 0.6, 0.2, 2);
   const n = query(ship.x, ship.y, 150 * U, QR);
