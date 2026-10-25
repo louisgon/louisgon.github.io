@@ -2,8 +2,8 @@ import { reduce } from '../state';
 import { $ } from '../util';
 import { clamp, D, FAC, fmtT, G, input, maxW, pad2, sayT, ship, VP, type Kind, type Mode, type Option } from './core';
 import { P } from './store';
-import { bl, maxHull, WEAP } from './weapons';
-import { options, cacheOptions } from './upgrades';
+import { bl, BOOST, EVO, maxHull, WEAP } from './weapons';
+import { boostPr, cacheOptions, options } from './upgrades';
 import { T } from './test';
 
 const ICON: Record<string, string> = {
@@ -35,6 +35,17 @@ const MQ: Note[] = [], TIP = 4, WAIT = 6;
 let note: Note | null = null, noteT = 0;
 export const resetHud = () => { Object.assign(H, { sec: -1, kills: -1, lv: -1, xp: 0 }); MQ.length = 0; note = null; D.pick.classList.remove('on'); };
 
+export const LANE = { top: 0, msg: 0, a: 0 };
+export function measureLane() {
+  const hud = D.hud.getBoundingClientRect(), top = hud.top - D.hero.getBoundingClientRect().top, half = D.msg.offsetWidth / 2 + 16, cx = hud.width / 2;
+  let y = 40, all = 40;
+  for (const el of [D.hud.querySelector('.clk'), D.hud.querySelector('.kc'), G.boss || D.hero.classList.contains('bossing') ? D.bossBar : null]) {
+    if (!el) continue; const r = el.getBoundingClientRect(), b = r.bottom - hud.top + 16;
+    all = Math.max(all, b); if (r.right - hud.left > cx - half && r.left - hud.left < cx + half) y = Math.max(y, b);
+  }
+  D.msg.style.top = `${Math.round(y)}px`;
+  LANE.top = top + all; LANE.msg = top + y + D.msg.offsetHeight;
+}
 export const msg = (b: string, s: string, hold = 1100, gold = false, f = '', pri = 1, wait: (() => boolean) | null = null) => { MQ.push({ b, s, hold, gold, f, pri, wait, age: 0 }); };
 function nextNote() {
   for (let i = MQ.length - 1; i >= 0; i--) if (!MQ[i].pri && MQ[i].age > TIP) MQ.splice(i, 1);
@@ -42,7 +53,7 @@ function nextNote() {
   for (let i = 0; i < MQ.length; i++) { const n = MQ[i]; if ((!n.wait || !n.wait() || n.age > WAIT) && (k < 0 || n.pri > MQ[k].pri)) k = i; }
   if (k < 0) return;
   note = MQ.splice(k, 1)[0]; noteT = 0;
-  $('msgB').textContent = note.b; $('msgS').textContent = note.s; D.msg.classList.toggle('gold', note.gold); D.msg.dataset.f = note.f;
+  $('msgB').textContent = note.b; $('msgS').textContent = note.s; D.msg.classList.toggle('gold', note.gold); D.msg.dataset.f = note.f; measureLane();
   if (import.meta.env.MODE === 'test') T.notes.push(note.b);
 }
 export const live = (t: string) => { $('live').textContent = ''; setTimeout(() => ($('live').textContent = t), 30); };
@@ -59,7 +70,7 @@ export function buildHTML(hit = '') {
   const b = G.B.map((id) => `<span ${k(id, 'b')}>${svg(id)}<em>${bl(id)}</em></span>`).join('');
   return w + (b ? `<i class="gap"></i>${b}` : '');
 }
-export const renderBuild = (hit = '') => (D.build.innerHTML = buildHTML(hit));
+export const renderBuild = (hit = '') => { D.build.innerHTML = buildHTML(hit); if (G.on) measureLane(); };
 export function picked(label: string, key: string) {
   renderBuild(key);
   if (!label) return;
@@ -82,13 +93,24 @@ const optHTML = (o: Option, i: number) => {
   return `<button type="button" class="opt k${o.kind}" data-i="${i}">${tag}<kbd>${i + 1}</kbd>${svg(o.icon)}<span class="tx"><span class="nm">${o.name}</span><span class="ds">${o.d}</span>${pips}${o.pr ? `<span class="pr">${o.pr}</span>` : ''}</span></button>`;
 };
 
+const pips = (n: number, evo = false) => `<span class="pp" aria-hidden="true">${[0, 1, 2, 3, 4].map((k) => `<i class="${k < n ? (evo ? 'ev' : 'on') : ''}"></i>`).join('')}</span>`;
+const threat = () => { const F = FAC[G.fac], cap = G.lap ? `${F.cap} ${pad2(G.lap + 1)}` : F.cap; return G.boss ? `${cap} engaged` : G.cache ? 'Cache waiting' : G.warned ? `${cap} inbound` : `Fighting ${F.reach}`; };
+export function status() {
+  const w = G.W.map((x) => ({ k: x.evo ? WEAP[x.id].evo : x.id, name: x.evo ? EVO[WEAP[x.id].evo].name : WEAP[x.id].name, lv: x.evo ? 5 : x.lv, evo: x.evo, pr: x.evo ? `Evolved from ${WEAP[x.id].name}` : `Evolves with ${BOOST[WEAP[x.id].pair].name}` }));
+  const b = G.B.map((id) => ({ k: id, name: BOOST[id].name, lv: bl(id), evo: false, pr: boostPr(id) || `Paired with ${EVO[WEAP[(Object.keys(WEAP) as (keyof typeof WEAP)[]).find((q) => WEAP[q].pair === id)!].evo].name}` }));
+  const row = (r: (typeof w)[number], c: string) => `<li class="${r.evo ? 'evo' : c}">${svg(r.k)}<span class="nm">${r.name}<span class="sr">, ${r.evo ? 'evolved' : `level ${r.lv} of 5`}.</span>${pips(r.lv, r.evo)}</span><span class="pr">${r.pr}</span></li>`;
+  const col = (h: string, rs: typeof w, c: string) => `<div><h3 class="mono">${h} ${rs.length} of ${maxW}</h3>${rs.length ? `<ul>${rs.map((r) => row(r, c)).join('')}</ul>` : '<p class="none">None yet</p>'}</div>`;
+  const line = `Hull ${G.hull} of ${maxHull()} · Level ${pad2(G.level - G.pend)}`, th = threat();
+  return { html: `<p class="st mono">${line}</p><p class="th mono">${th}</p><div class="cols">${col('Weapons', w, '')}${col('Boosts', b, 'b')}</div>`, say: `${line}. ${th}. Time ${sayT(G.clock)}. Weapons ${w.map((r) => `${r.name} ${r.evo ? 'evolved' : `level ${r.lv}`}`).join(', ') || 'none'}. Boosts ${b.map((r) => `${r.name} level ${r.lv}`).join(', ') || 'none'}.` };
+}
+
 export const reached = () => (G.fac || G.lap ? `Reached <em>${FAC[G.fac].reach}</em>${G.lap ? ` on lap ${pad2(G.lap + 1)}` : ''}` : `Fought <em>${FAC[0].reach}</em>`);
 const settle = () => { input.keys.clear(); const s = input.stick; if (s) { s.ox = s.x; s.oy = s.y; } };
 export function showCard(mode: Mode, f = 0) {
   G.card = true; G.mode = mode; D.hero.classList.add('carded'); settle();
   if (VP.p < 1) D.hud.inert = false;
   const slots = `Weapons ${G.W.length} of ${maxW} · Boosts ${G.B.length} of ${maxW}`;
-  const card = D.card, parts = { big: $('cardBig'), sub: $('cardSub'), rs: $('cardStats'), far: $('cardFar'), bld: $('cardBuild'), opts: D.opts, act: $('cardActions') };
+  const card = D.card, parts = { big: $('cardBig'), sub: $('cardSub'), rs: $('cardStats'), far: $('cardFar'), bld: $('cardBuild'), info: $('cardInfo'), opts: D.opts, act: $('cardActions') };
   const show = (on: string[]) => Object.entries(parts).forEach(([k, el]) => (el.hidden = !on.includes(k)));
   let opts: Option[] = [];
   if (import.meta.env.MODE === 'test') { T.botT = 0; T.notes.push(`card:${mode}`); }
@@ -101,7 +123,7 @@ export function showCard(mode: Mode, f = 0) {
     $('cardT').textContent = `${FAC[f].short} cache · ${opts[0].kind === 'e' ? 'Evolve one' : 'Choose one'}`;
     $('cardSub').textContent = slots; show(['sub', 'opts']);
   } else if (mode === 'pause') {
-    $('cardT').textContent = 'Paused'; D.cardMore.textContent = 'Resume'; show(['act']);
+    $('cardT').textContent = 'Paused'; D.cardMore.textContent = 'Resume'; $('cardInfo').innerHTML = status().html; show(['info', 'act']);
   } else {
     $('cardT').textContent = 'Hull lost';
     $('cardBig').innerHTML = fmtT(G.clock);
@@ -115,7 +137,7 @@ export function showCard(mode: Mode, f = 0) {
   D.opts.innerHTML = opts.map(optHTML).join('');
   card.dataset.mode = mode; card.dataset.n = String(opts.length); D.opts.style.setProperty('--n', String(Math.max(1, opts.length))); card.classList.add('on');
   if (mode === 'level' || mode === 'cache') { D.opts.classList.add('arm'); clearTimeout(armT); armT = window.setTimeout(() => D.opts.classList.remove('arm'), 380); }
-  live(mode === 'level' || mode === 'cache' ? `${$('cardT').textContent}. ${opts.map((o, i) => `${i + 1}, ${o.name}${o.kind === 'e' ? ', evolution' : o.L ? ` level ${o.L + 1}` : ', new'}`).join('. ')}` : mode === 'pause' ? 'Paused.' : `Hull lost. Time ${sayT(G.clock)}. ${reached().replace(/<\/?em>/g, '')}. Fly again or land.`);
+  live(mode === 'level' || mode === 'cache' ? `${$('cardT').textContent}. ${opts.map((o, i) => `${i + 1}, ${o.name}${o.kind === 'e' ? ', evolution' : o.L ? ` level ${o.L + 1}` : ', new'}`).join('. ')}` : mode === 'pause' ? `Paused. ${status().say}` : `Hull lost. Time ${sayT(G.clock)}. ${reached().replace(/<\/?em>/g, '')}. Fly again or land.`);
   if (input.last === 'key') setTimeout(() => { const f = card.querySelector<HTMLElement>('.opt') || D.cardMore; if (f && !f.hidden) f.focus({ preventScroll: true }); }, 60);
 }
 
@@ -136,7 +158,7 @@ export function hudTick(rdt: number, now: number) {
     const tgt = G.pend ? 1 : G.xp / G.need; H.xp += (tgt - H.xp) * (1 - Math.exp(-rdt * 14));
     if (Math.abs(H.xp - H.xpSet) > 0.002) { H.xpSet = H.xp; D.xpFill.style.transform = `scale3d(${clamp(H.xp).toFixed(3)}, 1, 1)`; }
     const bb = G.boss && !G.boss.dead ? clamp(G.boss.hp / G.boss.max) : -1;
-    if (Math.abs(bb - H.boss) > 0.002) { D.bossBar.classList.toggle('on', bb >= 0); if (bb >= 0) D.bossFill.style.transform = `scale3d(${bb.toFixed(3)}, 1, 1)`; H.boss = bb; }
+    if (Math.abs(bb - H.boss) > 0.002) { if ((bb >= 0) !== (H.boss >= 0)) { D.bossBar.classList.toggle('on', bb >= 0); measureLane(); } if (bb >= 0) D.bossFill.style.transform = `scale3d(${bb.toFixed(3)}, 1, 1)`; H.boss = bb; }
   }
   const vis = G.on && !G.card && VP.p >= 1;
   if (vis) { for (const n of MQ) n.age += rdt; if (!note && H.ma < 0.02) nextNote(); if (note) noteT += rdt * 1000; }
@@ -144,6 +166,7 @@ export function hudTick(rdt: number, now: number) {
   if (note && noteT >= note.hold + 400) note = null;
   H.ma += (want - H.ma) * (1 - Math.exp(-rdt * 18)); if (H.ma < 0.005) H.ma = 0;
   if (Math.abs(H.ma - H.msg) > 0.01 || (!H.ma && H.msg)) { H.msg = H.ma; D.msg.style.opacity = H.ma.toFixed(2); }
+  LANE.a = H.ma;
   G.vig = Math.max(0, G.vig - rdt * 1.6);
   const va = G.on ? Math.max(G.vig, !G.over && G.hull === 1 ? 0.22 + 0.08 * Math.sin(now / 260) : 0) * (reduce ? 0.6 : 1) : 0;
   if (Math.abs(va - H.vig) > 0.01) { H.vig = va; D.vig.style.opacity = va.toFixed(2); }

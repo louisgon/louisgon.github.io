@@ -59,8 +59,9 @@
 #hero .hud .kc .bt { display: block; margin-top: 14px; }
 #hero .hud .kc .bt em { font-style: normal; color: var(--gold); }
 #hero .hud .kc .bt[hidden] { display: none; }
-#hero .hud .lv { position: absolute; left: 26px; bottom: 22px; display: flex; gap: 8px; }
-#hero .hud .lv i { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 16px solid var(--holo); filter: drop-shadow(0 0 6px rgb(143 211 255 / 80%)); transition: opacity .3s ease, transform .4s var(--ease-pop); will-change: transform, opacity; backface-visibility: hidden; }
+#hero .hud .hull { position: absolute; left: 26px; bottom: 22px; color: var(--dim); text-shadow: 0 2px 10px rgb(0 0 0 / 70%); }
+#hero .hud .lv { display: flex; gap: 9px; margin-top: 9px; }
+#hero .hud .lv i { width: 0; height: 0; border-left: 9.2px solid transparent; border-right: 9.2px solid transparent; border-bottom: 18.4px solid var(--holo); filter: drop-shadow(0 0 6px rgb(143 211 255 / 80%)); transition: opacity .3s ease, transform .4s var(--ease-pop); will-change: transform, opacity; backface-visibility: hidden; }
 #hero .hud .lv i.off { opacity: .22; filter: none; transform: scale3d(.8, .8, 1); }
 #hero .hud .lv i.lost { animation: lost .6s ease-out; }
 #hero .hud .lv i.gain { animation: gain .7s var(--ease-out); }
@@ -72,7 +73,7 @@
 #hero .hud .land:focus-visible { background: rgb(255 207 138 / 16%); border-color: var(--gold); outline: none; box-shadow: none; }
 @media (hover: hover) { #hero .hud .land:hover { background: rgb(255 207 138 / 16%); border-color: var(--gold); } }
 #hero .hud .land kbd { color: var(--gold); border-color: rgb(255 207 138 / 40%); }
-#hero .hud .msg { position: absolute; left: 50%; top: 11%; text-align: center; white-space: nowrap; opacity: 0; transform: translate3d(-50%, -50%, 0); will-change: transform, opacity; backface-visibility: hidden; }
+#hero .hud .msg { position: absolute; left: 50%; top: 6%; text-align: center; white-space: nowrap; opacity: 0; transform: translate3d(-50%, 0, 0); will-change: transform, opacity; backface-visibility: hidden; }
 #hero .hud .msg b { display: block; font: 700 clamp(22px, 2.8vw, 38px)/1.1 "Syncopate", sans-serif; text-transform: uppercase; text-shadow: 0 4px 24px rgb(0 0 0 / 70%); }
 #hero .hud .msg span { display: block; margin-top: 10px; color: var(--gold); text-shadow: 0 2px 12px rgb(0 0 0 / 85%); }
 #hero .hud .msg.gold b { color: var(--gold); }
@@ -98,6 +99,24 @@
 #hero .panel .far { margin-top: 16px; color: var(--dim); }
 #hero .panel .far em { font-style: normal; color: var(--gold); }
 #hero .panel .bld { justify-content: center; margin-top: 20px; }
+#hero .panel[data-mode="pause"] { width: min(540px, calc(100% - 24px)); }
+#hero .panel .inv { margin-top: 14px; text-align: left; }
+#hero .panel .inv .st, #hero .panel .inv .th { margin: 0; text-align: center; color: var(--dim); }
+#hero .panel .inv .th { margin-top: 6px; color: var(--gold); opacity: .8; }
+#hero .panel .inv .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 22px; margin-top: 18px; padding-top: 16px; border-top: 1px solid rgb(255 207 138 / 14%); }
+#hero .panel .inv h3 { margin: 0 0 10px; font-size: 10px; font-weight: 400; color: var(--dim); }
+#hero .panel .inv ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+#hero .panel .inv li { display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: 10px; row-gap: 3px; align-items: center; }
+#hero .panel .inv li svg { grid-row: span 2; width: 18px; height: 18px; color: var(--holo); }
+#hero .panel .inv li.b svg { color: #efd9b6; }
+#hero .panel .inv li.evo svg, #hero .panel .inv li.evo .nm { color: var(--gold); }
+#hero .panel .inv .nm { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--fg); font: 500 13.5px/1.25 "Inter Tight", sans-serif; }
+#hero .panel .inv .pr { color: var(--gold); font: 400 9.5px/1.4 "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+#hero .panel .inv .none { margin: 0; color: var(--dim); font-size: 13px; }
+#hero .panel .pp { display: flex; flex: none; gap: 3px; }
+#hero .panel .inv .pp i { width: 10px; height: 3px; border-radius: 2px; background: rgb(143 211 255 / 20%); }
+#hero .panel .inv .pp i.on { background: var(--holo); }
+#hero .panel .inv .pp i.ev { background: var(--gold); }
 #hero .panel .hc { justify-content: center; margin-top: 24px; }
 #hero .panel .btn { cursor: pointer; font-family: "Inter Tight", sans-serif; }
 #hero .panel .btn.ghost { background: transparent; }
@@ -155,7 +174,7 @@
   #hero .scrim { background: linear-gradient(180deg, rgb(3 6 14 / 80%), rgb(3 6 14 / 40%) 48%, transparent 64%); }
   #hero .best { display: none; }
   #hero .hud { inset: calc(70px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left)); }
-  #hero .hud .clk, #hero .hud .lv { left: 16px; }
+  #hero .hud .clk, #hero .hud .hull { left: 16px; }
   #hero .hud .kc { right: 16px; font-size: 10px; }
   #hero .hud .clk, #hero .hud .kc { top: 16px; }
   #hero .hud .lvl { gap: 8px; margin-top: 10px; font-size: 10px; }
@@ -167,7 +186,10 @@
   #hero .hud .ctl { opacity: 0; bottom: 74px; }
   #hero.tip .hud .ctl { opacity: 1; }
   #hero .hud .boss { top: 118px; width: 62vw; }
-  #hero .hud .msg { top: 22%; width: calc(100% - 24px); white-space: normal; }
+  #hero .hud .msg { width: calc(100% - 24px); white-space: normal; }
+  #hero .hud .msg b { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: clamp(20px, 5.6vw, 24px); text-wrap: balance; }
+  #hero .hud .msg span { margin-top: 8px; }
+  #hero .hud .hull { bottom: 18px; font-size: 10px; }
   #hero .panel { top: 71%; padding: 20px 14px 14px; }
   #hero .panel .opts { grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
   #hero .panel .opt { flex-direction: row; align-items: center; gap: 14px; padding: 14px 14px 12px; text-align: left; }
@@ -177,6 +199,7 @@
   #hero .panel .opt .tg { top: 8px; left: auto; right: 10px; }
   #hero .panel .rs { gap: 24px; }
 }
+@media (max-width: 560px) { #hero .panel .inv .cols { grid-template-columns: minmax(0, 1fr); gap: 14px; } }
 @media (max-height: 520px) and (orientation: landscape) {
   #hero .copy { top: calc(env(safe-area-inset-top) + 76px); width: min(560px, 56vw); }
   #hero .copy::before { inset: -20% -12% -24% -20px; background: radial-gradient(ellipse 50% 50% at 42% 58%, rgb(3 6 14 / 58%), rgb(3 6 14 / 48%) 25%, rgb(3 6 14 / 31%) 45%, rgb(3 6 14 / 15%) 62%, rgb(3 6 14 / 5%) 78%, transparent); }

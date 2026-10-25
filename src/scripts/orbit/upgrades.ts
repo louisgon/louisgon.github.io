@@ -5,7 +5,7 @@ import { hideCard, live, msg, picked, renderHull, showCard } from './hud';
 
 const WIDS: WeapId[] = ['pulse', 'wing', 'arc', 'missile', 'nova'], BIDS: BoostId[] = ['magnet', 'damage', 'cooldown', 'area', 'thrust', 'hull'];
 const pairOf = (id: BoostId) => WIDS.find((k) => WEAP[k].pair === id);
-const boostPr = (id: BoostId) => { const k = pairOf(id), w = k && G.wm[k]; return !k ? 'No evolution pair' : w && !w.evo ? `Evolves ${WEAP[k].name}` : w ? '' : `Pairs with ${WEAP[k].name}`; };
+export const boostPr = (id: BoostId) => { const k = pairOf(id), w = k && G.wm[k]; return !k ? 'No evolution pair' : w && !w.evo ? `Evolves ${WEAP[k].name}` : w ? '' : `Pairs with ${WEAP[k].name}`; };
 const repair = (): Option => ({ kind: 'x', id: 'repair', name: 'Field repair', d: 'Restore one hull', icon: 'repair', L: 0, pr: '' });
 
 export function options() {

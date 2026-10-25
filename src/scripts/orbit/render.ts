@@ -1,6 +1,7 @@
 import { reduce } from '../state';
 import { A, at, base, C, clamp, ctx, DV, egg, F, FAC, G, HIT, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, scene, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
 import { DCOL, LIT, PAL, prepFaction, S, SK, SPR, TX } from './art';
+import { LANE } from './hud';
 import { AR, BM, BO, DB, EB, EN, FX, MI, NR, RB, rm, SH, SP, TG, WS } from './world';
 import { played, store } from './store';
 
@@ -152,11 +153,15 @@ export function drawCache(t: number) {
   ctx.globalAlpha = 1;
 }
 
+let ptrTop = 0;
 export function drawCachePointer(t: number) {
   const c = G.cache; if (!c || !G.on || VP.p < 1) return;
-  const { W, H, DPR } = V, sx = c.x * C.wz + C.ox, sy = c.y * C.wz + C.oy, m = 46;
-  if (sx > m && sx < W - m && sy > m + 60 && sy < H - m) return;
-  const cx = W / 2, cy = H / 2, dx = sx - cx, dy = sy - cy, k = Math.min((W / 2 - m) / Math.abs(dx || 1e-6), (H / 2 - m - 30) / Math.abs(dy || 1e-6)), px = cx + dx * k, py = cy + dy * k, a = Math.atan2(dy, dx);
+  const { W, H, DPR } = V, sx = c.x * C.wz + C.ox, sy = c.y * C.wz + C.oy, m = 46, top = (LANE.a > 0.05 ? LANE.msg : LANE.top) + 30;
+  ptrTop = ptrTop ? ptrTop + (top - ptrTop) * (1 - Math.exp(-F.rdt * 8)) : top;
+  const x0 = m, x1 = W - m, y1 = H - m - 30, y0 = Math.min(ptrTop, y1 - 40);
+  if (sx > x0 && sx < x1 && sy > y0 && sy < y1) return;
+  const cx = W / 2, cy = clamp(H / 2, y0, y1), dx = sx - cx, dy = sy - cy, ax = dx > 1e-6 ? (x1 - cx) / dx : dx < -1e-6 ? (x0 - cx) / dx : 1e9, ay = dy > 1e-6 ? (y1 - cy) / dy : dy < -1e-6 ? (y0 - cy) / dy : 1e9;
+  const k = Math.min(ax, ay), px = cx + dx * k, py = cy + dy * k, a = Math.atan2(dy, dx);
   ctx.setTransform(Math.cos(a) * DPR, Math.sin(a) * DPR, -Math.sin(a) * DPR, Math.cos(a) * DPR, px * DPR, py * DPR);
   ctx.globalCompositeOperation = 'lighter'; sprite(SPR.gold, 0, 0, 26, 0.5 + 0.25 * Math.sin(t * 6)); ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = 0.95; ctx.fillStyle = 'rgb(255,207,138)'; ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(-7, -9); ctx.lineTo(-3, 0); ctx.lineTo(-7, 9); ctx.closePath(); ctx.fill();
@@ -365,9 +370,9 @@ export function drawWings() {
   ctx.globalAlpha = 1; base();
 }
 
-export function drawBullets(t: number) {
+export function drawBullets() {
   const P = EB, U = V.U;
-  for (let i = 0; i < P.n; i++) sprite(PAL[P.f[i]].bolt, P.x[i], P.y[i], 15 * U * (1 + 0.08 * Math.sin(t * 18 + i)), Math.min(1, P.l[i] * 6));
+  for (let i = 0; i < P.n; i++) sprite(PAL[P.f[i]].bolt, P.x[i], P.y[i], 15 * U, Math.min(1, P.l[i] * 6));
   ctx.globalAlpha = 1;
 }
 

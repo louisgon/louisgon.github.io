@@ -78,11 +78,9 @@ function plumeTex() {
   x.fillStyle = g; x.beginPath(); x.moveTo(0, 0); x.quadraticCurveTo(4.8, 57.6, 16, 128); x.quadraticCurveTo(27.2, 57.6, 32, 0); x.closePath(); x.fill(); return c;
 }
 function boltTex(halo: string, rim: string, mid: string, core: string, outer = '') {
-  const s = 64, c = mk(s), x = c.getContext('2d')!;
-  const g = x.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2); g.addColorStop(0, `rgba(${halo},0.6)`); if (outer) g.addColorStop(0.55, `rgba(${outer},0.22)`); g.addColorStop(1, `rgba(${outer || halo},0)`); x.fillStyle = g; x.fillRect(0, 0, s, s);
-  x.beginPath(); x.arc(s / 2, s / 2, s * 0.2, 0, TAU); x.fillStyle = rim; x.fill();
-  x.beginPath(); x.arc(s / 2, s / 2, s * 0.15, 0, TAU); x.fillStyle = mid; x.fill();
-  x.beginPath(); x.arc(s / 2, s / 2, s * 0.07, 0, TAU); x.fillStyle = core; x.fill(); return c;
+  const s = 64, c = mk(s), x = c.getContext('2d')!, disc = (r: number, f: string) => { x.beginPath(); x.arc(s / 2, s / 2, s * r, 0, TAU); x.fillStyle = f; x.fill(); };
+  const g = x.createRadialGradient(s / 2, s / 2, s * 0.3, s / 2, s / 2, s / 2); g.addColorStop(0, `rgba(${halo},0.5)`); if (outer) g.addColorStop(0.45, `rgba(${outer},0.2)`); g.addColorStop(1, `rgba(${outer || halo},0)`); x.fillStyle = g; x.fillRect(0, 0, s, s);
+  disc(0.315, 'rgba(4,2,6,0.9)'); disc(0.27, rim); disc(0.235, mid); disc(0.11, core); return c;
 }
 const coreTex = (core: string, rgb: string) => glow([[0, `rgba(${core},0.85)`], [0.35, `rgba(${rgb},0.35)`], [1, `rgba(${rgb},0)`]]);
 const ember = (rgb: string) => glow([[0, `rgba(${rgb},0.5)`], [1, `rgba(${rgb},0)`]]);
@@ -195,7 +193,7 @@ export function prepSprites() {
   const rest = () => { const f = S.fk.findIndex((k) => k !== S.key); if (f < 0) return; prepFaction(f); S.idle = window.setTimeout(rest, 120); };
   S.idle = window.setTimeout(rest, 120);
   S.neb = nebulaLayer();
-  S.stars = [starLayer(420, 1 / 900, 0.32, 0.72, 0.16, 0.5, 0, 0x51a7, 0.5), starLayer(560, 1 / 4200, 0.55, 1.05, 0.34, 0.74, 3.2, 0x2b9d, 0.75), starLayer(760, 1 / 15000, 0.85, 1.55, 0.62, 0.95, 4.6, 0x7e13, 1)];
+  S.stars = [starLayer(420, 1 / 900, 0.32, 0.72, 0.16, 0.5, 0, 0x51a7, 0.5), starLayer(560, 1 / 4200, 0.55, 1.05, 0.34, 0.62, 3.2, 0x2b9d, 0.75), starLayer(760, 1 / 15000, 0.85, 1.55, 0.47, 0.71, 4.6, 0x7e13, 1)];
   const tw = Math.min(A.shipTop.width, Math.ceil(ship.play * DPR * 1.3)), th = Math.round(tw * A.aspT);
   S.shipT = mk(tw, th); const st = S.shipT.getContext('2d')!; st.imageSmoothingQuality = 'high'; st.drawImage(A.shipTop, 0, 0, tw, th);
   const mw = Math.ceil(56 * Math.max(U, 0.7) * DPR), mh = Math.round(mw * A.aspT);

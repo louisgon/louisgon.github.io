@@ -8,7 +8,7 @@ import { compact, EN, gridBuild, rescale, sizeWorld, TQ, WS } from './world';
 import { separate, spawner, updEnemies } from './enemies';
 import { spdM, updBolts, updBullets, updMissiles, updNova, updShards, updWeapons, updWing } from './weapons';
 import { boost, boosted, land, landed, pause, start, steerHead, updCam } from './flight';
-import { hudTick, showBest, showCard, updateLabels } from './hud';
+import { hudTick, measureLane, showBest, showCard, updateLabels } from './hud';
 import { choose, openCache } from './upgrades';
 import { grab, initInput, STEER } from './input';
 import { drawArcs, drawBeams, drawBolts, drawBullets, drawCache, drawCachePointer, drawCharge, drawHurt, drawStick, drawDebris, drawDim, drawEgg, drawEnemies, drawEnemyGlows, drawFX, drawMissiles, drawNova, drawRear, drawShards, drawSparks, drawTele, drawTop, drawTrail, drawWings } from './render';
@@ -68,6 +68,7 @@ function size() {
   if (oW && VP.dir && (oW !== W || oH !== H)) { VP.rx *= W / oW; VP.ry *= H / oH; VP.rw *= rs.base / (oB || rs.base); }
   if (G.on && V.U !== oU) rescale(V.U / oU);
   if (G.on && oW && oW !== W) { input.stick = null; pause(); }
+  if (G.on) measureLane();
   prepSprites();
 }
 
@@ -228,7 +229,7 @@ export function orbitTick(now: number, hp: number) {
     drawEnemyGlows(t);
     drawBeams(dfx); drawBolts(); drawMissiles(); drawArcs(dfx); drawFX(dfx, G.card ? 0 : rdt); drawSparks(dfx);
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-    drawBullets(t);
+    drawBullets();
   }
   screen();
   drawStreaks(G.card ? 0 : rdt);

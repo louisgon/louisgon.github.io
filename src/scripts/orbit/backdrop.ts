@@ -206,7 +206,7 @@ export function drawSpace(t: number, a: number) {
     let x = (s.x * tw - cam.x * 0.75 * C.wz) % tw; if (x < 0) x += tw;
     let y = (s.y * th - cam.y * 0.75 * C.wz + lift * 0.89) % th; if (y < 0) y += th;
     const k = reduce ? 0.5 : Math.max(0, Math.sin(t * s.s + s.p)); if (k < 0.04) continue;
-    sprite(SPR.star, x - 60 + C.sx, y - 60 + C.sy, s.r * U, a * 0.55 * k * k);
+    sprite(SPR.star, x - 60 + C.sx, y - 60 + C.sy, s.r * U, a * 0.41 * k * k);
   }
   ctx.globalCompositeOperation = 'source-over';
   const vk = `${cv.width},${cv.height}`;
