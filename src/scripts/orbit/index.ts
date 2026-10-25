@@ -29,15 +29,15 @@ function useBg(img: HTMLImageElement | null) {
   A.meta = m; scene.sun = m.sun; scene.limb = m.limb; scene.edge = m.edge; prepMoons(A.bg); light();
 }
 
-const SHIP = { w: 0.58, y: 0.72 };
+const SHIP = { w: 0.62, gap: 24, cue: 12 };
 
 function restLayout() {
   const { W, H, tall } = V, short = !tall && H < 520, pr = D.copy.querySelector<HTMLElement>('.proof'), cue = D.hero.querySelector<HTMLElement>('.hint');
   let x = 0.5, y = tall ? 0.69 : 0.66, b = tall ? Math.min(W * 0.74, H * 0.42) : Math.min(W * 0.36, H * 0.62);
   if (tall && pr && cue) {
-    const top = D.copy.offsetTop + pr.offsetTop + pr.offsetHeight + 32, bot = cue.offsetTop - 50;
-    b = Math.min(W * SHIP.w, H * 0.32, (bot - top) / (A.aspR * 1.28)); const h = b * A.aspR;
-    y = clamp(H * SHIP.y, top + h / 2, bot - h * 0.78) / H;
+    const top = D.copy.offsetTop + pr.offsetTop + pr.offsetHeight, cy = (top + H) / 2;
+    const hMax = Math.min(2 * (cy - top - SHIP.gap), (cue.offsetTop - SHIP.cue - cy) / 0.78);
+    b = Math.min(W * SHIP.w, H * 0.32, hMax / A.aspR); y = cy / H;
   } else if (short) {
     const r = document.createRange(), x0 = D.hero.getBoundingClientRect().left; let right = 0;
     for (const el of D.copy.children) { r.selectNodeContents(el); right = Math.max(right, r.getBoundingClientRect().right - x0); }

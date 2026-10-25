@@ -40,7 +40,8 @@ export async function idle(c: Ctx) {
     c.ok(`${name} keeps the eyebrow and stats at least 32px clear of LG-01`, gap >= 32, `closest ${Math.round(gap)}px`);
     if (opts.isMobile && opts.viewport!.height > opts.viewport!.width) {
       const s = await st(p), W = opts.viewport!.width, H = opts.viewport!.height, cue = await p.evaluate(() => document.querySelector('#hero .hint')!.getBoundingClientRect().top);
-      c.ok(`${name} rests LG-01 at 55 to 62 percent of the width in the lower third, clear of the cue`, s.rw0 / W >= 0.54 && s.rw0 / W <= 0.63 && s.ry / H >= 0.66 && cue - (s.ry + s.rh0 / 2) >= 48, { width: +(s.rw0 / W).toFixed(2), centre: +(s.ry / H).toFixed(2), cueGap: Math.round(cue - s.ry - s.rh0 / 2) });
+      const bottom = Math.max(...t.map((e) => e.box[3])), mid = (bottom + H) / 2;
+      c.ok(`${name} centres LG-01 between the copy and the bottom of the screen, clear of the cue`, Math.abs(s.ry - mid) <= 6 && s.rw0 / W >= 0.45 && s.rw0 / W <= 0.63 && cue - (s.ry + s.rh0 * 0.78) >= 8, { width: +(s.rw0 / W).toFixed(2), offCentre: Math.round(s.ry - mid), cueGap: Math.round(cue - s.ry - s.rh0 * 0.78) });
     }
     if (name.startsWith('iPhone SE')) await shot(c, p, `idle-${name.replace(/ /g, '-').toLowerCase()}`);
     c.ok(`${name} console clean`, !errors.length, errors);
