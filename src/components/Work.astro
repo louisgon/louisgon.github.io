@@ -2,7 +2,7 @@
 import Divider from './Divider.astro';
 import Heading from './Heading.astro';
 import { getProjects } from '../lib/site';
-import { moonsHTML } from '../lib/planets';
+import { REACH, moonsHTML } from '../lib/planets';
 import { nn } from '../lib/sections';
 import { workURL } from '../lib/pages';
 
@@ -16,7 +16,7 @@ const projects = await getProjects();
   </div>
   <div id="projects">
     {projects.map((p, i) => (
-      <article class="proj" data-i={i} aria-labelledby={`pt${i}`}>
+      <article class="proj" data-i={i} aria-labelledby={`pt${i}`} style={`--rx:${REACH[i][0]};--ry:${REACH[i][1]}`}>
         <div class="planet" aria-hidden="true"><img src={p.planet} alt="" /><Fragment set:html={moonsHTML(i)} /></div>
         <a class="pic rv" href={workURL(p.id)} data-case aria-label={`${p.title} case study`}>
           <img src={p.shot} alt="" loading="lazy" />

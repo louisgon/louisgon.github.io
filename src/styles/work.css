@@ -30,7 +30,7 @@
 .proj .planet img { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
 .proj:nth-of-type(odd) .planet { left: -12%; } .proj:nth-of-type(even) .planet { right: -12%; }
 .proj .planet { opacity: calc(var(--po, 0) * .95); }
-@media (max-width: 860px) { .proj { padding: 36px 0; row-gap: 20px; } .proj .planet { width: 52vw; top: 14%; } .proj:nth-of-type(odd) .planet { left: auto; right: -14%; } .proj:nth-of-type(even) .planet { right: -14%; } .proj, .proj:nth-of-type(even) { grid-template-columns: 1fr; } .proj:nth-of-type(even) .pic { order: 0; } #work .hd { margin-bottom: 32px; } .proj h3 { margin: 10px 0 4px; } .proj p { margin: 14px 0; } .proj .stack { margin-bottom: 18px; } }
+@media (max-width: 860px) { .proj { --w: clamp(64px, 18vw, 96px); padding: 36px 0; row-gap: 20px; } .proj, .proj:nth-of-type(even) { grid-template-columns: 1fr; } .proj:nth-of-type(even) .pic { order: 0; } .proj .planet, .proj:nth-of-type(odd) .planet, .proj:nth-of-type(even) .planet { grid-area: 2 / 1; left: auto; right: calc((var(--rx) - .5) * var(--w)); top: calc(var(--ry) * var(--w) + 8px); width: var(--w); } .proj > div.rv::before { content: ""; float: right; width: calc(var(--rx) * 2 * var(--w) + 14px); height: calc(var(--ry) * 2 * var(--w) + 16px); } #work .hd { margin-bottom: 32px; } .proj h3 { margin: 10px 0 4px; } .proj p { margin: 14px 0; } .proj .stack { margin-bottom: 18px; } }
 #projects { position: relative; }
 .traj { position: absolute; left: calc(clamp(16px, 5vw, 72px) * -.5); top: 0; bottom: 0; width: 1px; background: rgb(143 211 255 / 12%); pointer-events: none; }
 .traj .fill { position: absolute; inset: 0; background: linear-gradient(180deg, var(--holo), var(--gold)); box-shadow: 0 0 8px rgb(143 211 255 / 70%); transform-origin: 50% 0; transform: scale3d(1, 0, 1); will-change: transform; }
@@ -51,4 +51,3 @@
 .proj h3 a { color: inherit; text-decoration: none; }
 .proj .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .proj .planet .moon, #case .cplanet .moon, #case .splanet .moon { position: absolute; left: 50%; top: 50%; border-radius: 50%; box-shadow: 0 0 8px rgb(200 220 255 / 18%); pointer-events: none; will-change: transform; backface-visibility: hidden; }
-@media (max-width: 760px) { .proj .planet { width: 36vw; top: 2%; } }

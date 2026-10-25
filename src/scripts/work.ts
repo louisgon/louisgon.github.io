@@ -21,7 +21,7 @@ export function initWork() {
 
 export function planetDriftTick(now: number) {
   planetEls.forEach((el, i) => { const r = el.parentElement!.getBoundingClientRect(); if (r.top > innerHeight * 1.8 || r.bottom < -innerHeight * 0.8) return; const c = (r.top + r.height / 2 - innerHeight / 2) / innerHeight, k = 1 - sstep(0.45, 1.05, Math.abs(c)), s = (0.9 + k * 0.1) * (1 + Math.sin(now / 4000 + i) * 0.015);
-    el.style.setProperty('--po', k.toFixed(3)); el.style.transform = `translate3d(0, calc(-50% + ${c * (innerWidth < 600 ? -50 : -160)}px), 0) rotate3d(0, 0, 1, ${c * (i % 2 ? 6 : -6)}deg) scale3d(${s}, ${s}, 1)`; });
+    el.style.setProperty('--po', k.toFixed(3)); el.style.transform = `translate3d(0, calc(-50% + ${c * (innerWidth <= 860 ? -8 : -160)}px), 0) rotate3d(0, 0, 1, ${c * (i % 2 ? 6 : -6)}deg) scale3d(${s}, ${s}, 1)`; });
 }
 
 export function trajTick() { if (visible($('work'))) { const r = $('projects').getBoundingClientRect(), f = clamp((innerHeight * 0.55 - r.top) / r.height); (traj.firstElementChild as HTMLElement).style.transform = `scale3d(1, ${f}, 1)`; const fy = f * r.height; trajNodes.forEach((n) => n.classList.toggle('on', parseFloat(n.style.top) < fy)); } }
