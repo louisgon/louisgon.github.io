@@ -63,8 +63,8 @@ export function choose(i: number) {
   const after = maxHull(); if (after > before) G.hull += after - before;
   if (o.id === 'refit') G.hull = maxHull();
   renderHull(); renderBuild();
-  if (!fromCache) G.pend--; hideCard();
+  if (!fromCache) G.pend--;
   if (o.id === 'windfall') gainXP(G.need - G.xp + needFor(G.level + 1));
-  if (G.pend > 0) G.lvlT = 0.2; else G.inv = Math.max(G.inv, 0.45);
   if (o.id === 'salvage') gainXP(0);
+  if (G.pend > 0 && !G.over) showCard('level'); else hideCard();
 }

@@ -113,11 +113,12 @@ export function orbitTick(now: number, hp: number) {
   starVis = HI.space * sstep(0, 0.5, hp);
   const fade = HI.planet.toFixed(3); if (fade !== shown) { shown = fade; D.cv.style.opacity = fade; }
   if (!V.vis || !A.base) { if (VP.dir < 0) landed(); last = now; return; }
-  if (!G.on && !VP.p && coarse && !input.charge && (++F.fc & 1)) return;
+  if (!G.on && !VP.p && coarse && !input.charge && now - last < 30) return;
   F.fc++;
+  if (import.meta.env.MODE === 'test') T.draws++;
   const w0 = performance.now(), { W, H } = V, rdt = Math.min((now - last) / 1000, 0.05); last = now;
   if (coarse && rdt > 0.021 && G.on) { if (++slowFrames > 90 && V.dprCap > 1.01) { V.dprCap = V.dprCap > 1.3 ? 1.25 : 1; slowFrames = 0; S.key = ''; size(); } } else slowFrames = Math.max(0, slowFrames - 1);
-  if (VP.dir) {
+  if (VP.dir && !(VP.dir > 0 && G.card)) {
     VP.p = clamp(VP.p + VP.dir * rdt / (reduce ? 0.3 : VP.dir > 0 ? BOOST : LAND));
     if (VP.dir > 0 && VP.p >= 1) { VP.dir = 0; boosted(); }
     else if (VP.dir < 0 && VP.p < 0.28 && D.hero.classList.contains('playing')) D.hero.classList.remove('playing');
@@ -230,7 +231,7 @@ export function orbitTick(now: number, hp: number) {
     drawBullets(t);
   }
   screen();
-  drawStreaks(rdt);
+  drawStreaks(G.card ? 0 : rdt);
   drawCachePointer(t);
   drawDim();
   drawEgg();

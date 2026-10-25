@@ -1,6 +1,6 @@
 import { reduce } from '../state';
 import { $ } from '../util';
-import { clamp, D, FAC, fmtT, G, input, pad2, sayT, ship, type Kind, type Mode, type Option } from './core';
+import { clamp, D, FAC, fmtT, G, input, pad2, sayT, ship, VP, type Kind, type Mode, type Option } from './core';
 import { P } from './store';
 import { bl, maxHull, WEAP } from './weapons';
 import { options, cacheOptions } from './upgrades';
@@ -53,6 +53,7 @@ export function updateLabels() {
   $('land').innerHTML = t ? 'Land' : 'Land <kbd>Esc</kbd>';
   $('ctl').innerHTML = t ? 'Drag to steer · Land to exit' : 'Mouse or <kbd>WASD</kbd> to steer';
 }
+export const anchor = () => { input.mlock = true; input.ax = input.mx; input.ay = input.my; };
 export const setLast = (k: Kind) => { if (input.last === k) return; const was = input.last === 'touch'; input.last = k; if (was !== (k === 'touch')) updateLabels(); };
 
 const optHTML = (o: Option, i: number) => {
@@ -63,8 +64,10 @@ const optHTML = (o: Option, i: number) => {
 };
 
 export const reached = () => (G.fac || G.lap ? `Reached <em>${FAC[G.fac].reach}</em>${G.lap ? ` on lap ${pad2(G.lap + 1)}` : ''}` : `Fought <em>${FAC[0].reach}</em>`);
+const settle = () => { input.keys.clear(); const s = input.stick; if (s) { s.ox = s.x; s.oy = s.y; } };
 export function showCard(mode: Mode, f = 0) {
-  G.card = true; G.mode = mode; D.hero.classList.add('carded');
+  G.card = true; G.mode = mode; D.hero.classList.add('carded'); settle();
+  if (VP.p < 1) D.hud.inert = false;
   const card = D.card, parts = { big: $('cardBig'), sub: $('cardSub'), rs: $('cardStats'), far: $('cardFar'), bld: $('cardBuild'), opts: D.opts, act: $('cardActions') };
   const show = (on: string[]) => Object.entries(parts).forEach(([k, el]) => (el.hidden = !on.includes(k)));
   let opts: Option[] = [];
@@ -99,8 +102,9 @@ export function showCard(mode: Mode, f = 0) {
 export function hideCard() {
   G.card = false; G.mode = ''; D.hero.classList.remove('carded'); D.card.classList.remove('on');
   if (document.activeElement && D.card.contains(document.activeElement)) D.hud.focus({ preventScroll: true });
-  input.gx = ship.x; input.gy = ship.y;
-  if (input.last === 'mouse') { input.mlock = true; input.mlockAcc = 0; input.follow = false; }
+  if (VP.p < 1) D.hud.inert = true;
+  input.gx = ship.x; input.gy = ship.y; input.follow = false; anchor(); settle();
+  G.inv = Math.max(G.inv, 0.6);
 }
 
 export function hudTick(rdt: number, now: number) {

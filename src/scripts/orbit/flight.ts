@@ -4,7 +4,7 @@ import { A, addShake, cam, clamp, D, DV, egg, eio, eout, fmtT, G, GZ0, input, le
 import { AR, BM, BO, DB, EB, EN, fx, MI, NR, QR, query, RB, resetWorld, SH, SP, sparks, TG, TQ, WS } from './world';
 import { deathBurst } from './enemies';
 import { mkW, needFor } from './weapons';
-import { buzz, live, renderBuild, renderHull, resetHud, setHull, setLast, showBest, showCard } from './hud';
+import { anchor, buzz, live, renderBuild, renderHull, resetHud, setHull, setLast, showBest, showCard } from './hud';
 import { P, store } from './store';
 import { T } from './test';
 
@@ -27,12 +27,12 @@ export function start(kind?: Kind) {
     VP.dir = 1; VP.rx = rs.x; VP.ry = rs.y; VP.rw = restW(); VP.rv = 0;
     ship.x = ship.y = cam.x = cam.y = 0; ship.vx = ship.vy = ship.cx = ship.cy = 0; ship.h = ship.hv = ship.bank = 0;
   } else boosted();
-  input.gx = ship.x; input.gy = ship.y; input.follow = kind === 'mouse'; input.mlock = false;
+  input.gx = ship.x; input.gy = ship.y; input.follow = false; input.mlock = true;
   buzz(8);
 }
 
 export function boosted() {
-  D.hero.classList.add('flying'); D.hud.inert = false;
+  D.hero.classList.add('flying'); D.hud.inert = false; anchor();
   if (input.last === 'key') D.hud.focus({ preventScroll: true });
   clearTimeout(lateT); lateT = window.setTimeout(() => D.hero.classList.add('late'), 9000);
   if (input.last === 'touch') { D.hero.classList.add('tip'); clearTimeout(tipT); tipT = window.setTimeout(() => D.hero.classList.remove('tip'), 3200); }
@@ -94,7 +94,7 @@ function die() {
   const run = G.run; setTimeout(() => { if (G.run !== run || !G.on || !G.over) return; showCard('over'); }, 1150);
 }
 
-export const pause = () => { if (G.on && VP.p >= 1 && !G.card && !G.over) { cancelInput(); showCard('pause'); } };
+export const pause = () => { if (G.on && (VP.p >= 1 || VP.dir > 0) && !G.card && !G.over) { cancelInput(); showCard('pause'); } };
 
 export function boost(p: number) {
   const { W, H, Z } = V, sx = W / 2 + (ship.x - cam.x) * Z, sy = H / 2 + (ship.y - cam.y) * Z;

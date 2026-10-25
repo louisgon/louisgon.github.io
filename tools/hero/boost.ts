@@ -17,6 +17,11 @@ export async function boost(c: Ctx) {
     await p.mouse.down(); await p.waitForTimeout(340); await p.mouse.up();
     const ms = await boostT, k = await tr, on = k.view.map((v, i) => [v, i] as const).filter(([v]) => v > 0).map(([, i]) => i), drops = on.map((i) => k.drop[i]), ths = on.map((i) => k.th[i]);
     c.ok('the boost completes into the top down view in 1.3 to 1.6 seconds', ms >= 1300 && ms <= 1600 && (await st(p)).view === 1, `${Math.round(ms)}ms`);
+    const d0 = await st(p); await p.waitForTimeout(1000); const d1 = await st(p);
+    c.ok('a mouse launch holds still while the pointer rests below centre', Math.hypot(d1.x - d0.x, d1.y - d0.y) < 12 && !d1.card, { from: [d0.x, d0.y], to: [d1.x, d1.y], pointer: [s0.rx, s0.ry] });
+    await p.mouse.move(s0.rx + 3, s0.ry); await p.waitForTimeout(300); const d2 = await st(p);
+    await p.mouse.move(s0.rx + 40, s0.ry + 20, { steps: 4 }); await p.waitForTimeout(400); const d3 = await st(p);
+    c.ok('the mouse takes over after a deliberate move of a few pixels', Math.hypot(d2.x - d1.x, d2.y - d1.y) < 12 && Math.hypot(d3.x - d2.x, d3.y - d2.y) > 40, { nudge: [d2.x - d1.x, d2.y - d1.y], move: [d3.x - d2.x, d3.y - d2.y] });
     const early = on.filter((i) => k.view[i] < 0.15), punch = Math.max(...early.map((i) => k.punch[i]));
     c.ok('the engines punch at the start of the boost before the planet moves far', punch > 0.6 && early.every((i) => k.drop[i] < 0.12), `peak ${punch}, drop by then ${Math.max(...early.map((i) => k.drop[i]))}`);
     c.ok('the planet slides down and out of frame in one continuous move', monotone(drops, 1) && drops[drops.length - 1] >= 1.2 && monotone(ths, 1) && ths[ths.length - 1] === 1, `drop ${drops[0]} to ${drops[drops.length - 1]} over ${drops.length} frames`);

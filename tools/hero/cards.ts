@@ -1,13 +1,16 @@
 import { devices, type Page } from 'playwright';
-import { clearCards, covers, hold, lg, noColons, page, shot, st, topDown, touch, type Ctx } from './lib';
+import { clearCards, covers, hold, lg, noColons, page, shot, st, topDown, touch, track, type Ctx } from './lib';
+
+const cardOn = (p: Page) => p.waitForFunction(() => (window as unknown as { __lg: { st: () => { card: boolean } } }).__lg.st().card, null, { timeout: 5000 });
 
 async function toCache(p: Page, w: number, h: number) {
-  let mode = '', opts: string[] = []; const t0 = Date.now();
+  let mode = '', opts: string[] = [], j = 8; const t0 = Date.now();
   while (Date.now() - t0 < 12000) {
+    j = -j;
     const s = await st(p);
     if (s.card && s.mode === 'cache') { mode = s.mode; opts = (await lg(p, 'opts()')) as string[]; break; }
     if (s.card && s.mode === 'level') { await p.keyboard.press('Digit1'); await p.waitForTimeout(500); continue; }
-    if (s.cache) await p.mouse.move(Math.max(30, Math.min(w - 30, s.csx)), Math.max(90, Math.min(h - 30, s.csy)), { steps: 2 });
+    if (s.cache) await p.mouse.move(Math.max(30, Math.min(w - 30, s.csx)) + j, Math.max(90, Math.min(h - 30, s.csy)), { steps: 2 });
     await p.waitForTimeout(100);
   }
   return { mode, opts };
@@ -30,6 +33,18 @@ export async function cards(c: Ctx) {
     await p.keyboard.press('Digit1'); await p.waitForTimeout(400);
     const s1 = await st(p);
     c.ok('choosing with 1 resumes and changes the build', !s1.card && s1.W.join() + s1.B.join() !== before, `${before} to ${s1.W.join()} ${s1.B.join()}`);
+    c.ok('a card exit protects the ship for 0.6 seconds', s1.inv > 0 && s1.inv <= 0.6, s1.inv);
+    await p.keyboard.down('KeyD'); await p.waitForTimeout(400); const kd = await st(p);
+    await lg(p, 'level()'); await cardOn(p); await p.waitForTimeout(450);
+    await p.keyboard.press('Digit1'); for (let i = 0; i < 6; i++) { await p.keyboard.down('KeyD'); await p.waitForTimeout(60); }
+    const kh = await st(p); await p.keyboard.up('KeyD');
+    c.ok('a key held through a card needs a fresh press before the ship flies again', kd.vx > 200 && !kh.card && kh.keys === 0 && Math.abs(kh.vx) < 40, { before: kd.vx, after: kh.vx, keys: kh.keys, card: kh.card });
+    await lg(p, 'xp(400)'); await cardOn(p); await p.waitForTimeout(450);
+    const q0 = await st(p), tq = track(p, 1600, ['card', 'clock']);
+    await p.keyboard.press('Digit1'); await p.waitForTimeout(500); await p.keyboard.press('Digit1');
+    const tk = await tq;
+    c.ok('queued level cards hand straight to the next with no flight in between', tk.card.every(Boolean) && Math.max(...tk.clock) === Math.min(...tk.clock) && tk.card.length > 30, { frames: tk.card.length, closed: tk.card.filter((v) => !v).length, clock: [Math.min(...tk.clock), Math.max(...tk.clock)], level: q0.level });
+    await clearCards(p);
     await lg(p, "god(true); window.__lg.give('pulse', 5); window.__lg.give('cooldown', 1); window.__lg.xp(120)");
     await p.waitForFunction(() => (window as unknown as { __lg: { st: () => { card: boolean } } }).__lg.st().card, null, { timeout: 5000 }); await p.waitForTimeout(450);
     const lo = (await lg(p, 'opts()')) as string[];
@@ -77,6 +92,12 @@ export async function cards(c: Ctx) {
     await p.waitForTimeout(1200);
     const T = await touch(context, p), r = await st(p);
     await T('touchStart', r.rx, r.ry); await p.waitForTimeout(450); await T('touchEnd'); await topDown(p);
+    await T('touchStart', 200, 600); await T('touchMove', 290, 600); await p.waitForTimeout(400); const m0 = await st(p);
+    await lg(p, 'level()'); await cardOn(p); await p.waitForTimeout(500);
+    await p.evaluate(() => document.querySelector<HTMLElement>('#opts .opt')!.click()); await p.waitForTimeout(150); const m1 = await st(p); await p.waitForTimeout(500); const m2 = await st(p);
+    c.ok('a thumb held through a card waits for fresh movement', m0.vx > 100 && !m2.card && Math.hypot(m2.x - m1.x, m2.y - m1.y) < 12, { before: m0.vx, held: [m2.x - m1.x, m2.y - m1.y] });
+    await T('touchMove', 330, 600); await p.waitForTimeout(400); const m3 = await st(p); await T('touchEnd');
+    c.ok('moving the held thumb steers again', m3.x - m2.x > 30, m3.x - m2.x);
     await lg(p, 'xp(30)'); await p.waitForFunction(() => (window as unknown as { __lg: { st: () => { card: boolean } } }).__lg.st().card, null, { timeout: 5000 }); await p.waitForTimeout(900);
     const pc = await covers(p);
     await shot(c, p, 'cards-phone-level');

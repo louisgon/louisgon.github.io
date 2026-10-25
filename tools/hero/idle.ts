@@ -1,5 +1,7 @@
-import type { BrowserContextOptions, Page } from 'playwright';
-import { page, shot, st, type Ctx } from './lib';
+import { devices, type BrowserContextOptions, type Page } from 'playwright';
+import { lg, page, shot, st, topDown, type Ctx } from './lib';
+
+const rate = (p: Page) => p.evaluate(async () => { const l = (window as unknown as { __lg: { st: () => { draws: number } } }).__lg, a = l.st().draws, t0 = performance.now(); await new Promise((r) => setTimeout(r, 2000)); return Math.round((l.st().draws - a) / ((performance.now() - t0) / 1000)); });
 
 const phone = (width: number, height: number, deviceScaleFactor: number): BrowserContextOptions => ({ viewport: { width, height }, deviceScaleFactor, isMobile: true, hasTouch: true });
 const SIZES: [string, BrowserContextOptions][] = [
@@ -68,4 +70,10 @@ export async function idle(c: Ctx) {
       await context.close();
     }
   }
+  const { p, context, errors } = await page(c, { ...devices['Pixel 7'] });
+  await p.waitForTimeout(2500); const idleFps = await rate(p);
+  await lg(p, 'start()'); await topDown(p); const playFps = await rate(p);
+  c.ok('phones draw the idle hero at about 30fps and the game at full rate', idleFps >= 24 && idleFps <= 36 && playFps >= 50, { idle: idleFps, play: playFps });
+  c.ok('idle rate console clean', !errors.length, errors);
+  await context.close();
 }

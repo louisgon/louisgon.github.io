@@ -134,7 +134,8 @@
 #hero .toast span { display: block; margin-top: 8px; color: var(--gold); }
 #hero .toast.on { opacity: 1; transform: translate3d(-50%, 0, 0); }
 
-#hero.flying .hud { opacity: 1; }
+#hero.flying .hud, #hero.carded .hud { opacity: 1; }
+#hero.carded:not(.flying) .hud > :not(.panel) { visibility: hidden; }
 #hero.playing .copy { opacity: 0; pointer-events: none; }
 #hero.playing .scrim, #hero.playing .hint, #hero.playing .best { opacity: 0; }
 #hero.flying .hud .land { pointer-events: auto; }

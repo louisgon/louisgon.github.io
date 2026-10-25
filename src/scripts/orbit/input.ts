@@ -4,6 +4,7 @@ import { cancelInput, land, pause, restart } from './flight';
 import { hideCard, setLast } from './hud';
 import { choose } from './upgrades';
 
+const NEUTRAL = 5;
 export const STEER: Record<string, number[]> = { ArrowLeft: [-1, 0], KeyA: [-1, 0], ArrowRight: [1, 0], KeyD: [1, 0], ArrowUp: [0, -1], KeyW: [0, -1], ArrowDown: [0, 1], KeyS: [0, 1] };
 
 const rel = (cx: number, cy: number) => { const r = D.hero.getBoundingClientRect(); return [(cx - r.left) / V.W, (cy - r.top) / V.H]; };
@@ -60,7 +61,7 @@ export function initInput() {
     if (input.charge && input.charge.kind === 'mouse') { input.charge.x = x; input.charge.y = y; }
     hover(!G.on && !VP.p && A.ready && onShip(e.clientX, e.clientY));
     if (G.on && !G.card && (input.last !== 'key' || input.moveAcc > 5)) {
-      if (input.mlock) { input.mlockAcc += mv; if (input.mlockAcc < 28) return; input.mlock = false; }
+      if (input.mlock) { if (VP.p < 1 || Math.hypot((x - input.ax) * V.W, (y - input.ay) * V.H) < NEUTRAL) return; input.mlock = false; }
       setLast('mouse'); input.follow = true;
     }
   }, { passive: true });
@@ -72,7 +73,7 @@ export function initInput() {
     if (G.on) {
       if (e.code === 'Escape') { land(); return; }
       if (G.card) { const m = e.code.match(/^(?:Digit|Numpad)([1-3])$/); if (m && (G.mode === 'level' || G.mode === 'cache')) { const b = D.opts.children[Number(m[1]) - 1]; if (b && !armed()) { e.preventDefault(); setLast('key'); choose(Number(m[1]) - 1); } } return; }
-      if (STEER[e.code]) { input.keys.add(e.code); setLast('key'); input.moveAcc = 0; e.preventDefault(); return; }
+      if (STEER[e.code]) { e.preventDefault(); if (e.repeat && !input.keys.has(e.code)) return; input.keys.add(e.code); setLast('key'); input.moveAcc = 0; return; }
       if (e.code === 'KeyP') { pause(); return; }
       if (e.code === 'Space' && !onControl()) e.preventDefault();
       return;
