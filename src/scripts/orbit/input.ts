@@ -17,14 +17,18 @@ const findTouch = (list: TouchList) => { for (const t of list) if (t.identifier 
 const onControl = () => !!(document.activeElement && document.activeElement.closest('a, button, input, textarea, select, [contenteditable]'));
 const hover = (on: boolean) => { if (egg.over === on) return; egg.over = on; D.hero.style.cursor = on ? 'pointer' : ''; };
 const armed = () => D.opts.classList.contains('arm');
+const pointer = (e: PointerEvent) => e.pointerType === 'mouse' || e.pointerType === 'pen';
+const stylus = (t: Touch) => (t as Touch & { touchType?: string }).touchType === 'stylus';
+const inHero = (t: EventTarget | null) => t instanceof Node && D.hero.contains(t);
+const WHEEL = [1, 16, 0];
 
 export function initInput() {
   const hero = D.hero;
   hero.addEventListener('touchstart', (e) => {
-    setLast('touch');
-    if (interactive(e.target)) return;
-    if (e.touches.length > 1) { input.charge = null; return; }
     const p = e.changedTouches[0];
+    if (interactive(e.target) || stylus(p)) return;
+    setLast('touch'); input.moveAcc = 0;
+    if (e.touches.length > 1) { input.charge = null; return; }
     if (G.on) { if (input.tid === null) grab(p.identifier, p.clientX, p.clientY); return; }
     if (A.ready && !VP.p && onShip(p.clientX, p.clientY, 1.15)) input.charge = { kind: 'touch', t0: performance.now(), sx: p.clientX, sy: p.clientY, id: p.identifier, x: 0, y: 0 };
   }, { passive: true });
@@ -47,25 +51,27 @@ export function initInput() {
   hero.addEventListener('touchend', touchEnd); hero.addEventListener('touchcancel', touchEnd);
 
   hero.addEventListener('pointerdown', (e) => {
-    if (e.pointerType !== 'mouse' || e.button !== 0 || interactive(e.target)) return;
-    setLast('mouse');
+    if (!pointer(e) || e.button !== 0 || interactive(e.target)) return;
+    setLast('mouse'); input.inside = true;
     const [x, y] = rel(e.clientX, e.clientY); input.mx = x; input.my = y;
     if (G.on) return;
     if (A.ready && !VP.p && onShip(e.clientX, e.clientY)) { input.charge = { kind: 'mouse', t0: performance.now(), sx: 0, sy: 0, id: 0, x, y }; e.preventDefault(); }
   });
   addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse') return;
+    if (!pointer(e)) return;
     if (!V.vis && !G.on) { hover(false); return; }
     const [x, y] = rel(e.clientX, e.clientY), mv = Math.hypot((x - input.mx) * V.W, (y - input.my) * V.H);
-    input.moveAcc += mv; input.mx = x; input.my = y;
+    input.moveAcc += mv; input.mx = x; input.my = y; input.inside = inHero(e.target);
     if (input.charge && input.charge.kind === 'mouse') { input.charge.x = x; input.charge.y = y; }
     hover(!G.on && !VP.p && A.ready && onShip(e.clientX, e.clientY));
-    if (G.on && !G.card && (input.last !== 'key' || input.moveAcc > 5)) {
-      if (input.mlock) { if (VP.p < 1 || Math.hypot((x - input.ax) * V.W, (y - input.ay) * V.H) < NEUTRAL) return; input.mlock = false; }
-      setLast('mouse'); input.follow = true;
-    }
+    if (!G.on || G.card) return;
+    if (interactive(e.target) || !input.inside) { input.follow = false; return; }
+    if (input.tid !== null || input.moveAcc <= (input.last === 'key' ? 5 : input.last === 'touch' ? 24 : 0)) return;
+    if (input.mlock) { if (VP.p < 1 || Math.hypot((x - input.ax) * V.W, (y - input.ay) * V.H) < NEUTRAL) return; input.mlock = false; }
+    setLast('mouse'); input.follow = true; if (input.guide < 0) input.guide = G.clock;
   }, { passive: true });
-  addEventListener('pointerup', (e) => { if (e.pointerType === 'mouse' && input.charge && input.charge.kind === 'mouse') input.charge = null; });
+  addEventListener('pointerout', (e) => { if (pointer(e) && !e.relatedTarget) { input.inside = false; input.follow = false; } });
+  addEventListener('pointerup', (e) => { if (pointer(e) && input.charge && input.charge.kind === 'mouse') input.charge = null; });
   hero.addEventListener('contextmenu', (e) => { if (G.on || input.charge) e.preventDefault(); });
 
   addEventListener('keydown', (e) => {
@@ -95,7 +101,7 @@ export function initInput() {
   addEventListener('wheel', (e) => {
     if (!G.on) return;
     const now = performance.now(); if (now - input.wheelT > 120) input.wheelAcc = 0;
-    input.wheelT = now; input.wheelAcc += e.deltaY;
+    input.wheelT = now; input.wheelAcc += e.deltaY * (WHEEL[e.deltaMode] || innerHeight);
     if (Math.abs(input.wheelAcc) > 40) land();
   }, { passive: true });
   addEventListener('scroll', () => { if (G.on && scrollY > 30) land(); }, { passive: true });

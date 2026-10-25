@@ -1,7 +1,7 @@
 import { DATA } from '../data';
 import { HI, reduce } from '../state';
 import { $, out, sstep } from '../util';
-import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, F, FAC, G, HOLD, initCore, input, LAND, lerp, restW, rs, scene, screen, ship, shipR, STICK, TYPES, V, VP } from './core';
+import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, F, FAC, G, HOLD, initCore, input, LAND, lerp, MOUSE, restW, rs, scene, screen, ship, shipR, STICK, TYPES, V, VP } from './core';
 import { initArt, LIT, prepLight, prepSprites, S } from './art';
 import { analyse, drawOrbit, drawSpace, drawStreaks, initBackdrop, nozzles, prepMoons } from './backdrop';
 import { compact, EN, gridBuild, rescale, sizeWorld, TQ, WS } from './world';
@@ -11,7 +11,7 @@ import { boost, boosted, land, landed, pause, start, steerHead, updCam } from '.
 import { hudTick, measureLane, showBest, showCard, updateLabels } from './hud';
 import { choose, openCache } from './upgrades';
 import { grab, initInput, STEER } from './input';
-import { drawArcs, drawBeams, drawBolts, drawBullets, drawCache, drawCachePointer, drawCharge, drawHurt, drawStick, drawDebris, drawDim, drawEgg, drawEnemies, drawEnemyGlows, drawFX, drawMissiles, drawNova, drawRear, drawShards, drawSparks, drawTele, drawTop, drawTrail, drawWings } from './render';
+import { drawArcs, drawBeams, drawBolts, drawBullets, drawCache, drawCachePointer, drawCharge, drawHurt, drawPointer, drawStick, drawDebris, drawDim, drawEgg, drawEnemies, drawEnemyGlows, drawFX, drawMissiles, drawNova, drawRear, drawShards, drawSparks, drawTele, drawTop, drawTrail, drawWings } from './render';
 import { played, store } from './store';
 import { bot, botPick, initTest, T } from './test';
 
@@ -164,10 +164,13 @@ export function orbitTick(now: number, hp: number) {
       const s = input.stick, dx = s.x - s.ox, dy = s.y - s.oy, d = Math.hypot(dx, dy);
       if (d > STICK.dz) { const m = Math.min(1, (d - STICK.dz) / (STICK.r - STICK.dz)) ** STICK.curve * maxV; dvx = dx / d * m; dvy = dy / d * m; }
       input.gx = ship.x; input.gy = ship.y;
+    } else if (input.follow && !input.mlock && !auto) {
+      const dx = input.mx * W - (W / 2 + (ship.x - cam.x) * V.Z), dy = input.my * H - (H / 2 + (ship.y - cam.y) * V.Z), d = Math.hypot(dx, dy), k = clamp((d - MOUSE.dz) / (MOUSE.r - MOUSE.dz));
+      if (k > 0) { dvx = dx / d * k * maxV; dvy = dy / d * k * maxV; }
+      input.gx = ship.x; input.gy = ship.y;
     } else {
       if (auto && dt > 0) { gridBuild(); bot(rdt); }
-      else if (input.follow && !input.mlock) { input.gx = cam.x + (input.mx - 0.5) * V.vw; input.gy = cam.y + (input.my - 0.5) * V.vh; }
-      else if (input.last === 'key' || input.last === 'touch') { input.gx = ship.x; input.gy = ship.y; }
+      else if (!auto) { input.gx = ship.x; input.gy = ship.y; }
       const dx = input.gx - ship.x, dy = input.gy - ship.y, d = Math.hypot(dx, dy);
       if (d > 0.5) { const s = Math.min(maxV, d * 9); dvx = dx / d * s; dvy = dy / d * s; }
     }
@@ -239,6 +242,7 @@ export function orbitTick(now: number, hp: number) {
   drawEgg();
   drawCharge();
   drawStick();
+  drawPointer();
   ctx.restore();
   hudTick(rdt, now);
   if (import.meta.env.MODE === 'test') T.work[T.wi++ % T.work.length] = performance.now() - w0;

@@ -1,5 +1,5 @@
 import { reduce } from '../state';
-import { A, at, base, C, clamp, ctx, DV, egg, F, FAC, G, HIT, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, scene, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
+import { A, at, base, C, clamp, ctx, DV, egg, F, FAC, G, HIT, HOLD, input, LP, MOUSE, onView, rand, restH, restW, rnd, rs, scene, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
 import { DCOL, LIT, PAL, prepFaction, S, SK, SPR, TX } from './art';
 import { LANE } from './hud';
 import { AR, BM, BO, DB, EB, EN, FX, MI, NR, RB, rm, SH, SP, TG, WS } from './world';
@@ -418,6 +418,16 @@ export function drawCharge() {
   const k2 = clamp((F.now - c.t0) / HOLD[c.kind]), cx = rs.x, cy = rs.y, r = restW() * 0.55;
   ctx.strokeStyle = 'rgba(255,207,138,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.28); ctx.stroke();
   ctx.strokeStyle = 'rgba(255,214,150,0.95)'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + k2 * 6.28); ctx.stroke();
+}
+
+export function drawPointer() {
+  if (!G.on || VP.p < 1 || G.card || G.dead || input.last !== 'mouse' || !input.inside) return;
+  const { W, H } = V, x = input.mx * W, y = input.my * H, dx = x - DV.tx, dy = y - DV.ty, d = Math.hypot(dx, dy), live = input.follow && !input.mlock;
+  const k = live ? clamp((d - MOUSE.dz) / (MOUSE.r - MOUSE.dz)) : 0, a = live ? 0.34 + 0.46 * k : 0.26, g = live && input.guide >= 0 ? clamp(1 - (G.clock - input.guide) / MOUSE.guide) * k : 0;
+  ctx.globalCompositeOperation = 'source-over'; ctx.lineCap = 'round';
+  if (g > 0.01 && d > 40) { const r0 = shipW() * V.Z * 0.42; ctx.strokeStyle = `rgba(214,236,255,${0.2 * g})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(DV.tx + dx / d * r0, DV.ty + dy / d * r0); ctx.lineTo(x - dx / d * 10, y - dy / d * 10); ctx.stroke(); }
+  ctx.strokeStyle = `rgba(214,236,255,${a})`; ctx.lineWidth = 1.25; ctx.beginPath(); ctx.arc(x, y, 6.5, 0, TAU); ctx.stroke();
+  ctx.fillStyle = `rgba(214,236,255,${a})`; ctx.beginPath(); ctx.arc(x, y, 1.4, 0, TAU); ctx.fill();
 }
 
 export function drawStick() {

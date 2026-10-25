@@ -27,7 +27,7 @@ export function start(kind?: Kind) {
     VP.dir = 1; VP.rx = rs.x; VP.ry = rs.y; VP.rw = restW(); VP.rv = 0;
     ship.x = ship.y = cam.x = cam.y = 0; ship.vx = ship.vy = ship.cx = ship.cy = 0; ship.h = ship.hv = ship.bank = 0;
   } else boosted();
-  input.gx = ship.x; input.gy = ship.y; input.follow = false; input.mlock = true;
+  input.gx = ship.x; input.gy = ship.y; input.follow = false; input.mlock = true; input.guide = -1;
   buzz(8);
 }
 
