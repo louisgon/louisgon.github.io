@@ -49,7 +49,7 @@ function restLayout() {
 function light() {
   if (!A.ship) return;
   const { W, H } = V, img = A.bg; let sx = W * scene.sun.x, sy = H * scene.sun.y;
-  if (img) { const s = Math.max(W / img.width, H / img.height) * 1.07, w = img.width * s, h = img.height * s; sx = (W - w) / 2 + scene.sun.x * w; sy = (H - h) / 2 + scene.sun.y * h; }
+  if (img) { const nw = img.naturalWidth, nh = img.naturalHeight, s = Math.max(W / nw, H / nh) * 1.07, w = nw * s, h = nh * s; sx = (W - w) / 2 + scene.sun.x * w; sy = (H - h) / 2 + scene.sun.y * h; }
   prepLight(sx - W * rs.restX, sy - H * rs.restY, rs.base * V.DPR * 1.15);
 }
 

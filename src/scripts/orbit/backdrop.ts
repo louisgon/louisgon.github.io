@@ -18,7 +18,7 @@ const HZ = { n: 256, k: 150, v: 0.045, wind: 0.012 };
 let vg: CanvasGradient | null = null, vgK = '';
 
 export function analyse(img: HTMLImageElement) {
-  const c = document.createElement('canvas'), w = 96, h = Math.round(96 * img.height / img.width); c.width = w; c.height = h;
+  const c = document.createElement('canvas'), w = 96, h = Math.round(96 * img.naturalHeight / img.naturalWidth); c.width = w; c.height = h;
   const x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, 0, 0, w, h); const d = x.getImageData(0, 0, w, h).data;
   let bx = 0, by = 0, bl = -1;
   for (let y = 0; y < h * 0.7; y++) for (let i = 0; i < w; i++) { const k = (y * w + i) * 4, l = d[k] * 0.3 + d[k + 1] * 0.59 + d[k + 2] * 0.11; if (l > bl) { bl = l; bx = i; by = y; } }
@@ -28,7 +28,7 @@ export function analyse(img: HTMLImageElement) {
 }
 
 function edge(img: HTMLImageElement, limb: number) {
-  const c = document.createElement('canvas'), w = 240, h = Math.round(240 * img.height / img.width); c.width = w; c.height = h;
+  const c = document.createElement('canvas'), w = 240, h = Math.round(240 * img.naturalHeight / img.naturalWidth); c.width = w; c.height = h;
   const x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, 0, 0, w, h); const d = x.getImageData(0, 0, w, h).data;
   const L = (i: number, y: number) => { let s = 0; for (let j = i - 1; j <= i + 1; j++) { const k = (y * w + j) * 4; s += d[k] * 0.3 + d[k + 1] * 0.59 + d[k + 2] * 0.11; } return s / 3; };
   const pts: number[][] = [];
@@ -127,10 +127,10 @@ const FEATHER = 16;
 function cover(img: HTMLImageElement | null, ox: number, oy: number, z: number, fk = 0) {
   const { W, H } = V;
   if (!img) { ctx.fillStyle = '#0a0e1c'; ctx.fillRect(0, 0, W, H); return { s: 1, x: 0, y: 0, w: W, h: H }; }
-  const s = Math.max(W / img.width, H / img.height) * z, w = img.width * s, h = img.height * s, x = (W - w) / 2 + ox, y = (H - h) / 2 + oy;
+  const nw = img.naturalWidth, nh = img.naturalHeight, s = Math.max(W / nw, H / nh) * z, w = nw * s, h = nh * s, x = (W - w) / 2 + ox, y = (H - h) / 2 + oy;
   if (fk <= 0) ctx.drawImage(img, x, y, w, h);
   else {
-    const a0 = ctx.globalAlpha, band = 0.13, nw = img.naturalWidth, nh = img.naturalHeight, sb = nh * band / FEATHER, db = h * band / FEATHER;
+    const a0 = ctx.globalAlpha, band = 0.13, sb = nh * band / FEATHER, db = h * band / FEATHER;
     ctx.drawImage(img, 0, nh * band, nw, nh * (1 - band), x, y + h * band, w, h * (1 - band));
     for (let i = 0; i < FEATHER; i++) { const q = (i + 0.5) / FEATHER; ctx.globalAlpha = a0 * (1 - fk * (1 - q * q * (3 - 2 * q))); ctx.drawImage(img, 0, sb * i, nw, sb + 0.5 * nh / h, x, y + db * i, w, db + 0.5); }
     ctx.globalAlpha = a0;
