@@ -23,7 +23,7 @@ export function initCursor() {
   addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; CUR.px = e.clientX; CUR.py = e.clientY; CUR.seen = true; CUR.kb = false; CUR.el = pickLock(e.target); }, { passive: true });
   document.documentElement.addEventListener('pointerleave', () => { CUR.seen = false; if (!CUR.kb) CUR.el = null; });
   addEventListener('scroll', () => (CUR.scan = true), { capture: true, passive: true });
-  addEventListener('focusin', (e) => { const t = e.target as HTMLElement; if (t.matches && t.matches(':focus-visible') && !t.closest('.rvw') && t !== document.body && !t.matches('section, [tabindex="-1"]')) { CUR.el = t; CUR.kb = true; } });
+  addEventListener('focusin', (e) => { const t = e.target as HTMLElement; if (t.matches && t.matches(':focus-visible') && !t.closest('.rvw, #fly') && t !== document.body && !t.matches('section, [tabindex="-1"]')) { CUR.el = t; CUR.kb = true; } });
   addEventListener('focusout', () => { if (CUR.kb) { CUR.el = null; CUR.kb = false; } });
 }
 

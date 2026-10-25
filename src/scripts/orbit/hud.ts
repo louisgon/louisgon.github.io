@@ -1,6 +1,6 @@
 import { reduce } from '../state';
 import { $ } from '../util';
-import { clamp, D, FAC, fmtT, G, input, maxW, pad2, sayT, ship, VP, type Kind, type Mode, type Option } from './core';
+import { clamp, D, FAC, fmtT, G, input, maxW, pad2, sayT, ship, V, VP, type Kind, type Mode, type Option } from './core';
 import { P } from './store';
 import { bl, BOOST, EVO, maxHull, WEAP } from './weapons';
 import { boostPr, cacheOptions, options } from './upgrades';
@@ -81,7 +81,7 @@ export function showBest() { $('best0').innerHTML = $('best1').innerHTML = fmtT(
 export function updateLabels() {
   const t = input.last === 'touch';
   $('land').innerHTML = t ? 'Land' : 'Land <kbd>Esc</kbd>';
-  $('ctl').innerHTML = t ? 'Drag to steer · Land to exit' : 'Mouse or <kbd>WASD</kbd> to steer';
+  $('ctl').innerHTML = t ? 'Drag to steer · Land to exit' : 'Mouse or <kbd>WASD</kbd> to steer · <kbd>P</kbd> to pause';
 }
 export const anchor = () => { input.mlock = true; input.ax = input.mx; input.ay = input.my; };
 export const setLast = (k: Kind) => { if (input.last === k) return; const was = input.last === 'touch'; input.last = k; if (was !== (k === 'touch')) updateLabels(); };
@@ -105,9 +105,19 @@ export function status() {
 }
 
 export const reached = () => (G.fac || G.lap ? `Reached <em>${FAC[G.fac].reach}</em>${G.lap ? ` on lap ${pad2(G.lap + 1)}` : ''}` : `Fought <em>${FAC[0].reach}</em>`);
+const held = new Map<HTMLElement, boolean>();
+export function modal(on: boolean) {
+  if (!on) { held.forEach((v, el) => (el.inert = v)); held.clear(); return; }
+  for (let el: HTMLElement = D.card; el.parentElement && el !== document.body; el = el.parentElement) for (const s of el.parentElement.children) {
+    if (!(s instanceof HTMLElement) || s === el || s.id === 'live' || s.tagName === 'SCRIPT' || held.has(s)) continue;
+    held.set(s, s.inert); s.inert = true;
+  }
+}
+export function reveal(el: HTMLElement) { const c = D.card.getBoundingClientRect(), r = el.getBoundingClientRect(); if (r.bottom > c.bottom - 8) D.card.scrollTop += r.bottom - c.bottom + 16; else if (r.top < c.top + 8) D.card.scrollTop -= c.top - r.top + 16; }
+export const focusables = () => [...D.card.querySelectorAll<HTMLElement>('button')].filter((b) => b.getClientRects().length > 0);
 const settle = () => { input.keys.clear(); const s = input.stick; if (s) { s.ox = s.x; s.oy = s.y; } };
 export function showCard(mode: Mode, f = 0) {
-  G.card = true; G.mode = mode; D.hero.classList.add('carded'); settle();
+  G.card = true; G.mode = mode; D.hero.classList.add('carded'); settle(); modal(true);
   if (VP.p < 1) D.hud.inert = false;
   const slots = `Weapons ${G.W.length} of ${maxW} · Boosts ${G.B.length} of ${maxW}`;
   const card = D.card, parts = { big: $('cardBig'), sub: $('cardSub'), rs: $('cardStats'), far: $('cardFar'), bld: $('cardBuild'), info: $('cardInfo'), opts: D.opts, act: $('cardActions') };
@@ -117,11 +127,11 @@ export function showCard(mode: Mode, f = 0) {
   if (mode === 'level') {
     opts = options();
     $('cardT').textContent = `Level ${pad2(G.level - G.pend + 1)} · Choose one`;
-    $('cardSub').textContent = slots; show(['sub', 'opts']);
+    $('cardSub').textContent = slots; show(['sub', 'opts', 'act']);
   } else if (mode === 'cache') {
     opts = cacheOptions();
     $('cardT').textContent = `${FAC[f].short} cache · ${opts[0].kind === 'e' ? 'Evolve one' : 'Choose one'}`;
-    $('cardSub').textContent = slots; show(['sub', 'opts']);
+    $('cardSub').textContent = slots; show(['sub', 'opts', 'act']);
   } else if (mode === 'pause') {
     $('cardT').textContent = 'Paused'; D.cardMore.textContent = 'Resume'; $('cardInfo').innerHTML = status().html; show(['info', 'act']);
   } else {
@@ -135,14 +145,17 @@ export function showCard(mode: Mode, f = 0) {
   }
   G.opts = opts;
   D.opts.innerHTML = opts.map(optHTML).join('');
-  card.dataset.mode = mode; card.dataset.n = String(opts.length); D.opts.style.setProperty('--n', String(Math.max(1, opts.length))); card.classList.add('on');
+  card.dataset.mode = mode; card.dataset.n = String(opts.length); card.setAttribute('aria-describedby', mode === 'pause' ? 'cardInfo' : mode === 'over' ? 'cardSub cardFar' : 'cardSub'); D.opts.style.setProperty('--n', String(Math.max(1, opts.length))); card.classList.add('on');
+  if (V.W < 861) { const r = card.getBoundingClientRect(), h0 = D.hero.getBoundingClientRect().top, top = (r.top + r.bottom) / 2 - card.offsetHeight / 2 - h0, half = ship.play * V.Z / 2, want = top - half - 12, sy = want >= D.hud.getBoundingClientRect().top - h0 + half ? Math.min(want, V.H * 0.38) : V.H * 0.38; G.camY = (V.H / 2 - sy) / V.Z; }
+  else G.camY = -0.13 * V.vh;
   if (mode === 'level' || mode === 'cache') { D.opts.classList.add('arm'); clearTimeout(armT); armT = window.setTimeout(() => D.opts.classList.remove('arm'), 380); }
   live(mode === 'level' || mode === 'cache' ? `${$('cardT').textContent}. ${opts.map((o, i) => `${i + 1}, ${o.name}${o.kind === 'e' ? ', evolution' : o.L ? ` level ${o.L + 1}` : ', new'}`).join('. ')}` : mode === 'pause' ? `Paused. ${status().say}` : `Hull lost. Time ${sayT(G.clock)}. ${reached().replace(/<\/?em>/g, '')}. Fly again or land.`);
-  if (input.last === 'key') setTimeout(() => { const f = card.querySelector<HTMLElement>('.opt') || D.cardMore; if (f && !f.hidden) f.focus({ preventScroll: true }); }, 60);
+  card.scrollTop = 0;
+  const run = G.run; setTimeout(() => { if (G.run !== run || !G.card || G.mode !== mode) return; const f = focusables()[0]; if (f) { f.focus({ preventScroll: true }); if (input.last === 'key') reveal(f); } }, 60);
 }
 
 export function hideCard() {
-  G.card = false; G.mode = ''; D.hero.classList.remove('carded'); D.card.classList.remove('on');
+  G.card = false; G.mode = ''; D.hero.classList.remove('carded'); D.card.classList.remove('on'); modal(false);
   if (document.activeElement && D.card.contains(document.activeElement)) D.hud.focus({ preventScroll: true });
   if (VP.p < 1) D.hud.inert = true;
   input.gx = ship.x; input.gy = ship.y; input.follow = false; anchor(); settle();
@@ -152,7 +165,7 @@ export function hideCard() {
 export function hudTick(rdt: number, now: number) {
   if (G.on) {
     const s = Math.floor(G.clock);
-    if (s !== H.sec) { H.sec = s; D.clock.innerHTML = fmtT(s); if (s && s % 30 === 0) { D.clock.classList.add('pop'); clearTimeout(clockT); clockT = window.setTimeout(() => D.clock.classList.remove('pop'), 90); } }
+    if (s !== H.sec) { H.sec = s; D.clock.innerHTML = fmtT(s); if (s && s % 30 === 0 && !reduce) { D.clock.classList.add('pop'); clearTimeout(clockT); clockT = window.setTimeout(() => D.clock.classList.remove('pop'), 90); } }
     if (G.kills !== H.kills) { H.kills = G.kills; D.kills.textContent = String(G.kills); }
     if (G.level - G.pend !== H.lv) { H.lv = G.level - G.pend; D.lvN.textContent = `Level ${pad2(H.lv)}`; H.xp = 0; }
     const tgt = G.pend ? 1 : G.xp / G.need; H.xp += (tgt - H.xp) * (1 - Math.exp(-rdt * 14));
@@ -168,7 +181,7 @@ export function hudTick(rdt: number, now: number) {
   if (Math.abs(H.ma - H.msg) > 0.01 || (!H.ma && H.msg)) { H.msg = H.ma; D.msg.style.opacity = H.ma.toFixed(2); }
   LANE.a = H.ma;
   G.vig = Math.max(0, G.vig - rdt * 1.6);
-  const va = G.on ? Math.max(G.vig, !G.over && G.hull === 1 ? 0.22 + 0.08 * Math.sin(now / 260) : 0) * (reduce ? 0.6 : 1) : 0;
+  const va = G.on ? Math.max(G.vig, !G.over && G.hull === 1 ? 0.22 + (reduce ? 0.04 : 0.08 * Math.sin(now / 260)) : 0) * (reduce ? 0.6 : 1) : 0;
   if (Math.abs(va - H.vig) > 0.01) { H.vig = va; D.vig.style.opacity = va.toFixed(2); }
 }
 

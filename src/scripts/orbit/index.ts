@@ -56,6 +56,7 @@ function restLayout() {
     b = Math.min(H * 0.6, W - right - 56); x = (right + W) / 2 / W; y = 0.58;
   }
   rs.restX = x; rs.restY = y; rs.base = Math.max(b, Math.min(W * 0.28, 110)); light(); keepMoons(copyRects());
+  const fw = Math.round(rs.base), fh = Math.round(fw * A.aspR); Object.assign(D.fly.style, { left: `${Math.round(W * x - fw / 2)}px`, top: `${Math.round(H * y - fh / 2)}px`, width: `${fw}px`, height: `${fh}px` });
 }
 
 function light() {

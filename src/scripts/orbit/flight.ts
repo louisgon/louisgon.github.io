@@ -4,7 +4,7 @@ import { A, addShake, cam, CAP, clamp, D, DV, egg, eio, eout, fmtT, G, GZ0, HIT,
 import { AR, BM, BO, DB, EB, EN, fx, MI, NR, QR, query, RB, resetWorld, SH, SP, sparks, TG, TQ, WS } from './world';
 import { deathBurst } from './enemies';
 import { mkW, needFor } from './weapons';
-import { anchor, buzz, live, renderBuild, renderHull, resetHud, setHull, setLast, showBest, showCard } from './hud';
+import { anchor, buzz, live, modal, renderBuild, renderHull, resetHud, setHull, setLast, showBest, showCard } from './hud';
 import { P, store } from './store';
 import { T } from './test';
 
@@ -18,10 +18,10 @@ export function start(kind?: Kind) {
   if (import.meta.env.MODE === 'test') Object.assign(T, { botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [], notes: [] });
   const w = mkW('pulse'); G.W.push(w); G.wm.pulse = w;
   renderHull(); renderBuild(); resetHud();
-  D.hero.classList.add('playing'); D.hero.classList.remove('bossing', 'carded', 'late'); D.toast.classList.remove('on'); D.card.classList.remove('on');
-  D.copy.inert = true;
+  D.hero.classList.add('playing'); D.hero.classList.remove('bossing', 'carded', 'late'); D.toast.classList.remove('on'); D.card.classList.remove('on'); modal(false);
+  const back = document.activeElement; if (back instanceof HTMLElement && back !== document.body && !D.hud.contains(back)) input.focusBack = back;
+  D.copy.inert = D.fly.inert = true;
   if (kind) setLast(kind);
-  if (kind === 'key') input.focusBack = document.activeElement as HTMLElement | null;
   if (VP.p < 1) {
     if (!VP.p) addShake(0.2);
     VP.dir = 1; VP.rx = rs.x; VP.ry = rs.y; VP.rw = restW(); VP.rv = 0;
@@ -44,7 +44,7 @@ export function restart() { const sx = ship.x, sy = ship.y; G.on = false; start(
 export function land() {
   if (!G.on) return;
   const t = G.clock, wasOver = G.over, flown = VP.p >= 1;
-  G.on = false; G.card = false; D.hero.classList.remove('flying', 'bossing', 'carded', 'tip', 'late'); D.card.classList.remove('on');
+  G.on = false; G.card = false; D.hero.classList.remove('flying', 'bossing', 'carded', 'tip', 'late'); D.card.classList.remove('on'); modal(false);
   D.hud.inert = true;
   for (let i = 0; i < WS.nE; i++) { if (EN[i].mode === -1) EN[i].dead = 1; else EN[i].mode = 9; }
   BO.n = MI.n = EB.n = SH.n = 0; for (const s of TG) s.on = false; for (const s of NR) s.on = false; TQ.length = 0; G.cache = null;
@@ -54,7 +54,6 @@ export function land() {
     $('toastB').innerHTML = `${wasOver ? 'Lasted' : 'Survived'} ${fmtT(t)}`; $('toastS').innerHTML = G.newBest ? 'New best' : `Best ${fmtT(P.best)}`;
     D.toast.classList.add('on'); clearTimeout(toastT); toastT = window.setTimeout(() => D.toast.classList.remove('on'), 2600);
   }
-  if (input.focusBack && input.focusBack.focus) { try { input.focusBack.focus({ preventScroll: true }); } catch {} } input.focusBack = null;
   $('bestLine').hidden = false;
   if (G.dead) { G.dead = false; VP.rv = 1; ship.h = ship.hv = 0; }
   if (flown) { VP.rx = V.W * rs.restX; VP.ry = V.H * rs.restY; VP.rw = rs.base; }
@@ -65,7 +64,9 @@ export function landed() {
   VP.p = 0; VP.dir = 0; VP.rv = 0;
   WS.nE = 0; SP.n = DB.n = BO.n = MI.n = EB.n = SH.n = 0; WS.nFX = 0; for (const R of RB) R.n = 0;
   for (const s of BM) s.on = false; for (const s of AR) s.on = false;
-  D.hero.classList.remove('playing'); D.copy.inert = false;
+  D.hero.classList.remove('playing'); D.copy.inert = D.fly.inert = false;
+  const back = input.focusBack; input.focusBack = null;
+  if (back && back.isConnected && (document.activeElement === document.body || !document.activeElement)) back.focus({ preventScroll: true });
   rs.x = VP.rx; rs.y = VP.ry; rs.vx = rs.vy = 0; rs.sc = 1; rs.bank = 0;
 }
 
@@ -128,8 +129,7 @@ export function steerHead(k: number) {
 }
 
 export function updCam(k: number, mx: number, my: number, rk: number) {
-  const { W, vh } = V;
-  if (G.card && VP.p >= 1) { const f = 1 - Math.exp(-rk * 5); cam.x += (ship.x - cam.x) * f; cam.y += (ship.y + vh * (W < 861 ? 0.12 : -0.13) - cam.y) * f; return; }
+  if (G.card && VP.p >= 1) { const f = 1 - Math.exp(-rk * 5); cam.x += (ship.x - cam.x) * f; cam.y += (ship.y + (reduce ? 0 : G.camY) - cam.y) * f; return; }
   if (VP.dir < 0) { const f = 1 - Math.exp(-k * 7); cam.x += (ship.x - cam.x) * f; cam.y += (ship.y - cam.y) * f; return; }
   if (VP.p < 1) { cam.x = ship.x; cam.y = ship.y; return; }
   if (k <= 0) return;

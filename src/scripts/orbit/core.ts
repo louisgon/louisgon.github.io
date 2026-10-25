@@ -69,19 +69,19 @@ export const input = { mx: 0.5, my: 0.5, gx: 0, gy: 0, follow: false, charge: nu
 export const G = {
   on: false, run: 0, clock: 0, kills: 0, level: 1, xp: 0, need: 4, pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, over: false, dead: false, card: false, mode: '' as Mode,
   W: [] as Weapon[], wm: {} as Partial<Record<WeapId, Weapon>>, B: [] as BoostId[], bm: {} as Partial<Record<BoostId, number>>, miss: {} as Partial<Record<WeapId, number>>, opts: [] as Option[],
-  spawnAcc: 0, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null as Enemy | null, cache: null as { x: number; y: number; t: number; f: number } | null, warned: false, regen: 0, killsF: 0, reveal: 0, hitA: 0, hitT: 0,
+  spawnAcc: 0, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null as Enemy | null, cache: null as { x: number; y: number; t: number; f: number } | null, warned: false, regen: 0, killsF: 0, reveal: 0, hitA: 0, hitT: 0, camY: 0,
   fac: 0, lap: 0, switching: false,
   arcId: 0, tips: {} as Record<string, number>, trailAcc: 0, newBest: false, px: 0, py: 0, ease: 0,
 };
-export const egg = { hover: 0, over: false, idleT: 0, whisper: -1, shown: 0 };
+export const egg = { hover: 0, over: false, focus: false, idleT: 0, whisper: -1, shown: 0 };
 export const F = { now: 0, rdt: 0, dt: 0, t: 0, sy: 0, scroll: 0, fc: 0 };
 
-type Els = 'hero' | 'art' | 'hud' | 'card' | 'opts' | 'msg' | 'vig' | 'toast' | 'clock' | 'kills' | 'lvl' | 'lvN' | 'xpFill' | 'build' | 'pick' | 'lv' | 'bossBar' | 'bossFill' | 'bossName' | 'cardMore';
+type Els = 'hero' | 'art' | 'fly' | 'hud' | 'card' | 'opts' | 'msg' | 'vig' | 'toast' | 'clock' | 'kills' | 'lvl' | 'lvN' | 'xpFill' | 'build' | 'pick' | 'lv' | 'bossBar' | 'bossFill' | 'bossName' | 'cardMore';
 export const D = {} as Record<Els, HTMLElement> & { cv: HTMLCanvasElement; copy: HTMLElement };
 export let ctx: CanvasRenderingContext2D;
 
 export function initCore() {
-  (['hero', 'art', 'hud', 'card', 'opts', 'msg', 'vig', 'toast', 'clock', 'kills', 'lvl', 'lvN', 'xpFill', 'build', 'pick', 'lv', 'bossBar', 'bossFill', 'bossName', 'cardMore'] as const).forEach((id) => (D[id] = $(id)));
+  (['hero', 'art', 'fly', 'hud', 'card', 'opts', 'msg', 'vig', 'toast', 'clock', 'kills', 'lvl', 'lvN', 'xpFill', 'build', 'pick', 'lv', 'bossBar', 'bossFill', 'bossName', 'cardMore'] as const).forEach((id) => (D[id] = $(id)));
   D.cv = $<HTMLCanvasElement>('orbit'); D.copy = D.hero.querySelector<HTMLElement>('.copy')!; ctx = D.cv.getContext('2d')!;
 }
 

@@ -145,10 +145,10 @@ export function drawCache(t: number) {
   const c = G.cache; if (!c || !onView(c.x, c.y, 120)) return;
   const U = V.U, r = 30 * U, pu = 0.5 + 0.5 * Math.sin(t * 4);
   ctx.globalCompositeOperation = 'lighter';
-  for (let k = 0; k < 2; k++) { const f = (c.t * 0.8 + k * 0.5) % 1, rr = r * (1.2 + f * 3.2); ctx.globalAlpha = (1 - f) * 0.5; ctx.drawImage(TX.ringG, c.x - rr, c.y - rr, rr * 2, rr * 2); }
+  for (let k = 0; k < 2; k++) { const f = reduce ? 0.2 + k * 0.4 : (c.t * 0.8 + k * 0.5) % 1, rr = r * (1.2 + f * 3.2); ctx.globalAlpha = (1 - f) * 0.5; ctx.drawImage(TX.ringG, c.x - rr, c.y - rr, rr * 2, rr * 2); }
   sprite(SPR.gold, c.x, c.y, r * (2.4 + pu * 0.6), 0.45 + 0.2 * pu);
   ctx.globalCompositeOperation = 'source-over';
-  const bob = Math.sin(t * 2.2) * 3 * U, rot = c.t * 0.6;
+  const bob = Math.sin(t * 2.2) * 3 * U, rot = reduce ? 0 : c.t * 0.6;
   ctx.globalAlpha = 1; at(c.x, c.y + bob, Math.cos(rot), Math.sin(rot)); ctx.drawImage(SPR.cache, -r * 1.25, -r * 1.25, r * 2.5, r * 2.5); base();
   ctx.globalAlpha = 1;
 }
@@ -297,15 +297,15 @@ export function drawBeams(dt: number) {
 
 export function drawArcs(dt: number) {
   const U = V.U; toWorld(0, -shipH() * 0.46); const nx = LP.x, ny = LP.y, att = G.on && !G.dead;
-  for (const Sg of AR) {
-    if (!Sg.on) continue;
+  for (let si = 0; si < AR.length; si++) {
+    const Sg = AR[si]; if (!Sg.on) continue;
     Sg.t += dt; const f = Sg.t / Sg.d; if (f >= 1) { Sg.on = false; continue; }
     if (att) { Sg.p[0] = nx; Sg.p[1] = ny; }
     let m = 0; const amp = (Sg.g ? 20 : 14) * U;
     JIT[m++] = Sg.p[0]; JIT[m++] = Sg.p[1];
     for (let k = 1; k < Sg.n; k++) {
       const x0 = Sg.p[k * 2 - 2], y0 = Sg.p[k * 2 - 1], x1 = Sg.p[k * 2], y1 = Sg.p[k * 2 + 1], dx = x1 - x0, dy = y1 - y0, l = Math.hypot(dx, dy) || 1, steps = clamp(Math.round(l / (20 * U)), 2, 9), px = -dy / l, py = dx / l;
-      for (let s = 1; s < steps && m < 250; s++) { const q = s / steps, j = rnd(-1, 1) * Math.min(amp, l * 0.22); JIT[m++] = x0 + dx * q + px * j; JIT[m++] = y0 + dy * q + py * j; }
+      for (let s = 1; s < steps && m < 250; s++) { const q = s / steps, j = (reduce ? Math.sin(si * 12.9 + k * 78.2 + s * 37.7) : rnd(-1, 1)) * Math.min(amp, l * 0.22); JIT[m++] = x0 + dx * q + px * j; JIT[m++] = y0 + dy * q + py * j; }
       if (m < 254) { JIT[m++] = x1; JIT[m++] = y1; }
     }
     const a = (1 - f) * (reduce ? 1 : 0.7 + 0.3 * rand());
@@ -319,7 +319,7 @@ export function drawArcs(dt: number) {
       ctx.lineWidth = (pass === 0 ? (Sg.g ? 28 : 13) : pass === 1 ? (Sg.g ? 9 : 4.5) : Sg.g ? 3.2 : 1.7) * U;
       ctx.beginPath(); ctx.moveTo(JIT[0], JIT[1]); for (let k = 2; k < m; k += 2) ctx.lineTo(JIT[k], JIT[k + 1]); ctx.stroke();
     }
-    if (Sg.g) {
+    if (Sg.g && !reduce) {
       ctx.globalAlpha = a * 0.85; ctx.strokeStyle = '#ffe1b0'; ctx.lineWidth = 2 * U; ctx.beginPath();
       for (let k = 2; k < m - 2; k += 4) { const bx = JIT[k], by = JIT[k + 1], ang = rand() * TAU, l = rnd(16, 40) * U; ctx.moveTo(bx, by); ctx.lineTo(bx + Math.cos(ang) * l * 0.5 + rnd(-6, 6) * U, by + Math.sin(ang) * l * 0.5 + rnd(-6, 6) * U); ctx.lineTo(bx + Math.cos(ang) * l, by + Math.sin(ang) * l); }
       ctx.stroke();
@@ -394,7 +394,7 @@ export function drawDim() {
 
 export function drawEgg() {
   const { rdt, sy } = F;
-  egg.hover += ((egg.over && !G.on && !VP.p && sy < 0.05 ? 1 : 0) - egg.hover) * (1 - Math.exp(-rdt / 0.12));
+  egg.hover += (((egg.over || egg.focus) && !G.on && !VP.p && sy < 0.05 ? 1 : 0) - egg.hover) * (1 - Math.exp(-rdt / 0.12));
   if (!G.on && !VP.p && A.ready && !played() && egg.shown < 2 && egg.whisper < 0 && scrollY < 10 && !input.charge) { egg.idleT += rdt; if (egg.idleT > 8) { egg.whisper = 0; egg.shown++; store.set('lg01-whisper', egg.shown); } } else if (scrollY >= 10) egg.idleT = 0;
   if (egg.whisper >= 0 && !G.on) { egg.whisper += rdt; if (egg.whisper > 4.2) { egg.whisper = -1; egg.idleT = -1e9; } }
   const wA = egg.whisper >= 0 ? clamp(egg.whisper / 0.6) * clamp((4.2 - egg.whisper) / 0.6) : 0, hA = egg.hover;
@@ -404,7 +404,7 @@ export function drawEgg() {
     for (const [ux, uy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) { const X = rs.x + ux * bx, Y = rs.y + uy * by; ctx.moveTo(X, Y - uy * c); ctx.lineTo(X, Y); ctx.lineTo(X - ux * c, Y); }
     ctx.stroke();
     ctx.font = `600 ${V.tall ? 11 : 12}px "JetBrains Mono", monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    const txt = (hA > wA ? 'LG-01 · Hold to fly' : input.last === 'touch' ? 'Hold the ship to fly' : 'Hold the ship or Space to fly').toUpperCase().split('').join(String.fromCharCode(8202));
+    const txt = (hA > wA ? (egg.focus ? 'LG-01 · Press Enter to fly' : 'LG-01 · Hold to fly') : input.last === 'touch' ? 'Hold the ship to fly' : 'Hold the ship or Space to fly').toUpperCase().split('').join(String.fromCharCode(8202));
     const ta = Math.max(hA, wA), tw = ctx.measureText(txt).width + 24, ty = rs.y + by + 26;
     ctx.fillStyle = `rgba(4,6,13,${0.72 * ta})`; ctx.beginPath(); ctx.roundRect(rs.x - tw / 2, ty - 14, tw, 28, 14); ctx.fill();
     ctx.strokeStyle = `rgba(255,207,138,${0.4 * ta})`; ctx.lineWidth = 1; ctx.stroke();

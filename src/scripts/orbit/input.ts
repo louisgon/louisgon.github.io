@@ -1,7 +1,7 @@
 import { $ } from '../util';
 import { A, D, egg, G, input, rs, restW, STICK, V, VP } from './core';
-import { cancelInput, land, pause, restart } from './flight';
-import { hideCard, setLast } from './hud';
+import { cancelInput, land, pause, restart, start } from './flight';
+import { focusables, hideCard, reveal, setLast } from './hud';
 import { choose } from './upgrades';
 
 const NEUTRAL = 5;
@@ -78,6 +78,7 @@ export function initInput() {
     if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
     if (G.on) {
       if (e.code === 'Escape') { land(); return; }
+      if (e.key === 'Tab' && G.card) { const f = focusables(); if (!f.length) return; e.preventDefault(); const i = f.indexOf(document.activeElement as HTMLElement); const n = f[e.shiftKey ? (i <= 0 ? f.length - 1 : i - 1) : (i + 1) % f.length]; n.focus({ preventScroll: true }); reveal(n); return; }
       if (G.card) { const m = e.code.match(/^(?:Digit|Numpad)([1-3])$/); if (m && (G.mode === 'level' || G.mode === 'cache')) { const b = D.opts.children[Number(m[1]) - 1]; if (b && !armed()) { e.preventDefault(); setLast('key'); choose(Number(m[1]) - 1); } } return; }
       if (STEER[e.code]) { e.preventDefault(); if (e.repeat && !input.keys.has(e.code)) return; input.keys.add(e.code); setLast('key'); input.moveAcc = 0; return; }
       if (e.code === 'KeyP') { pause(); return; }
@@ -91,6 +92,10 @@ export function initInput() {
   document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelInput(); pause(); } });
 
   $('land').addEventListener('click', (e) => { e.stopPropagation(); land(); });
+  $('pz').addEventListener('click', (e) => { e.stopPropagation(); pause(); });
+  D.fly.addEventListener('click', () => { if (!G.on && !VP.p && A.ready) start('key'); });
+  D.fly.addEventListener('focus', () => (egg.focus = true));
+  D.fly.addEventListener('blur', () => (egg.focus = false));
   D.cardMore.addEventListener('click', (e) => {
     e.stopPropagation();
     if (G.mode === 'pause') { hideCard(); return; }

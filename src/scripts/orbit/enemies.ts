@@ -86,7 +86,7 @@ const capHp = () => Math.round(TYPES[T_BS].hp * CAPHP.base * CAPHP.grow ** G.bos
 export function spawnBoss() {
   const P = ringPt(140 * V.U), e = spawn(T_BS, P.x, P.y); if (!e) return false;
   e.hp = e.max = capHp(); e.sum = 3.5; G.boss = e; G.bossN++;
-  D.bossName.textContent = G.lap ? `${FAC[G.fac].cap} ${pad2(G.lap + 1)}` : FAC[G.fac].cap;
+  D.bossName.textContent = G.lap ? `${FAC[G.fac].cap} ${pad2(G.lap + 1)}` : FAC[G.fac].cap; live(`${D.bossName.textContent} engaged.`);
   return true;
 }
 function bossDown(e: Enemy) {

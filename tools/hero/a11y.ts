@@ -35,8 +35,10 @@ export async function a11y(c: Ctx) {
     c.ok('a keyboard start moves focus to the flight HUD once the boost lands', (await focused(p)).id === 'hud', await focused(p));
     c.ok('the live region announces the flight', /Flight started/.test(await p.evaluate(() => document.getElementById('live')!.textContent ?? '')));
     await p.keyboard.press('Tab');
+    const pz = await focused(p), pzRing = await p.evaluate(() => document.activeElement!.matches(':focus-visible'));
+    await p.keyboard.press('Tab');
     const land = await focused(p);
-    c.ok('Tab while flying reaches Land with a visible ring', land.id === 'land' && (await p.evaluate(() => document.activeElement!.matches(':focus-visible'))), land);
+    c.ok('Tab while flying reaches Pause, then Land, with a visible ring', pz.id === 'pz' && pzRing && land.id === 'land' && (await p.evaluate(() => document.activeElement!.matches(':focus-visible'))), { pz, land });
     await p.keyboard.down('KeyA'); await p.waitForTimeout(300); await p.keyboard.up('KeyA');
     await lg(p, 'xp(30)'); await p.waitForFunction(() => (window as unknown as { __lg: { st: () => { card: boolean } } }).__lg.st().card, null, { timeout: 5000 }); await p.waitForTimeout(500);
     const opt = await focused(p);
