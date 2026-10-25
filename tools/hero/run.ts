@@ -15,8 +15,13 @@ import { world } from './world';
 import { perf } from './perf';
 import { idle } from './idle';
 import { combat } from './combat';
+import { feel } from './feel';
+import { readout } from './readout';
+import { controls } from './controls';
+import { first } from './first';
+import { modal } from './modal';
 
-const CHECKS = { egg, boost, fleets, cards, combat, land, pause, a11y, swipe, world, idle, perf };
+const CHECKS = { egg, boost, fleets, cards, combat, feel, readout, controls, first, modal, land, pause, a11y, swipe, world, idle, perf };
 const only = arg('only')?.split(','), out = resolve(arg('out', join(tmpdir(), `hero-${Date.now()}`))!);
 let dist = arg('dist');
 mkdirSync(out, { recursive: true });

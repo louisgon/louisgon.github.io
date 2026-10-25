@@ -54,7 +54,7 @@ function heavyFire(e: Enemy, dt: number) {
 }
 const CAPHP = { base: 0.636, grow: 1.6 };
 function brood(e: Enemy, n: number, a0: number) {
-  for (let i = 0; i < n; i++) { const a = a0 + i / n * TAU, s = spawn(T_SW, e.x + Math.cos(a) * e.w * 1.2, e.y + Math.sin(a) * e.w * 1.2); if (s) s.alpha = 0.3; }
+  for (let i = 0; i < n; i++) { const a = a0 + i / n * TAU, s = spawn(T_SW, e.x + Math.cos(a) * e.w * 1.2, e.y + Math.sin(a) * e.w * 1.2); if (s) { s.alpha = 0.3; if (import.meta.env.MODE === 'test') T.brood++; } }
   fx(1, e.x, e.y, e.w * 2, 0.4, 0);
 }
 function aimAt(e: Enemy, first: boolean) { e.mode = 1; e.st = 0; e.aim = (first ? CAP.track : CAP.retrack) + CAP.lock; }

@@ -1,6 +1,7 @@
 import { $ } from '../util';
-import { A, C, cam, CAP, D, DV, FAC, G, input, onView, restW, rs, scene, ship, shipR, simSeed, srnd, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, VP, type BoostId, type WeapId } from './core';
-import { LIT, prepFaction, S } from './art';
+import { A, C, cam, CAP, D, DV, egg, FAC, G, input, onView, restW, rs, scene, ship, shipR, simSeed, srnd, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, VP, type BoostId, type WeapId } from './core';
+import { LIT, PAL, prepFaction, S } from './art';
+import { moonSpots } from './backdrop';
 import { AR, EB, EN, QBOT, query, SH, spawn, TG, WS, BM, BO, MI, NR, SP, compact, gridBuild, QB } from './world';
 import { addBolt, bl, BOOST, EVO, maxHull, mkW, novaRing, railHits, spdM, updBolts, updNova, updWeapons, wdesc, WEAP, gainXP } from './weapons';
 import { calmK, dartLine, hit, nextFaction, spawnBoss } from './enemies';
@@ -8,7 +9,7 @@ import { hurt, start } from './flight';
 import { renderBuild, renderHull } from './hud';
 import { eligible } from './upgrades';
 
-export const T = { god: false, stress: false, auto: false, frozen: false, botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [] as string[], notes: [] as string[], work: new Float32Array(240), wi: 0, mark: 0, draws: 0 };
+export const T = { god: false, stress: false, auto: false, frozen: false, botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [] as string[], notes: [] as string[], brood: 0, work: new Float32Array(240), wi: 0, mark: 0, draws: 0 };
 
 const TAUS = [0.05, 0.12, 0.24, 0.45], TAUW = [1.8, 1.4, 1, 0.55];
 export function bot(rdt: number) {
@@ -77,7 +78,7 @@ export function initTest() {
       fac: G.fac, faction: FAC[G.fac].id, lap: G.lap, switching: G.switching, fe: FAC.map((_, f) => live().filter((e) => e.f === f).length), peel: live().filter((e) => e.mode === 8).length,
       fresh: [...new Set(live().filter((e) => e.id >= T.mark && e.mode !== -1).map((e) => art(e.f, e.t)))].sort(), sprites: S.fk.map((k) => k === S.key),
       banner: $('msgB').textContent ?? '', bannerSub: $('msgS').textContent ?? '', bannerOn: +(D.msg.style.opacity || 0), bossName: D.bossName.textContent ?? '', bsx: G.boss ? Math.round(G.boss.x * C.wz + C.ox) : -1, bsy: G.boss ? Math.round(G.boss.y * C.wz + C.oy) : -1,
-      drop: +(DV.drop / V.H).toFixed(3), th: +DV.th.toFixed(3), ba: +DV.ba.toFixed(3), punch: +DV.punch.toFixed(3), ra: +DV.ra.toFixed(3), ta: +DV.ta.toFixed(3), rw: Math.round(DV.rw), tw: Math.round(DV.tw), hitA: Math.round(((G.hitA * 180 / Math.PI) % 360 + 360) % 360), hitT: +G.hitT.toFixed(3), reveal: +G.reveal.toFixed(2) }),
+      drop: +(DV.drop / V.H).toFixed(3), th: +DV.th.toFixed(3), ba: +DV.ba.toFixed(3), punch: +DV.punch.toFixed(3), ra: +DV.ra.toFixed(3), ta: +DV.ta.toFixed(3), rw: Math.round(DV.rw), tw: Math.round(DV.tw), hitA: Math.round(((G.hitA * 180 / Math.PI) % 360 + 360) % 360), hitT: +G.hitT.toFixed(3), reveal: +G.reveal.toFixed(2), stop: +G.stop.toFixed(3), last: input.last, follow: input.follow && !input.mlock, hover: +egg.hover.toFixed(2), fade: !!A.bgOld, base: A.base, shipReady: !!A.ship, camY: Math.round(G.camY), brood: T.brood }),
     work: () => Array.from(T.work).filter((v) => v > 0),
     shipGap: (rects: number[][]) => {
       if (!A.ship) return -1;
@@ -92,6 +93,8 @@ export function initTest() {
       return Math.round(best);
     },
     hits: () => T.hits,
+    moons: () => moonSpots(),
+    boltCore: () => PAL.map((p) => { const c = p.bolt, x = c.getContext('2d')!, d = x.getImageData(0, c.height / 2, c.width, 1).data, lum = (i: number) => d[i * 4] * 0.3 + d[i * 4 + 1] * 0.59 + d[i * 4 + 2] * 0.11; let i = c.width / 2; while (i < c.width - 1 && d[i * 4 + 3] > 250 && lum(i) > 40) i++; const scale = 30 / c.width; let k = i; while (k < c.width - 1 && lum(k) < 40 && d[k * 4 + 3] > 200) k++; return { core: +((i - c.width / 2) * scale).toFixed(2), keyline: +((k - i) * scale).toFixed(2), hit: 7 }; }),
     notes: () => T.notes,
     hurtAt: (dx: number, dy: number) => { G.inv = 0; hurt('test', ship.x + dx * V.U, ship.y + dy * V.U); },
     start: () => start('mouse'),
@@ -100,7 +103,7 @@ export function initTest() {
     boss: () => spawnBoss(),
     killBoss: () => { if (G.boss) hit(G.boss, 1e9); },
     bossAt: (dx: number, dy: number, rot = 0) => { const b = G.boss; if (!b) return; b.x = ship.x + dx * V.U; b.y = ship.y + dy * V.U; b.rot = rot; b.vx = b.vy = 0; b.mode = 0; b.st = 0; b.alpha = 1; },
-    cache: (dx = 150) => { G.cache = { x: ship.x + dx * V.U, y: ship.y, t: 0, f: G.fac }; },
+    cache: (dx = 150, dy = 0) => { G.cache = { x: ship.x + dx * V.U, y: ship.y + dy * V.U, t: 0, f: G.fac }; },
     opts: () => G.opts.map((o) => `${o.kind}:${o.id}`),
     darts: () => dartLine(),
     squad: (t: number, elite = 0, n = 5) => { for (let i = 0; i < n; i++) { const a = i / n * TAU; spawn(t, ship.x + Math.cos(a) * 230 * V.U, ship.y + Math.sin(a) * 230 * V.U, elite); } },

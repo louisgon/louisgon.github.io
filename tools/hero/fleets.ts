@@ -15,18 +15,18 @@ const ORDER = [
 
 async function bannerUp(p: Page) {
   let s = await st(p);
-  for (let i = 0; i < 20 && s.bannerOn < 0.9; i++) { if (s.card && (s.mode === 'level' || s.mode === 'cache')) await p.keyboard.press('Digit1'); await p.waitForTimeout(100); s = await st(p); }
+  for (let i = 0; i < 110 && !(s.bannerOn >= 0.9 && /inbound|returns/.test(s.banner)); i++) { if (s.card && (s.mode === 'level' || s.mode === 'cache')) await p.keyboard.press('Digit1'); await p.waitForTimeout(100); s = await st(p); }
   return s;
 }
 async function watch(p: Page, ms: number) {
-  const tr = track(p, ms, ['bossMode', 'bst', 'baim', 'bdx', 'bdy', 'enemies']); let done = false; void tr.then(() => (done = true));
+  const tr = track(p, ms, ['bossMode', 'bst', 'baim', 'bdx', 'bdy', 'brood']); let done = false; void tr.then(() => (done = true));
   while (!done) { const s = await st(p); if (s.card && (s.mode === 'level' || s.mode === 'cache')) await p.keyboard.press('Digit1'); await p.waitForTimeout(150); }
   const k = await tr, dash: number[] = [], lock: number[] = [], brood: number[] = []; let cyc: number[] = [0];
   for (let i = 1; i < k.bossMode.length; i++) {
     const m = k.bossMode[i], pm = k.bossMode[i - 1];
     if (m === 2 && pm === 1) { let j = i - 1; while (j > 0 && k.bossMode[j - 1] === 1) j--; let q = j; while (q < i - 1 && (k.bdx[q] !== k.bdx[i - 1] || k.bdy[q] !== k.bdy[i - 1])) q++; lock.push(+(k.bst[i - 1] - k.bst[q]).toFixed(2)); cyc[cyc.length - 1]++; }
     if (pm === 2 && m !== 2) dash.push(+k.bst[i - 1].toFixed(2));
-    if (pm === 3 && m !== 3) { let j = i - 1; while (j > 0 && k.bossMode[j - 1] === 3) j--; brood.push(Math.max(...k.enemies.slice(j, i)) - k.enemies[j]); }
+    if (pm === 3 && m !== 3) { let j = i - 1; while (j > 0 && k.bossMode[j - 1] === 3) j--; brood.push(k.brood[i] - k.brood[j]); }
     if (m === 0 && pm !== 0) cyc.push(0);
   }
   cyc = cyc.filter(Boolean);

@@ -111,6 +111,11 @@ export function prepMoons(img: HTMLImageElement | null) {
 }
 
 export function keepMoons(rects: number[][]) { clear = rects; placeMoons(); }
+export function moonSpots() {
+  const img = A.bg; if (!img) return { moons: [], copy: clear };
+  const { W, H } = V, nw = img.naturalWidth, nh = img.naturalHeight, s = Math.max(W / nw, H / nh) * 1.07, x0 = (W - nw * s) / 2, y0 = (H - nh * s) / 2;
+  return { moons: moons.map((m) => ({ x: Math.round(x0 + (m.x + m.dx) * s), y: Math.round(y0 + (m.y + m.dy) * s), r: Math.round(m.r * s), moved: !!(m.dx || m.dy), hide: m.hide })), copy: clear };
+}
 function placeMoons() {
   const img = A.bg; if (!img || !moons.length) return;
   const { W, H } = V, nw = img.naturalWidth, nh = img.naturalHeight, s = Math.max(W / nw, H / nh) * 1.07, x0 = (W - nw * s) / 2, y0 = (H - nh * s) / 2;

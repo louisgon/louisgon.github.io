@@ -9,6 +9,7 @@ export type St = {
   fac: number; faction: string; lap: number; switching: boolean; fe: number[]; peel: number; fresh: string[]; sprites: boolean[]; banner: string; bannerSub: string; bannerOn: number; bossName: string; bsx: number; bsy: number;
   drop: number; th: number; ba: number; punch: number; ra: number; ta: number; rw: number; tw: number;
   rw0: number; rh0: number; light: boolean; lit: number;
+  hitA: number; hitT: number; reveal: number; stop: number; last: string; follow: boolean; hover: number; fade: boolean; base: boolean; shipReady: boolean; camY: number; brood: number;
   inv: number; sizeErr: number; bossMax: number; seed: number; draws: number; keys: number; calm: number; lines: number; bst: number; baim: number; bdx: number; bdy: number; bpass: number; hullMax: number;
 };
 
