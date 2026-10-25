@@ -81,7 +81,7 @@ export function initInput() {
       if (e.key === 'Tab' && G.card) { const f = focusables(); if (!f.length) return; e.preventDefault(); const i = f.indexOf(document.activeElement as HTMLElement); const n = f[e.shiftKey ? (i <= 0 ? f.length - 1 : i - 1) : (i + 1) % f.length]; n.focus({ preventScroll: true }); reveal(n); return; }
       if (G.card) { const m = e.code.match(/^(?:Digit|Numpad)([1-3])$/); if (m && (G.mode === 'level' || G.mode === 'cache')) { const b = D.opts.children[Number(m[1]) - 1]; if (b && !armed()) { e.preventDefault(); setLast('key'); choose(Number(m[1]) - 1); } } return; }
       if (STEER[e.code]) { e.preventDefault(); if (e.repeat && !input.keys.has(e.code)) return; input.keys.add(e.code); setLast('key'); input.moveAcc = 0; return; }
-      if (e.code === 'KeyP') { pause(); return; }
+      if (e.code === 'KeyP') { setLast('key'); pause(); return; }
       if (e.code === 'Space' && !onControl()) e.preventDefault();
       return;
     }
