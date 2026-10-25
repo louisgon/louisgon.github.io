@@ -4,7 +4,7 @@
 #hero .art { position: absolute; inset: 0; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 78%, rgb(0 0 0 / var(--fly, 0))); mask-image: linear-gradient(180deg, #000 78%, rgb(0 0 0 / var(--fly, 0))); }
 #hero .bg { position: absolute; inset: 0; overflow: hidden; }
 #hero .bg.off { visibility: hidden; }
-#hero .bg img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale3d(1.07, 1.07, 1); will-change: transform; backface-visibility: hidden; }
+#hero .bg img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale3d(1.07, 1.07, 1); will-change: transform, opacity; backface-visibility: hidden; }
 #orbit { position: absolute; inset: 0; display: block; width: 100%; height: 100%; opacity: 0; will-change: opacity; }
 #hero .scrim { -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent); mask-image: linear-gradient(180deg, #000 78%, transparent); }
 #hero .scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(3 6 14 / 74%), rgb(3 6 14 / 36%) 34%, transparent 58%), linear-gradient(180deg, rgb(3 6 14 / 45%), transparent 30%); transition: opacity .6s var(--ease-out); }
@@ -71,7 +71,7 @@
 #hero .hud .ctl { position: absolute; left: 50%; bottom: 26px; display: flex; gap: 8px; align-items: center; color: var(--dim); white-space: nowrap; text-shadow: 0 2px 10px rgb(0 0 0 / 70%); transform: translate3d(-50%, 0, 0); transition: opacity .5s ease; will-change: transform, opacity; backface-visibility: hidden; }
 #hero.late .hud .ctl { opacity: 0; }
 #hero .hud .acts { position: absolute; right: 16px; bottom: 12px; display: flex; gap: 10px; }
-#hero .hud .land, #hero .hud .pz { position: relative; min-width: 44px; min-height: 44px; display: flex; gap: 10px; align-items: center; justify-content: center; padding: 10px 16px; border: 1px solid rgb(255 207 138 / 55%); border-radius: 999px; background: rgb(4 6 13 / 60%); color: var(--fg); cursor: pointer; pointer-events: none; transition: background .25s ease, border-color .25s ease, opacity .25s ease, visibility 0s; }
+#hero .hud .land, #hero .hud .pz { position: relative; min-width: 44px; min-height: 44px; display: flex; gap: 10px; align-items: center; justify-content: center; padding: 10px 16px; border: 1px solid rgb(255 207 138 / 55%); border-radius: 999px; background: rgb(4 6 13 / 60%); color: var(--fg); cursor: pointer; pointer-events: none; transition: background .25s ease, border-color .25s ease, opacity .25s ease, visibility 0s; will-change: transform, opacity; backface-visibility: hidden; }
 #hero .hud .pz { padding: 0; width: 44px; height: 44px; border-color: rgb(255 207 138 / 38%); color: #efd9b6; }
 #hero .hud .pz svg { width: 18px; height: 18px; }
 #hero .hud .land:focus-visible, #hero .hud .pz:focus-visible { background: rgb(255 207 138 / 16%); border-color: var(--gold); outline: none; box-shadow: none; }
