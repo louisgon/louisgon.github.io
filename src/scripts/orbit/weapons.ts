@@ -13,12 +13,12 @@ export const WEAP: Record<WeapId, { name: string; evo: string; pair: BoostId; pr
   missile: { name: 'Missiles', evo: 'hive', pair: 'magnet', prio: 7 },
   nova: { name: 'Nova', evo: 'supernova', pair: 'hull', prio: 9 },
 };
-export const WD: Record<WeapId, string[]> = {
-  pulse: ['Auto aims bolts at the nearest enemy', 'Bolt damage up 30%', 'Fires a second bolt', 'Bolt damage up 25%', 'A third bolt and faster fire'],
-  wing: ['An escort orbits you and rams enemies', 'A second escort joins', 'Wider orbit and harder hits', 'A third escort joins', 'A fourth escort and a faster orbit'],
-  arc: ['Lightning leaps between enemies and cracks armour', 'Chains to two more targets', 'Arc damage up 40%', 'Fires sooner and chains further', 'Two chains strike at once'],
-  missile: ['A homing pair that bursts on impact', 'Four missiles per salvo', 'Bigger, harder blasts', 'Six missiles per salvo', 'Faster reload and more damage'],
-  nova: ['A ring pulses out and shoves enemies back', 'A wider ring', 'Ring damage up 50%', 'Pulses sooner and wider', 'Every pulse comes twice'],
+const WD0: Record<WeapId, string> = {
+  pulse: 'Auto aims bolts at the nearest enemy',
+  wing: 'An escort orbits you and rams enemies',
+  arc: 'Lightning leaps between enemies and cracks armour',
+  missile: 'A homing pair that bursts on impact',
+  nova: 'A ring pulses out and shoves enemies back',
 };
 export const EVO: Record<string, { from: WeapId; name: string; d: string }> = {
   railstorm: { from: 'pulse', name: 'Railstorm', d: 'Three piercing rails, each through up to six ships' },
@@ -27,20 +27,38 @@ export const EVO: Record<string, { from: WeapId; name: string; d: string }> = {
   hive: { from: 'missile', name: 'Hive', d: 'A swarm of twelve seekers every salvo' },
   supernova: { from: 'nova', name: 'Supernova', d: 'Twin rings sweep the field and mend your hull' },
 };
-export const BOOST: Record<BoostId, { name: string; d: (L: number) => string }> = {
-  magnet: { name: 'Magnet', d: () => 'Pickup reach up 35%' },
-  damage: { name: 'Damage', d: () => 'All damage up 12%, more on heavies' },
-  cooldown: { name: 'Cooldown', d: () => 'Weapons fire 6% faster' },
-  area: { name: 'Area', d: () => 'Rings, blasts and orbits 12% larger' },
-  thrust: { name: 'Thrusters', d: () => 'Fly 10% faster' },
-  hull: { name: 'Hull', d: (L) => (L === 0 ? 'One more hull and slow repairs' : L % 2 ? 'Repairs come faster' : 'One more hull, faster repairs') },
-};
 const PULSE = { cd: [0.6, 0.56, 0.52, 0.48, 0.42], n: [1, 1, 2, 2, 3], dmg: [6, 7.5, 7.5, 9, 9.5] };
 const WING = { n: [1, 2, 2, 3, 4], r: [92, 92, 112, 112, 124], sp: [2.4, 2.4, 2.6, 2.8, 3.2], dmg: [7, 7, 10, 10, 12] };
 const ARC = { cd: [1.5, 1.4, 1.3, 1.1, 1.0], jumps: [3, 5, 5, 6, 7], dmg: [8, 8, 11, 11, 13], chains: [1, 1, 1, 1, 2], range: [150, 150, 150, 175, 175] };
 const MISS = { cd: [2.3, 2.2, 2.1, 1.9, 1.6], n: [2, 4, 4, 6, 6], dmg: [10, 10, 14, 14, 17], r: [46, 46, 60, 60, 66] };
 const NOVA = { cd: [3.4, 3.2, 3.0, 2.6, 2.4], r: [150, 180, 180, 205, 225], dmg: [8, 8, 12, 12, 15], dbl: [0, 0, 0, 0, 1] };
 
+type Ph = [string, string];
+const NUM = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'], ORD = ['', 'first', 'second', 'third', 'fourth', 'fifth'];
+const up = (a: number, b: number) => Math.round((b / a - 1) * 100), quick = (a: number, b: number) => Math.round((a / b - 1) * 100);
+const say = (ps: Ph[]) => {
+  const out: string[] = [];
+  for (let i = 0; i < ps.length; i++) { const [s, p] = ps[i]; if (s && i && ps[i - 1][0] === s) out[out.length - 1] += ` and ${p}`; else out.push(s ? `${s} ${p}` : p); }
+  const t = out.join(', '); return t[0].toUpperCase() + t.slice(1);
+};
+const STEP: Record<WeapId, (a: number, b: number) => Ph[]> = {
+  pulse: (a, b) => [...(PULSE.n[b] > PULSE.n[a] ? [['', `a ${ORD[PULSE.n[b]]} bolt`] as Ph] : []), ...(PULSE.dmg[b] > PULSE.dmg[a] ? [['bolt damage', `up ${up(PULSE.dmg[a], PULSE.dmg[b])}%`] as Ph] : []), ['fires', `${quick(PULSE.cd[a], PULSE.cd[b])}% faster`]],
+  wing: (a, b) => [...(WING.n[b] > WING.n[a] ? [['', `a ${ORD[WING.n[b]]} escort`] as Ph] : []), ...(WING.r[b] > WING.r[a] ? [['orbit', `${up(WING.r[a], WING.r[b])}% wider`] as Ph] : []), ...(WING.sp[b] > WING.sp[a] ? [['orbit', `${up(WING.sp[a], WING.sp[b])}% faster`] as Ph] : []), ...(WING.dmg[b] > WING.dmg[a] ? [['hits', `${up(WING.dmg[a], WING.dmg[b])}% harder`] as Ph] : [])],
+  arc: (a, b) => { const j = ARC.jumps[b] - ARC.jumps[a]; return [...(ARC.chains[b] > ARC.chains[a] ? [['', `${NUM[ARC.chains[b]]} chains at once`] as Ph] : []), ...(j ? [['', `${NUM[j]} more target${j > 1 ? 's' : ''} per chain`] as Ph] : []), ...(ARC.dmg[b] > ARC.dmg[a] ? [['arc damage', `up ${up(ARC.dmg[a], ARC.dmg[b])}%`] as Ph] : []), ...(ARC.range[b] > ARC.range[a] ? [['reach', `${up(ARC.range[a], ARC.range[b])}% longer`] as Ph] : []), ['fires', `${quick(ARC.cd[a], ARC.cd[b])}% faster`]]; },
+  missile: (a, b) => [...(MISS.n[b] > MISS.n[a] ? [['', `${NUM[MISS.n[b]]} missiles per salvo`] as Ph] : []), ...(MISS.r[b] > MISS.r[a] ? [['blasts', `${up(MISS.r[a], MISS.r[b])}% wider`] as Ph] : []), ...(MISS.dmg[b] > MISS.dmg[a] ? [['blasts', `${up(MISS.dmg[a], MISS.dmg[b])}% harder`] as Ph] : []), ['reloads', `${quick(MISS.cd[a], MISS.cd[b])}% faster`]],
+  nova: (a, b) => [...(NOVA.dbl[b] > NOVA.dbl[a] ? [['', 'every pulse comes twice'] as Ph] : []), ...(NOVA.r[b] > NOVA.r[a] ? [['ring', `${up(NOVA.r[a], NOVA.r[b])}% wider`] as Ph] : []), ...(NOVA.dmg[b] > NOVA.dmg[a] ? [['ring', `hits ${up(NOVA.dmg[a], NOVA.dmg[b])}% harder`] as Ph] : []), ['pulses', `${quick(NOVA.cd[a], NOVA.cd[b])}% sooner`]],
+};
+export const wdesc = (id: WeapId, L: number) => (L ? say(STEP[id](L - 1, L)) : WD0[id]);
+const pc = (k: number, L: number) => `${Math.round(100 + k * L)}% to ${Math.round(100 + k * (L + 1))}%`;
+const HULL = [0, 1, 1, 2, 2, 3];
+export const BOOST: Record<BoostId, { name: string; d: (L: number) => string }> = {
+  magnet: { name: 'Magnet', d: (L) => `Pickup reach ${pc(35, L)}` },
+  damage: { name: 'Damage', d: (L) => `Damage ${pc(12, L)} for every weapon, gunships take ${10 * (L + 1)}% extra` },
+  cooldown: { name: 'Cooldown', d: (L) => `Reload time ${pc(-6, L)} for Pulse, Arc, Missiles and Nova` },
+  area: { name: 'Area', d: (L) => `Size ${pc(12, L)} for Nova, Missiles, Wingmen and Arc` },
+  thrust: { name: 'Thrusters', d: (L) => `Top speed ${pc(10, L)}` },
+  hull: { name: 'Hull', d: (L) => `${HULL[L + 1] > HULL[L] ? 'One more hull, repairs' : 'Repairs'} ${L ? `after ${50 - 6 * L}s to ${50 - 6 * (L + 1)}s` : 'one after 44s'} without a hit` },
+};
 export const bl = (id: BoostId) => G.bm[id] || 0;
 export const dmgM = () => 1 + 0.12 * bl('damage'), cdM = () => 1 - 0.06 * bl('cooldown'), areaM = () => 1 + 0.12 * bl('area'), spdM = () => 1 + 0.1 * bl('thrust');
 export const magR = () => 135 * V.U * (1 + 0.35 * bl('magnet')) * (G.wm.missile && G.wm.missile.evo ? 1.3 : 1);

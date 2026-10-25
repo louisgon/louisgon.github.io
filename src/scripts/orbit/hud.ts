@@ -1,6 +1,6 @@
 import { reduce } from '../state';
 import { $ } from '../util';
-import { clamp, D, FAC, fmtT, G, input, pad2, sayT, ship, VP, type Kind, type Mode, type Option } from './core';
+import { clamp, D, FAC, fmtT, G, input, maxW, pad2, sayT, ship, VP, type Kind, type Mode, type Option } from './core';
 import { P } from './store';
 import { bl, maxHull, WEAP } from './weapons';
 import { options, cacheOptions } from './upgrades';
@@ -68,6 +68,7 @@ const settle = () => { input.keys.clear(); const s = input.stick; if (s) { s.ox 
 export function showCard(mode: Mode, f = 0) {
   G.card = true; G.mode = mode; D.hero.classList.add('carded'); settle();
   if (VP.p < 1) D.hud.inert = false;
+  const slots = `Weapons ${G.W.length} of ${maxW} · Boosts ${G.B.length} of ${maxW}`;
   const card = D.card, parts = { big: $('cardBig'), sub: $('cardSub'), rs: $('cardStats'), far: $('cardFar'), bld: $('cardBuild'), opts: D.opts, act: $('cardActions') };
   const show = (on: string[]) => Object.entries(parts).forEach(([k, el]) => (el.hidden = !on.includes(k)));
   let opts: Option[] = [];
@@ -75,11 +76,11 @@ export function showCard(mode: Mode, f = 0) {
   if (mode === 'level') {
     opts = options();
     $('cardT').textContent = `Level ${pad2(G.level - G.pend + 1)} · Choose one`;
-    show(['opts']);
+    $('cardSub').textContent = slots; show(['sub', 'opts']);
   } else if (mode === 'cache') {
     opts = cacheOptions();
     $('cardT').textContent = `${FAC[f].short} cache · ${opts[0].kind === 'e' ? 'Evolve one' : 'Choose one'}`;
-    show(['opts']);
+    $('cardSub').textContent = slots; show(['sub', 'opts']);
   } else if (mode === 'pause') {
     $('cardT').textContent = 'Paused'; D.cardMore.textContent = 'Resume'; show(['act']);
   } else {

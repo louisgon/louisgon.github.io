@@ -2,7 +2,7 @@ import { $ } from '../util';
 import { A, C, cam, D, DV, FAC, G, input, onView, restW, rs, scene, ship, shipR, simSeed, srnd, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, VP, type BoostId, type WeapId } from './core';
 import { LIT, prepFaction, S } from './art';
 import { AR, EB, EN, QBOT, query, SH, spawn, TG, WS, BM, BO, MI, NR, SP, compact, gridBuild, QB } from './world';
-import { addBolt, bl, maxHull, mkW, novaRing, railHits, spdM, updBolts, updNova, updWeapons, WEAP, gainXP } from './weapons';
+import { addBolt, bl, BOOST, EVO, maxHull, mkW, novaRing, railHits, spdM, updBolts, updNova, updWeapons, wdesc, WEAP, gainXP } from './weapons';
 import { dartLine, hit, nextFaction, spawnBoss } from './enemies';
 import { hurt, start } from './flight';
 import { renderBuild, renderHull } from './hud';
@@ -73,7 +73,7 @@ function heavyGap() {
 
 export function initTest() {
   const lg = {
-    st: () => ({ ready: A.ready && !!S.key && S.fk[G.fac] === S.key, on: G.on, clock: +G.clock.toFixed(2), enemies: WS.nE, level: G.level, kills: G.kills, hull: G.hull, over: G.over, card: G.card, mode: G.mode, sparks: SP.n, shards: SH.n, W: G.W.map((w) => `${w.id}${w.evo ? '*' : w.lv}`), B: G.B.map((b) => `${b}${bl(b)}`), evos: G.W.filter((w) => w.evo).map((w) => WEAP[w.id].evo), dpr: V.DPR, z: +V.Z.toFixed(3), u: +V.U.toFixed(3), vw: Math.round(V.vw), vh: Math.round(V.vh), boss: G.boss ? +(G.boss.hp / G.boss.max).toFixed(2) : -1, x: Math.round(ship.x), y: Math.round(ship.y), vx: Math.round(ship.vx), vy: Math.round(ship.vy), shots: BO.n + MI.n + BM.filter((b) => b.on).length, vig: +D.vig.style.opacity || 0, shake: +G.shake.toFixed(2), view: +VP.p.toFixed(3), dir: VP.dir, top: G.on && VP.p >= 1, hd: Math.round(((ship.h * 180 / Math.PI) % 360 + 360) % 360), sx: Math.round(V.W / 2 + (ship.x - cam.x) * V.Z), sy: Math.round(V.H / 2 + (ship.y - cam.y) * V.Z), rx: Math.round(rs.x), ry: Math.round(rs.y), rw0: Math.round(restW()), rh0: Math.round(restW() * A.aspR), light: !!LIT.light, lit: +scene.lit.toFixed(2), onscreen: EN.slice(0, WS.nE).filter((e) => !e.dead && onView(e.x, e.y, 0)).length, bossMode: G.boss ? G.boss.mode : -1, cache: !!G.cache, csx: G.cache ? Math.round(G.cache.x * C.wz + C.ox) : -1, csy: G.cache ? Math.round(G.cache.y * C.wz + C.oy) : -1, eligible: eligible(), nb: G.nextBoss, inv: +G.inv.toFixed(2), sizeErr: +sizeErr().toFixed(4), seed: simSeed(), draws: T.draws, keys: input.keys.size, hv: EN.slice(0, WS.nE).filter((e) => !e.dead && e.t === T_HV).length, gap: heavyGap(), sw: Math.round(ship.play * V.Z), sh: Math.round(ship.play * V.Z * A.aspT),
+    st: () => ({ ready: A.ready && !!S.key && S.fk[G.fac] === S.key, on: G.on, clock: +G.clock.toFixed(2), enemies: WS.nE, level: G.level, kills: G.kills, hull: G.hull, over: G.over, card: G.card, mode: G.mode, sparks: SP.n, shards: SH.n, W: G.W.map((w) => `${w.id}${w.evo ? '*' : w.lv}`), B: G.B.map((b) => `${b}${bl(b)}`), evos: G.W.filter((w) => w.evo).map((w) => WEAP[w.id].evo), dpr: V.DPR, z: +V.Z.toFixed(3), u: +V.U.toFixed(3), vw: Math.round(V.vw), vh: Math.round(V.vh), boss: G.boss ? +(G.boss.hp / G.boss.max).toFixed(2) : -1, x: Math.round(ship.x), y: Math.round(ship.y), vx: Math.round(ship.vx), vy: Math.round(ship.vy), shots: BO.n + MI.n + BM.filter((b) => b.on).length, vig: +D.vig.style.opacity || 0, shake: +G.shake.toFixed(2), view: +VP.p.toFixed(3), dir: VP.dir, top: G.on && VP.p >= 1, hd: Math.round(((ship.h * 180 / Math.PI) % 360 + 360) % 360), sx: Math.round(V.W / 2 + (ship.x - cam.x) * V.Z), sy: Math.round(V.H / 2 + (ship.y - cam.y) * V.Z), rx: Math.round(rs.x), ry: Math.round(rs.y), rw0: Math.round(restW()), rh0: Math.round(restW() * A.aspR), light: !!LIT.light, lit: +scene.lit.toFixed(2), onscreen: EN.slice(0, WS.nE).filter((e) => !e.dead && onView(e.x, e.y, 0)).length, bossMode: G.boss ? G.boss.mode : -1, cache: !!G.cache, csx: G.cache ? Math.round(G.cache.x * C.wz + C.ox) : -1, csy: G.cache ? Math.round(G.cache.y * C.wz + C.oy) : -1, eligible: eligible(), nb: G.nextBoss, inv: +G.inv.toFixed(2), sizeErr: +sizeErr().toFixed(4), seed: simSeed(), draws: T.draws, keys: input.keys.size, hullMax: maxHull(), hv: EN.slice(0, WS.nE).filter((e) => !e.dead && e.t === T_HV).length, gap: heavyGap(), sw: Math.round(ship.play * V.Z), sh: Math.round(ship.play * V.Z * A.aspT),
       fac: G.fac, faction: FAC[G.fac].id, lap: G.lap, switching: G.switching, fe: FAC.map((_, f) => live().filter((e) => e.f === f).length), peel: live().filter((e) => e.mode === 8).length,
       fresh: [...new Set(live().filter((e) => e.id >= T.mark && e.mode !== -1).map((e) => art(e.f, e.t)))].sort(), sprites: S.fk.map((k) => k === S.key),
       banner: $('msgB').textContent ?? '', bannerSub: $('msgS').textContent ?? '', bannerOn: +(D.msg.style.opacity || 0), bossName: D.bossName.textContent ?? '', bsx: G.boss ? Math.round(G.boss.x * C.wz + C.ox) : -1, bsy: G.boss ? Math.round(G.boss.y * C.wz + C.oy) : -1,
@@ -149,6 +149,19 @@ export function initTest() {
     },
     unfreeze: () => { T.frozen = false; },
     zap: () => { const S = AR[0]; S.on = true; S.t = 0; S.d = 9; S.g = true; S.n = 3; S.p.set([ship.x, ship.y, ship.x + 200 * V.U, ship.y, ship.x + 200 * V.U, ship.y - 200 * V.U]); },
+    exhaust: () => {
+      for (const id of Object.keys(WEAP) as WeapId[]) if (!G.wm[id] && G.W.length < 4) { const w = mkW(id); G.W.push(w); G.wm[id] = w; }
+      for (const w of G.W) { w.lv = 5; w.evo = true; }
+      for (const id of Object.keys(BOOST) as BoostId[]) if (!G.B.includes(id) && G.B.length < 4) G.B.push(id);
+      for (const b of G.B) G.bm[b] = 5; G.hull = maxHull(); renderBuild(); renderHull();
+    },
+    descs: () => {
+      const o: Record<string, string> = {};
+      for (const id of Object.keys(WEAP) as WeapId[]) for (let L = 0; L < 5; L++) o[`${id}${L}`] = wdesc(id, L);
+      for (const id of Object.keys(BOOST) as BoostId[]) for (let L = 0; L < 5; L++) o[`${id}${L}`] = BOOST[id].d(L);
+      for (const k of Object.keys(EVO)) o[k] = EVO[k].d;
+      return o;
+    },
   };
   Object.assign(window, { __lg: lg });
 }

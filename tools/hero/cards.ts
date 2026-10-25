@@ -2,6 +2,7 @@ import { devices, type Page } from 'playwright';
 import { clearCards, covers, hold, lg, noColons, page, shot, st, topDown, touch, track, type Ctx } from './lib';
 
 const cardOn = (p: Page) => p.waitForFunction(() => (window as unknown as { __lg: { st: () => { card: boolean } } }).__lg.st().card, null, { timeout: 5000 });
+const prs = (p: Page) => p.evaluate(() => [...document.querySelectorAll('#opts .opt')].map((o) => ({ k: o.className, tag: o.querySelector('.tg')?.textContent ?? '', d: o.querySelector('.ds')?.textContent ?? '', pr: o.querySelector('.pr')?.textContent ?? '' })));
 
 async function toCache(p: Page, w: number, h: number) {
   let mode = '', opts: string[] = [], j = 8; const t0 = Date.now();
@@ -25,6 +26,9 @@ export async function cards(c: Ctx) {
     if (card) await p.waitForFunction(() => document.querySelectorAll('#opts .opt').length === 3, null, { timeout: 3000 }).catch(() => {});
     const n = await p.evaluate(() => document.querySelectorAll('#opts .opt').length);
     c.ok('levelling pauses on a card with three choices', card && n === 3, `options ${n}, level ${(await st(p)).level}`);
+    const sub = await p.evaluate(() => document.getElementById('cardSub')!.textContent), first = await prs(p);
+    c.ok('the level card shows the four weapon and four boost slots', sub === 'Weapons 1 of 4 · Boosts 0 of 4', sub);
+    c.ok('every weapon card names its paired boost, new ones included', first.filter((o) => o.k.includes('kw')).every((o) => /^Evolves with /.test(o.pr)), first);
     await shot(c, p, 'cards-level');
     const cv = await covers(p);
     c.ok('the level card leaves the ship visible on desktop', !cv.over, cv);
@@ -67,8 +71,13 @@ export async function cards(c: Ctx) {
     await clearCards(p);
     await lg(p, 'cache(0)');
     const rw = await toCache(p, 1440, 900);
-    c.ok('a cache with nothing to evolve offers a strong reward card', rw.mode === 'cache' && rw.opts.length === 3 && rw.opts.every((o) => o.startsWith('x:')), rw);
-    await p.waitForTimeout(450); await p.keyboard.press('Digit1'); await clearCards(p); await lg(p, 'god(false)');
+    const full = await st(p);
+    c.ok('a cache with nothing to evolve offers only rewards that do something', rw.mode === 'cache' && rw.opts.length >= 2 && rw.opts.every((o) => o.startsWith('x:')) && rw.opts.includes('x:windfall') && (full.hull < full.hullMax || !rw.opts.includes('x:refit')), { ...rw, hull: full.hull });
+    await p.waitForTimeout(450); await p.keyboard.press('Digit1'); await clearCards(p);
+    await lg(p, 'exhaust()'); await lg(p, 'xp(200)'); await cardOn(p); await p.waitForTimeout(450);
+    const ex = (await lg(p, 'opts()')) as string[], eh = await st(p);
+    c.ok('an exhausted pool at full hull offers salvage and no repair it cannot make', eh.hull === eh.hullMax && ex.join() === 'x:salvage', { opts: ex, hull: eh.hull, max: eh.hullMax, W: eh.W, B: eh.B });
+    await clearCards(p); await lg(p, 'god(false)');
     const hb = (await st(p)).hull;
     await lg(p, 'hurt()'); await p.waitForTimeout(80);
     const h = await st(p);
@@ -85,6 +94,22 @@ export async function cards(c: Ctx) {
     const fa = await st(p);
     c.ok('Fly again restarts in the top down view without diving again', fa.on && fa.clock < 1 && !fa.over && fa.top, fa);
     c.ok('desktop cards console clean', !errors.length, errors);
+    await context.close();
+  }
+  {
+    const { p, context, errors } = await page(c, { viewport: { width: 1440, height: 900 } });
+    await p.waitForTimeout(800); await hold(p); await topDown(p); await p.mouse.move(720, 450);
+    await lg(p, "god(true); window.__lg.give('pulse', 5); window.__lg.give('magnet', 3); window.__lg.give('damage', 3); window.__lg.give('area', 3); window.__lg.give('thrust', 1)");
+    await lg(p, 'boss()'); await p.waitForTimeout(300); await lg(p, 'killBoss()'); await p.waitForTimeout(1600);
+    const sw = await toCache(p, 1440, 900), card = await prs(p);
+    c.ok('full boost slots never lock out an evolution, the cache trades a boost for the pair', sw.mode === 'cache' && sw.opts[0] === 'e:railstorm' && card[0]?.pr === 'Trades Thrusters for Cooldown', { ...sw, pr: card[0]?.pr });
+    await p.waitForTimeout(450); await p.keyboard.press('Digit1'); await p.waitForTimeout(400);
+    const tr = await st(p);
+    c.ok('the trade swaps the boost and evolves the weapon', tr.evos.includes('railstorm') && tr.B.includes('cooldown1') && !tr.B.some((b) => b.startsWith('thrust')) && tr.B.length === 4, { B: tr.B, evos: tr.evos });
+    const ds = (await lg(p, 'descs()')) as Record<string, string>;
+    c.ok('card descriptions match the balance tables', ds['pulse1'] === 'Bolt damage up 25%, fires 7% faster' && ds['arc2'] === 'Arc damage up 38%, fires 8% faster' && ds['wing2'] === 'Orbit 22% wider and 8% faster, hits 43% harder' && ds['cooldown0'] === 'Reload time 100% to 94% for Pulse, Arc, Missiles and Nova', ds);
+    c.ok('no description uses a colon or a dash', Object.values(ds).every((d) => !/[:—–]/.test(d)), Object.values(ds).filter((d) => /[:—–]/.test(d)));
+    c.ok('slot cards console clean', !errors.length, errors);
     await context.close();
   }
   {

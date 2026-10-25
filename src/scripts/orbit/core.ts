@@ -34,6 +34,7 @@ export const FAC: readonly Faction[] = [
     eng: [[[0.42, 0.9], [0.58, 0.9]], [[0.47, 0.82], [0.54, 0.82]], [[0.4, 0.88], [0.6, 0.88]], [[0.42, 0.87], [0.59, 0.87]]] },
 ];
 export const TAU = Math.PI * 2, BOOST = 1.45, LAND = 1, CAPH = 300, GZ0 = 1.15, TURN = Math.PI * 3;
+export const maxW = 4;
 export const coarse = matchMedia('(pointer: coarse)').matches;
 export const HOLD: Record<Kind, number> = { touch: 300, mouse: 230, key: 230 };
 export const STICK = { r: 64, dz: 10, curve: 1.7, ease: 9, turn: 1.6, spin: 0.06, speed: 0.9 };
