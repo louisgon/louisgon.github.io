@@ -14,6 +14,7 @@ a { color: inherit; }
 .k { color: var(--holo); }
 main { position: relative; z-index: 2; }
 section.s { position: relative; overflow-x: clip; padding: clamp(90px, 14vh, 160px) clamp(16px, 5vw, 72px); }
+@media (max-width: 860px) { section.s { padding-top: 72px; padding-bottom: 64px; } }
 .eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
 .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--holo); }
 [data-stage] .st { opacity: 0; transform: translate3d(0, 22px, 0); transition: opacity .8s var(--ease-out), transform 1s var(--ease-out); transition-delay: calc(var(--i, 0) * 110ms); will-change: transform, opacity; backface-visibility: hidden; }

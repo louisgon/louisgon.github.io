@@ -30,7 +30,7 @@
 .proj .planet img { position: relative; z-index: 1; width: 100%; height: 100%; display: block; }
 .proj:nth-of-type(odd) .planet { left: -12%; } .proj:nth-of-type(even) .planet { right: -12%; }
 .proj .planet { opacity: calc(var(--po, 0) * .95); }
-@media (max-width: 860px) { .proj .planet { width: 52vw; top: 14%; } .proj:nth-of-type(odd) .planet { left: auto; right: -14%; } .proj:nth-of-type(even) .planet { right: -14%; } .proj, .proj:nth-of-type(even) { grid-template-columns: 1fr; } .proj:nth-of-type(even) .pic { order: 0; } }
+@media (max-width: 860px) { .proj { padding: 36px 0; row-gap: 20px; } .proj .planet { width: 52vw; top: 14%; } .proj:nth-of-type(odd) .planet { left: auto; right: -14%; } .proj:nth-of-type(even) .planet { right: -14%; } .proj, .proj:nth-of-type(even) { grid-template-columns: 1fr; } .proj:nth-of-type(even) .pic { order: 0; } #work .hd { margin-bottom: 32px; } .proj h3 { margin: 10px 0 4px; } .proj p { margin: 14px 0; } .proj .stack { margin-bottom: 18px; } }
 #projects { position: relative; }
 .traj { position: absolute; left: calc(clamp(16px, 5vw, 72px) * -.5); top: 0; bottom: 0; width: 1px; background: rgb(143 211 255 / 12%); pointer-events: none; }
 .traj .fill { position: absolute; inset: 0; background: linear-gradient(180deg, var(--holo), var(--gold)); box-shadow: 0 0 8px rgb(143 211 255 / 70%); transform-origin: 50% 0; transform: scale3d(1, 0, 1); will-change: transform; }

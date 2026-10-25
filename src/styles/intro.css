@@ -12,4 +12,4 @@
 @media (max-width: 860px) { #intro .stats { grid-template-columns: 1fr; margin-top: 40px; } #intro .stats > div, #intro .stats > div:first-child { padding: 22px 0 18px; border-left: 0; border-bottom: 1px solid var(--line); } #intro .stats b { font-size: 48px; } }
 #intro .inner { position: relative; z-index: 1; }
 #intro .eyebrow, #intro .stats { will-change: transform, opacity; backface-visibility: hidden; }
-@media (max-width: 860px) { #intro .stats { max-width: none; } #intro .big { max-width: none; } }
+@media (max-width: 860px) { #intro .stats { max-width: none; } #intro .big { max-width: none; } #intro .pin { min-height: 0; align-content: start; padding-top: clamp(110px, 16vh, 150px) !important; padding-bottom: 56px !important; } }

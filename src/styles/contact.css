@@ -1,4 +1,4 @@
-#contact { min-height: 100vh; display: grid; place-items: center; overflow: hidden; }
+#contact { display: grid; place-items: center; overflow: hidden; padding-top: clamp(72px, 11vh, 120px); padding-bottom: clamp(72px, 11vh, 120px); }
 .tx-signal { position: relative; width: 100%; text-align: center; }
 #osc { position: relative; display: block; width: calc(100% + clamp(16px, 5vw, 72px) * 2); height: 120px; margin: 30px calc(clamp(16px, 5vw, 72px) * -1) 0; pointer-events: none; }
 .sg { position: relative; }
@@ -10,4 +10,4 @@
 .sg-row a { display: inline-flex; align-items: center; gap: 9px; color: var(--fg); text-decoration: none; transition: color .25s; } .sg-row a:hover { color: var(--holo); }
 .sg-row .ic { width: 16px; height: 16px; }
 [data-stage] .sg-mail.st { transition-property: opacity, transform, color; transition-duration: .8s, 1s, .4s; transition-delay: calc(var(--i, 0) * 110ms), calc(var(--i, 0) * 110ms), 0s; }
-@media (max-width: 860px) { #contact { min-height: auto; padding-bottom: 80px; } }
+@media (max-width: 860px) { #contact { padding-top: 72px; padding-bottom: 64px; } #osc { height: 96px; margin-top: 18px; } .sg-mail { margin-bottom: 34px; } }
