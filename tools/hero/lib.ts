@@ -9,7 +9,7 @@ export type St = {
   fac: number; faction: string; lap: number; switching: boolean; fe: number[]; peel: number; fresh: string[]; sprites: boolean[]; banner: string; bannerSub: string; bannerOn: number; bossName: string; bsx: number; bsy: number;
   drop: number; th: number; ba: number; punch: number; ra: number; ta: number; rw: number; tw: number;
   rw0: number; rh0: number; light: boolean; lit: number;
-  inv: number; sizeErr: number; seed: number; draws: number; keys: number; hullMax: number;
+  inv: number; sizeErr: number; bossMax: number; seed: number; draws: number; keys: number; calm: number; lines: number; bst: number; baim: number; bdx: number; bdy: number; bpass: number; hullMax: number;
 };
 
 export const launch = () => chromium.launch({ args: process.platform === 'darwin' ? ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] : [] });

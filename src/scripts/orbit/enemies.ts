@@ -1,5 +1,5 @@
 import { reduce } from '../state';
-import { addShake, cam, capD, coarse, D, FAC, G, onView, pad2, rand, ringPt, rnd, ship, shipR, srand, srnd, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, wrapA, type Enemy } from './core';
+import { addShake, cam, CAP, capD, coarse, D, FAC, G, onView, pad2, rand, ringPt, rnd, ship, shipR, srand, srnd, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, wrapA, type Enemy } from './core';
 import { PAL, prepFaction } from './art';
 import { CAPE, debris, EB, EN, fx, later, QS, query, SH, spark, spawn, TG, WS } from './world';
 import { bl, maxHull, regenEvery } from './weapons';
@@ -52,31 +52,42 @@ function heavyFire(e: Enemy, dt: number) {
   const i = EB.n++; EB.x[i] = nx; EB.y[i] = ny; EB.vx[i] = Math.cos(a) * sp; EB.vy[i] = Math.sin(a) * sp; EB.l[i] = 0; EB.f[i] = e.f;
   fx(0, nx, ny, e.w * 0.4, 0.2, PAL[e.f].fx, 0.8);
 }
+const CAPHP = { base: 0.636, grow: 1.6 };
+function brood(e: Enemy, n: number, a0: number) {
+  for (let i = 0; i < n; i++) { const a = a0 + i / n * TAU, s = spawn(T_SW, e.x + Math.cos(a) * e.w * 1.2, e.y + Math.sin(a) * e.w * 1.2); if (s) s.alpha = 0.3; }
+  fx(1, e.x, e.y, e.w * 2, 0.4, 0);
+}
+function aimAt(e: Enemy, first: boolean) { e.mode = 1; e.st = 0; e.aim = (first ? CAP.track : CAP.retrack) + CAP.lock; }
 function bossThink(e: Enemy, dt: number) {
-  const U = V.U; e.st += dt;
+  const U = V.U, Fa = FAC[e.f], st0 = e.st; e.st += dt;
   const dx = ship.x - e.x, dy = ship.y - e.y, d = Math.hypot(dx, dy) || 1, near = onView(e.x, e.y, -e.w * 0.4);
   if (e.mode === 0) {
     const sp = TYPES[T_BS].sp * U * (near ? 1 : 2.6) * (1 + 0.15 * (G.bossN - 1)), f = 1 - Math.exp(-dt * 1.5);
     e.vx += (dx / d * sp - e.vx) * f; e.vy += (dy / d * sp - e.vy) * f;
-    e.sum -= dt;
-    if (e.sum <= 0 && near) { e.sum = 9; for (let i = 0; i < 8; i++) { const a = i / 8 * TAU, s = spawn(T_SW, e.x + Math.cos(a) * e.w * 1.2, e.y + Math.sin(a) * e.w * 1.2); if (s) s.alpha = 0.3; } fx(1, e.x, e.y, e.w * 2, 0.4, 0); }
-    if (e.st > 5.5 && near) { e.mode = 1; e.st = 0; e.dx = dx / d; e.dy = dy / d; }
+    if (!Fa.brood) { e.sum -= dt; if (e.sum <= 0 && near) { e.sum = 9; brood(e, 8, 0); } }
+    if (e.st > 5.5 && near) { e.pass = Fa.passes; if (Fa.brood) { e.mode = 3; e.st = 0; } else aimAt(e, true); }
     e.rot += wrapA(Math.atan2(e.vx, -e.vy) - e.rot) * (1 - Math.exp(-dt * TYPES[T_BS].turn));
+  } else if (e.mode === 3) {
+    const k = Math.exp(-dt * 4); e.vx *= k; e.vy *= k;
+    for (let w = 0; w < 3; w++) { const at = 0.35 + w * 0.5; if (st0 < at && e.st >= at) brood(e, 6, w * 0.5); }
+    if (e.st > 1.8) aimAt(e, true);
   } else if (e.mode === 1) {
     const k = Math.exp(-dt * 6); e.vx *= k; e.vy *= k;
-    if (e.st < 0.55) { e.dx = dx / d; e.dy = dy / d; }
+    if (e.st < e.aim - CAP.lock) { e.dx = dx / d; e.dy = dy / d; }
     e.rot += wrapA(Math.atan2(e.dx, -e.dy) - e.rot) * (1 - Math.exp(-dt * 9));
-    if (e.st > 1.05) { e.mode = 2; e.st = 0; addShake(0.25); fx(0, e.x, e.y, e.w * 1.6, 0.3, 1); }
+    if (e.st > e.aim) { e.mode = 2; e.st = 0; addShake(0.25); fx(0, e.x, e.y, e.w * 1.6, 0.3, 1); }
   } else {
     const sp = 560 * U; e.vx = e.dx * sp; e.vy = e.dy * sp; e.rot = Math.atan2(e.dx, -e.dy);
-    if (rand() < 0.6) spark(e.x - e.dx * e.L * 1.3 + rnd(-0.3, 0.3) * e.w, e.y - e.dy * e.L * 1.3, -e.dx * 200 * U, -e.dy * 200 * U, 0.4, 14 * U, PAL[e.f].streak[0], 2);
-    if (e.st > 0.7) { e.mode = 0; e.st = 0; }
+    if (rand() < 0.6) spark(e.x - e.dx * e.L * 1.3 + rnd(-0.3, 0.3) * e.w * Fa.wide, e.y - e.dy * e.L * 1.3, -e.dx * 200 * U, -e.dy * 200 * U, 0.4, 14 * U, PAL[e.f].streak[0], 2);
+    if (e.st > Fa.dash) { if (--e.pass > 0) aimAt(e, false); else { e.mode = 0; e.st = 0; } }
   }
 }
+const capHp = () => Math.round(TYPES[T_BS].hp * CAPHP.base * CAPHP.grow ** G.bossN);
 export function spawnBoss() {
-  const P = ringPt(140 * V.U), e = spawn(T_BS, P.x, P.y); if (!e) return;
-  e.hp = e.max = TYPES[T_BS].hp * (1 + 0.9 * G.bossN) * (1 + G.clock / 60 * 0.35) * (G.bossN ? 1 : 0.5); e.sum = 3.5; G.boss = e; G.bossN++;
+  const P = ringPt(140 * V.U), e = spawn(T_BS, P.x, P.y); if (!e) return false;
+  e.hp = e.max = capHp(); e.sum = 3.5; G.boss = e; G.bossN++;
   D.bossName.textContent = G.lap ? `${FAC[G.fac].cap} ${pad2(G.lap + 1)}` : FAC[G.fac].cap;
+  return true;
 }
 function bossDown(e: Enemy) {
   G.boss = null; D.hero.classList.remove('bossing');
@@ -88,14 +99,14 @@ function bossDown(e: Enemy) {
   if (G.hull < maxHull()) { G.hull++; setHull(false, true); }
   const name = FAC[f].short;
   msg(`${name} down`, 'Fly over the cache', 2200, true); live(`${name} down. Hull repaired. Fly over the gold cache it drops.`);
-  G.switching = true; later(2.7, nextFaction);
+  G.nextBoss = Infinity; G.calmT = G.clock; G.dartT = Math.max(G.dartT, CAP.calm + CAP.ramp * 0.5);
+  G.switching = true; later(CAP.calm, nextFaction);
 }
 export function nextFaction() {
   G.switching = false; if (G.over || !G.on) return;
   G.fac = (G.fac + 1) % FAC.length; if (!G.fac) G.lap++;
   prepFaction(G.fac);
   for (let i = 0; i < WS.nE; i++) { const e = EN[i]; if (!e.dead && e.f !== G.fac && e.t !== T_DA && e.t !== T_BS && e.mode >= 0 && e.mode < 8) e.peel = srnd(0.3, 3.4); }
-  G.nextBoss = Math.max(G.nextBoss, G.clock + 8);
   const F = FAC[G.fac];
   msg(F.banner, F.sub || `Lap ${pad2(G.lap + 1)}`, 2600, true, F.id); live(`${F.banner}.`);
 }
@@ -123,15 +134,18 @@ const popTarget = () => {
   const t = G.clock, st = Math.floor(t / 30), n = t < 20 ? 4 + t * 0.35 : 10 + st * 16 + Math.max(0, st - 3) * 6 + (t % 30) * 0.2;
   return Math.min(CAPE - 4, n * (coarse || V.tall ? 0.6 : 1));
 };
+export const calmK = () => { const c = G.clock - G.calmT; return c < CAP.calm ? 0.25 : Math.min(1, 0.25 + 0.75 * (c - CAP.calm) / CAP.ramp); };
 export function spawner(dt: number) {
-  const t = G.clock, stress = import.meta.env.MODE === 'test' && T.stress; let target = popTarget(); if (G.boss) target *= 0.75;
+  const t = G.clock, stress = import.meta.env.MODE === 'test' && T.stress, calm = t - G.calmT, k = calmK();
+  let target = popTarget() * k; if (G.boss) target *= 0.75;
   const rate = stress ? 400 : t < 20 ? 0.8 + t * 0.03 : 1.3 + t / 22 + Math.pow(Math.max(0, t - 60), 1.5) / 600;
-  G.spawnAcc += dt * (rate + Math.max(0, target * 0.85 - WS.nE) * 0.6);
+  G.spawnAcc += dt * k * (rate + Math.max(0, target * 0.85 - WS.nE) * 0.6);
   while (G.spawnAcc >= 1 && WS.nE < target) { const c = Math.max(1, Math.min(Math.floor(G.spawnAcc), 1 + Math.floor(srand() * Math.min(5, 1 + t / 35)))); G.spawnAcc -= c; group(c); }
   if (G.spawnAcc > 6) G.spawnAcc = 6;
-  G.dartT -= dt; if (G.dartT <= 0 && !stress) { dartLine(); G.dartT = Math.max(4.5, 11 - t / 40) + srnd(0, 2.5); }
-  if (!G.warned && !G.switching && t >= G.nextBoss - 3) { const n = FAC[G.fac].short; G.warned = true; msg('Warning', `${n} inbound`, 2400, true); live(`Warning. ${n} inbound.`); D.hero.classList.add('bossing'); }
-  if (t >= G.nextBoss && !G.boss && !G.switching) { spawnBoss(); G.nextBoss += 180; G.warned = false; }
+  G.dartT -= dt; if (G.dartT <= 0 && !stress && calm >= CAP.calm) { dartLine(); G.dartT = Math.max(4.5, 11 - t / 40) + srnd(0, 2.5); }
+  const due = !G.boss && !G.cache && !G.switching;
+  if (!G.warned && due && t >= G.nextBoss - 3) { const n = FAC[G.fac].short; G.warned = true; msg('Warning', `${n} inbound`, 2400, true); live(`Warning. ${n} inbound.`); D.hero.classList.add('bossing'); }
+  if (due && t >= G.nextBoss && spawnBoss()) { G.nextBoss = Infinity; G.warned = false; }
   if (t >= 60 && !G.tips.hv) { G.tips.hv = 1; msg('Gunships', 'Slow and armoured', 1200); }
   if (t >= 120 && !G.tips.arm) { G.tips.arm = 1; msg('Gunships armed', 'Their shots are slow', 1300); }
   const re = regenEvery();
@@ -177,7 +191,7 @@ export function updEnemies(dt: number, rdt: number) {
     e.x += (e.vx + e.kx) * dt; e.y += (e.vy + e.ky) * dt;
     const kd = Math.exp(-dt * 5); e.kx *= kd; e.ky *= kd;
     if (e.alpha < 1) e.alpha = Math.min(1, e.alpha + dt * 4);
-    if (!G.over && G.inv <= 0 && e.alpha > 0.6 && e.mode !== 8) { const q = e.r + sr; if ((e.L ? capD(e, sx, sy) : Math.hypot(e.x - sx, e.y - sy)) < q) hurt(e.t === T_HV ? 'heavy' : e.t === T_DA ? 'dart' : e.t === T_BS ? 'boss' : 'swarm'); }
+    if (!G.over && G.inv <= 0 && e.alpha > 0.6 && e.mode !== 8) { const q = e.r * (e.t === T_BS && e.mode === 2 ? Fa.wide : 1) + sr; if ((e.L ? capD(e, sx, sy) : Math.hypot(e.x - sx, e.y - sy)) < q) hurt(e.t === T_HV ? 'heavy' : e.t === T_DA ? 'dart' : e.t === T_BS ? 'boss' : 'swarm'); }
   }
 }
 export function separate(dt: number) {

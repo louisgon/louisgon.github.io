@@ -1,6 +1,12 @@
 import { devices, type Page } from 'playwright';
-import { hold, lg, noColons, page, shot, st, topDown, waitFaction, type Ctx } from './lib';
+import { hold, lg, noColons, page, shot, st, topDown, track, waitFaction, type Ctx } from './lib';
 
+type Seen = { dash: number[]; lock: number[]; brood: number[]; passes: number[] };
+const BEHAVE: Record<string, { say: string; ok: (w: Seen) => boolean }> = {
+  fleet: { say: 'makes one long broad charge', ok: (w) => w.passes[0] === 1 && w.dash[0] >= 0.75 && !w.brood.length },
+  pirate: { say: 'makes two short passes', ok: (w) => w.passes[0] === 2 && w.dash.slice(0, 2).every((d) => d <= 0.45) && !w.brood.length },
+  alien: { say: 'stops to summon a brood before it charges', ok: (w) => w.brood.length > 0 && w.brood[0] >= 12 && w.passes[0] === 1 },
+};
 const ORDER = [
   { id: 'fleet', cap: 'Rival flagship', banner: 'Rival fleet returns' },
   { id: 'pirate', cap: 'Pirate dreadnought', banner: 'Pirate raiders inbound' },
@@ -11,6 +17,20 @@ async function bannerUp(p: Page) {
   let s = await st(p);
   for (let i = 0; i < 20 && s.bannerOn < 0.9; i++) { if (s.card && (s.mode === 'level' || s.mode === 'cache')) await p.keyboard.press('Digit1'); await p.waitForTimeout(100); s = await st(p); }
   return s;
+}
+async function watch(p: Page, ms: number) {
+  const tr = track(p, ms, ['bossMode', 'bst', 'baim', 'bdx', 'bdy', 'enemies']); let done = false; void tr.then(() => (done = true));
+  while (!done) { const s = await st(p); if (s.card && (s.mode === 'level' || s.mode === 'cache')) await p.keyboard.press('Digit1'); await p.waitForTimeout(150); }
+  const k = await tr, dash: number[] = [], lock: number[] = [], brood: number[] = []; let cyc: number[] = [0];
+  for (let i = 1; i < k.bossMode.length; i++) {
+    const m = k.bossMode[i], pm = k.bossMode[i - 1];
+    if (m === 2 && pm === 1) { let j = i - 1; while (j > 0 && k.bossMode[j - 1] === 1) j--; let q = j; while (q < i - 1 && (k.bdx[q] !== k.bdx[i - 1] || k.bdy[q] !== k.bdy[i - 1])) q++; lock.push(+(k.bst[i - 1] - k.bst[q]).toFixed(2)); cyc[cyc.length - 1]++; }
+    if (pm === 2 && m !== 2) dash.push(+k.bst[i - 1].toFixed(2));
+    if (pm === 3 && m !== 3) { let j = i - 1; while (j > 0 && k.bossMode[j - 1] === 3) j--; brood.push(Math.max(...k.enemies.slice(j, i)) - k.enemies[j]); }
+    if (m === 0 && pm !== 0) cyc.push(0);
+  }
+  cyc = cyc.filter(Boolean);
+  return { dash, lock, brood, passes: cyc };
 }
 async function spawned(p: Page, ms: number) {
   await lg(p, 'mark()');
@@ -27,14 +47,18 @@ export async function fleets(c: Ctx) {
     const s0 = await spawned(p, 3500);
     c.ok('the run starts with the Rival fleet', s0.faction === 'fleet' && s0.lap === 0 && s0.fresh.length > 0 && s0.fresh.every((k) => k.startsWith('fleet-')), s0.fresh);
     c.ok('every faction has its sprites ready before it is needed', s0.sprites.every(Boolean), s0.sprites);
-    const seen: string[] = [], banners: string[] = [];
+    const seen: string[] = [], banners: string[] = [], hps: number[] = [];
     let shotN = 0;
     for (let step = 1; step <= 3; step++) {
       const want = ORDER[step % 3], from = ORDER[(step - 1) % 3];
       await lg(p, 'boss()'); await p.waitForTimeout(300);
       const b = await st(p);
       c.ok(`the ${from.id} capital ship is named for its faction`, b.bossName === from.cap && b.boss > 0, b.bossName);
+      hps.push(b.bossMax);
       await lg(p, 'bossAt(260, -60)'); await p.waitForTimeout(400); await shot(c, p, `fleets-capital-${from.id}`);
+      const w = await watch(p, 11000), be = BEHAVE[from.id];
+      c.ok(`the ${from.id} capital locks its aim at least 0.5 seconds before every charge`, w.lock.length > 0 && w.lock.every((v) => v >= 0.49), w);
+      c.ok(`the ${from.id} capital ${be.say}`, be.ok(w), w);
       const before = (await st(p)).fe[(step - 1) % 3];
       await lg(p, 'killBoss()'); await p.mouse.move(120, 450); await p.waitForTimeout(500);
       const k = await st(p);
@@ -53,7 +77,8 @@ export async function fleets(c: Ctx) {
     }
     c.ok('the order loops Rival fleet, pirates, aliens and back to the Rival fleet', seen.join() === 'pirate,alien,fleet', seen);
     await lg(p, 'boss()'); await p.waitForTimeout(300);
-    const lap = await st(p);
+    const lap = await st(p); hps.push(lap.bossMax);
+    c.ok('each capital has at most twice the hull of the one before', hps.every((h, i) => !i || h <= hps[i - 1] * 2 + 1), hps);
     c.ok('the second lap numbers its capital ships', lap.bossName === 'Rival flagship 02', lap.bossName);
     await lg(p, 'god(false)'); for (let i = 0; i < 8; i++) { await lg(p, 'hurt()'); await p.waitForTimeout(150); }
     await p.waitForTimeout(1700);

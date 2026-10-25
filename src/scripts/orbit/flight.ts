@@ -1,6 +1,6 @@
 import { reduce } from '../state';
 import { $ } from '../util';
-import { A, addShake, cam, clamp, D, DV, egg, eio, eout, fmtT, G, GZ0, input, lerp, reseed, restW, rs, sayT, ship, shipW, sm, STICK, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
+import { A, addShake, cam, CAP, clamp, D, DV, egg, eio, eout, fmtT, G, GZ0, input, lerp, reseed, restW, rs, sayT, ship, shipW, sm, STICK, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
 import { AR, BM, BO, DB, EB, EN, fx, MI, NR, QR, query, RB, resetWorld, SH, SP, sparks, TG, TQ, WS } from './world';
 import { deathBurst } from './enemies';
 import { mkW, needFor } from './weapons';
@@ -14,7 +14,7 @@ export const cancelInput = () => { input.charge = null; input.keys.clear(); inpu
 export function start(kind?: Kind) {
   G.run++; reseed(0x0b17 ^ Math.imul(G.run, 0x9e3779b1)); store.set('lg01-played', 1); egg.whisper = -1; egg.over = false; D.hero.style.cursor = '';
   resetWorld();
-  Object.assign(G, { on: true, over: false, dead: false, card: false, mode: '', clock: 0, kills: 0, level: 1, xp: 0, need: needFor(1), pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, W: [], wm: {}, B: [], bm: {}, miss: {}, opts: [], spawnAcc: 2.5, dartT: 26, nextBoss: 100, bossN: 0, boss: null, cache: null, warned: false, regen: 0, killsF: 0, msgT: -1e9, arcId: 0, tips: {}, newBest: false, fac: 0, lap: 0, switching: false });
+  Object.assign(G, { on: true, over: false, dead: false, card: false, mode: '', clock: 0, kills: 0, level: 1, xp: 0, need: needFor(1), pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, W: [], wm: {}, B: [], bm: {}, miss: {}, opts: [], spawnAcc: 2.5, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null, cache: null, warned: false, regen: 0, killsF: 0, msgT: -1e9, arcId: 0, tips: {}, newBest: false, fac: 0, lap: 0, switching: false });
   if (import.meta.env.MODE === 'test') Object.assign(T, { botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [] });
   const w = mkW('pulse'); G.W.push(w); G.wm.pulse = w;
   renderHull(); renderBuild(); resetHud();

@@ -1,5 +1,5 @@
 import { reduce } from '../state';
-import { A, at, base, C, clamp, ctx, egg, F, G, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, scene, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
+import { A, at, base, C, clamp, ctx, egg, F, FAC, G, HOLD, input, LP, onView, rand, restH, restW, rnd, rs, scene, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
 import { DCOL, LIT, PAL, prepFaction, S, SK, SPR, TX } from './art';
 import { AR, BM, BO, DB, EB, EN, FX, MI, NR, RB, rm, SH, SP, TG, WS } from './world';
 import { played, store } from './store';
@@ -114,7 +114,7 @@ export function drawEnemyGlows(t: number) {
     const e = EN[i]; if (e.dead || e.mode === -1 || e.alpha <= 0.01 || !onView(e.x, e.y, cull(e))) continue;
     const Gl = S.g[e.f][e.t]; if (!Gl || S.fk[e.f] !== S.key) continue;
     n++;
-    const ch = e.t === T_BS ? (e.mode === 1 ? clamp(e.st / 1.05) : e.mode === 2 ? 1 : 0) : 0, c = Math.cos(e.rot), sn = Math.sin(e.rot);
+    const ch = e.t === T_BS ? (e.mode === 1 ? clamp(e.st / e.aim) : e.mode === 2 ? 1 : 0) : 0, c = Math.cos(e.rot), sn = Math.sin(e.rot);
     const sc = e.w * S.dwf[e.f][e.t] / Gl.iw * (1 + ch * 0.25), gw = Gl.w * sc, gh = Gl.h * sc;
     ctx.globalAlpha = Math.min(1, e.alpha * glowK * (reduce ? 0.85 : 0.78 + 0.22 * Math.sin(t * 19 + e.ph * 7)) * (e.mode === 8 ? 1.3 : 1) + ch * 0.5);
     at(e.x, e.y, c, sn); ctx.drawImage(Gl.c, -gw / 2, -gh / 2, gw, gh);
@@ -193,7 +193,7 @@ export function drawTele(dt: number, t: number) {
   }
   const b = G.boss;
   if (b && b.mode === 1) {
-    const f = clamp(b.st / 1.05), w = b.w * 1.15, x0 = b.x - b.dx * b.L, y0 = b.y - b.dy * b.L;
+    const f = clamp(b.st / b.aim), w = b.w * 1.15 * FAC[b.f].wide, x0 = b.x - b.dx * b.L, y0 = b.y - b.dy * b.L;
     ctx.globalAlpha = 0.22 + 0.32 * f; ctx.fillStyle = 'rgba(90,20,6,0.7)'; band(x0, y0, b.dx, b.dy, w, len); ctx.fill();
     ctx.globalAlpha = 0.18 + 0.3 * f; ctx.fillStyle = 'rgba(255,110,60,0.55)'; band(x0, y0, b.dx, b.dy, w * (0.25 + 0.75 * f), len); ctx.fill();
     ctx.globalAlpha = 0.55 + 0.45 * f; ctx.strokeStyle = 'rgba(255,207,138,0.85)'; ctx.lineWidth = 2; band(x0, y0, b.dx, b.dy, w, len); ctx.stroke();

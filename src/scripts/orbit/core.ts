@@ -11,7 +11,7 @@ export type Weapon = { id: WeapId; lv: number; evo: boolean; t: number; a: numbe
 export type Option = { kind: 'w' | 'b' | 'e' | 'x'; id: string; L: number; name: string; d: string; icon: string; pr: string };
 export type Enemy = {
   t: number; id: number; x: number; y: number; vx: number; vy: number; kx: number; ky: number; hp: number; max: number; w: number; r: number; L: number; sp: number; flash: number; elite: number; ph: number;
-  mode: number; st: number; dx: number; dy: number; fire: number; charge: number; sum: number; wingT: number; ringT: number; arc: number; rot: number; alpha: number; age: number; dead: number; f: number; peel: number;
+  mode: number; st: number; dx: number; dy: number; fire: number; charge: number; sum: number; pass: number; aim: number; wingT: number; ringT: number; arc: number; rot: number; alpha: number; age: number; dead: number; f: number; peel: number;
 };
 export type Charge = { kind: Kind; t0: number; sx: number; sy: number; id: number; x: number; y: number };
 type Meta = { sun: { x: number; y: number }; limb: number; edge: number[] };
@@ -24,17 +24,18 @@ export const TYPES = [
   { role: 'capital', w: 96, dw: 0, hp: 1100, sp: 34, r: 0.44, xp: 0, mass: 60, turn: 2.2, er: 0.05 },
 ] as const;
 type Pt = readonly (readonly [number, number])[];
-export type Faction = { id: string; cap: string; short: string; reach: string; banner: string; sub: string; glow: string; core: string; eng: readonly [Pt, Pt, Pt, Pt]; fire: number; jink: number; weave: number; speed: number };
+export type Faction = { id: string; cap: string; short: string; reach: string; banner: string; sub: string; glow: string; core: string; eng: readonly [Pt, Pt, Pt, Pt]; fire: number; jink: number; weave: number; speed: number; passes: number; dash: number; wide: number; brood: number };
 export const FAC: readonly Faction[] = [
-  { id: 'fleet', cap: 'Rival flagship', short: 'Flagship', reach: 'the Rival fleet', banner: 'Rival fleet returns', sub: '', glow: '255,176,74', core: '255,232,190', fire: 1, jink: 0, weave: 0, speed: 1,
+  { id: 'fleet', cap: 'Rival flagship', short: 'Flagship', reach: 'the Rival fleet', banner: 'Rival fleet returns', sub: '', glow: '255,176,74', core: '255,232,190', fire: 1, jink: 0, weave: 0, speed: 1, passes: 1, dash: 0.8, wide: 2, brood: 0,
     eng: [[[0.33, 0.93], [0.67, 0.93]], [[0.44, 0.83], [0.56, 0.83]], [[0.37, 0.93], [0.61, 0.93]], [[0.26, 0.92], [0.5, 0.93], [0.74, 0.92]]] },
-  { id: 'pirate', cap: 'Pirate dreadnought', short: 'Dreadnought', reach: 'the Pirate raiders', banner: 'Pirate raiders inbound', sub: 'Their gunships fire faster', glow: '255,122,44', core: '255,226,170', fire: 1.25, jink: 1, weave: 0, speed: 1,
+  { id: 'pirate', cap: 'Pirate dreadnought', short: 'Dreadnought', reach: 'the Pirate raiders', banner: 'Pirate raiders inbound', sub: 'Their gunships fire faster', glow: '255,122,44', core: '255,226,170', fire: 1.25, jink: 1, weave: 0, speed: 1, passes: 2, dash: 0.4, wide: 1, brood: 0,
     eng: [[[0.38, 0.95], [0.63, 0.95]], [[0.41, 0.92], [0.6, 0.92]], [[0.22, 0.88], [0.5, 0.95], [0.78, 0.88]], [[0.28, 0.94], [0.5, 0.95], [0.72, 0.94]]] },
-  { id: 'alien', cap: 'Hive mothership', short: 'Mothership', reach: 'the Alien swarm', banner: 'Alien swarm inbound', sub: 'Faster fighters that weave', glow: '255,84,226', core: '214,255,255', fire: 1, jink: 0, weave: 1, speed: 1.1,
+  { id: 'alien', cap: 'Hive mothership', short: 'Mothership', reach: 'the Alien swarm', banner: 'Alien swarm inbound', sub: 'Faster fighters that weave', glow: '255,84,226', core: '214,255,255', fire: 1, jink: 0, weave: 1, speed: 1.1, passes: 1, dash: 0.7, wide: 1, brood: 1,
     eng: [[[0.42, 0.9], [0.58, 0.9]], [[0.47, 0.82], [0.54, 0.82]], [[0.4, 0.88], [0.6, 0.88]], [[0.42, 0.87], [0.59, 0.87]]] },
 ];
 export const TAU = Math.PI * 2, BOOST = 1.45, LAND = 1, CAPH = 300, GZ0 = 1.15, TURN = Math.PI * 3;
 export const maxW = 4;
+export const CAP = { first: 75, gap: 120, calm: 3, ramp: 5, track: 0.45, retrack: 0.25, lock: 0.6 };
 export const coarse = matchMedia('(pointer: coarse)').matches;
 export const HOLD: Record<Kind, number> = { touch: 300, mouse: 230, key: 230 };
 export const STICK = { r: 64, dz: 10, curve: 1.7, ease: 9, turn: 1.6, spin: 0.06, speed: 0.9 };
@@ -67,7 +68,7 @@ export const input = { mx: 0.5, my: 0.5, gx: 0, gy: 0, follow: false, charge: nu
 export const G = {
   on: false, run: 0, clock: 0, kills: 0, level: 1, xp: 0, need: 4, pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, over: false, dead: false, card: false, mode: '' as Mode,
   W: [] as Weapon[], wm: {} as Partial<Record<WeapId, Weapon>>, B: [] as BoostId[], bm: {} as Partial<Record<BoostId, number>>, miss: {} as Partial<Record<WeapId, number>>, opts: [] as Option[],
-  spawnAcc: 0, dartT: 26, nextBoss: 100, bossN: 0, boss: null as Enemy | null, cache: null as { x: number; y: number; t: number; f: number } | null, warned: false, regen: 0, killsF: 0, msgT: -1e9, msgHold: 1100,
+  spawnAcc: 0, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null as Enemy | null, cache: null as { x: number; y: number; t: number; f: number } | null, warned: false, regen: 0, killsF: 0, msgT: -1e9, msgHold: 1100,
   fac: 0, lap: 0, switching: false,
   arcId: 0, tips: {} as Record<string, number>, trailAcc: 0, newBest: false, px: 0, py: 0, ease: 0,
 };

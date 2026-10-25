@@ -258,11 +258,13 @@ export function updNova(dt: number) {
     }
   }
 }
+const FIRST = { mag: 1.6, drift: 90 };
 export function updShards(dt: number) {
-  const P = SH, U = V.U, mr = magR(), mr2 = mr * mr, pick = shipR() + 10 * U;
+  const P = SH, U = V.U, first = G.level < 2, mr = magR() * (first ? FIRST.mag : 1), mr2 = mr * mr, pick = shipR() + 10 * U;
   for (let i = P.n - 1; i >= 0; i--) {
     P.a[i] += dt;
     const dx = ship.x - P.x[i], dy = ship.y - P.y[i], d2 = dx * dx + dy * dy;
+    if (first && !P.st[i]) { const d = Math.sqrt(d2) || 1, m = Math.min(d, FIRST.drift * U * dt); P.x[i] += dx / d * m; P.y[i] += dy / d * m; }
     if (!P.st[i] && d2 < mr2 && !G.over) { P.st[i] = 1; P.sp[i] = -120 * U; }
     if (P.st[i]) {
       const d = Math.sqrt(d2) || 1;

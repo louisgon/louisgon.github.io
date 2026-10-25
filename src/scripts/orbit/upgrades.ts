@@ -1,4 +1,4 @@
-import { addShake, G, maxW, ship, srand, V, type BoostId, type Option, type WeapId } from './core';
+import { addShake, CAP, G, maxW, ship, srand, V, type BoostId, type Option, type WeapId } from './core';
 import { fx, sparks } from './world';
 import { bl, BOOST, EVO, gainXP, maxHull, mkW, needFor, wdesc, WEAP } from './weapons';
 import { hideCard, live, msg, renderBuild, renderHull, showCard } from './hud';
@@ -72,7 +72,7 @@ export function choose(i: number) {
   const after = maxHull(); if (after > before) G.hull += after - before;
   G.hull = Math.min(G.hull, maxHull());
   renderHull(); renderBuild();
-  if (!fromCache) G.pend--;
+  if (fromCache) G.nextBoss = G.clock + CAP.gap; else G.pend--;
   if (o.id === 'windfall') gainXP(G.need - G.xp + needFor(G.level + 1));
   if (o.id === 'salvage') gainXP(0);
   if (G.pend > 0 && !G.over) showCard('level'); else hideCard();
