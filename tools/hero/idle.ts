@@ -8,7 +8,7 @@ const SIZES: [string, BrowserContextOptions][] = [
   ['desktop 1440', { viewport: { width: 1440, height: 900 } }], ['desktop 1920', { viewport: { width: 1920, height: 1080 } }],
 ];
 
-const text = (p: Page) => p.evaluate(() => [...document.querySelectorAll('#hero .eyebrow, #hero .proof')].map((e) => {
+const text = (p: Page) => p.evaluate(() => [...document.querySelectorAll('#hero .copy .hs, #hero .copy .hc')].map((e) => {
   const r = document.createRange(); r.selectNodeContents(e); const q = [...r.getClientRects()], b = r.getBoundingClientRect();
   return { lines: new Set(q.map((x) => Math.round(x.top))).size, box: [b.left, b.top, b.right, b.bottom], vw: innerWidth };
 }));
@@ -34,10 +34,10 @@ export async function idle(c: Ctx) {
     const { p, context, errors } = await page(c, opts);
     await p.waitForTimeout(2600);
     const t = await text(p);
-    c.ok(`${name} eyebrow and stats each sit on one line inside the screen`, t.every((e) => e.lines === 1 && e.box[0] >= 0 && e.box[2] <= e.vw - 12), t.map((e) => `${e.lines} line, right ${Math.round(e.box[2])} of ${e.vw}`));
+    c.ok(`${name} keeps the subline and pills inside the screen`, t.every((e) => e.box[0] >= 0 && e.box[2] <= e.vw - 12), t.map((e) => `right ${Math.round(e.box[2])} of ${e.vw}`));
     let gap = Infinity;
     for (let i = 0; i < 8; i++) { gap = Math.min(gap, (await p.evaluate((r) => (window as unknown as { __lg: { shipGap: (r: number[][]) => number } }).__lg.shipGap(r), t.map((e) => e.box))) as number); await p.waitForTimeout(200); }
-    c.ok(`${name} keeps the eyebrow and stats at least 32px clear of LG-01`, gap >= 32, `closest ${Math.round(gap)}px`);
+    c.ok(`${name} keeps the copy at least 32px clear of LG-01`, gap >= 32, `closest ${Math.round(gap)}px`);
     if (opts.isMobile && opts.viewport!.height > opts.viewport!.width) {
       const s = await st(p), W = opts.viewport!.width, H = opts.viewport!.height, cue = await p.evaluate(() => document.querySelector('#hero .hint')!.getBoundingClientRect().top);
       const bottom = Math.max(...t.map((e) => e.box[3])), mid = (bottom + H) / 2;

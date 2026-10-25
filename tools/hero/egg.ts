@@ -37,7 +37,7 @@ export async function egg(c: Ctx) {
   {
     const { p, context, errors } = await page(c, { ...devices['Pixel 7'] });
     await p.waitForTimeout(1500);
-    const T = await touch(context, p), r = await st(p), sky = (await p.evaluate(() => document.querySelector('#hero .proof')!.getBoundingClientRect().bottom) + r.ry - r.rh0 / 2) / 2;
+    const T = await touch(context, p), r = await st(p), sky = (await p.evaluate(() => document.querySelector('#hero .hc')!.getBoundingClientRect().bottom) + r.ry - r.rh0 / 2) / 2;
     await T('touchStart', 200, sky); await p.waitForTimeout(450); await T('touchEnd'); await p.waitForTimeout(200);
     c.ok('phone hold on the sky does not start', !(await playing(p)));
     await p.waitForTimeout(8500); await shot(c, p, 'egg-phone-whisper');
