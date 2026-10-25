@@ -4,13 +4,15 @@ import { S, SPR, TX } from './art';
 
 type Star = { x: number; y: number; r: number; p: number; s: number };
 type Dust = { a: number; d: number; s: number };
-type Moon = { x: number; y: number; R: number; plate: HTMLCanvasElement; disc: HTMLCanvasElement };
+type Moon = { x: number; y: number; r: number; R: number; plate: HTMLCanvasElement; disc: HTMLCanvasElement; dx: number; dy: number; hide: boolean };
 type Mote = { x: number; y: number; s: number; l: number };
 type Twinkle = { x: number; y: number; r: number; p: number; s: number };
 let stars: Star[] = [], dust: Dust[] = [], streaks: Dust[] = [], motes: Mote[] = [], twinkles: Twinkle[] = [];
 const sats = [{ p: 0.1, v: 0.012, y: 0.12, warm: false }, { p: 0.62, v: 0.008, y: 0.2, warm: true }];
 const PM = new DOMMatrix();
 const MOONS: Record<string, number[][]> = { '3200x1800': [[2898, 250, 121], [2678, 372, 44]], '1800x3200': [[1441, 876, 96], [1614, 1012, 31]] };
+let clear: number[][] = [], lum: { d: Uint8ClampedArray; w: number; h: number } | null = null;
+const MOONGAP = 34, SKY = 60;
 let haze: CanvasPattern | null = null, hzBuf: HTMLCanvasElement | null = null, hzX: CanvasRenderingContext2D | null = null, lifeT0 = 0, flare: HTMLCanvasElement | null = null, moons: Moon[] = [];
 const hash = (x: number, y: number) => { let h = (Math.imul(x, 374761393) + Math.imul(y, 668265263)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 const pnoise = (x: number, y: number, px: number, py: number) => { const xi = Math.floor(x), yi = Math.floor(y), u = x - xi, v = y - yi, h = (i: number, j: number) => hash(((i % px) + px) % px, ((j % py) + py) % py), a = h(xi, yi), b = h(xi + 1, yi), c = h(xi, yi + 1), d = h(xi + 1, yi + 1), su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v); return a + (b - a) * su + (c - a) * sv + (a - b - c + d) * su * sv; };
@@ -79,26 +81,72 @@ function initLife() {
 }
 
 export function prepMoons(img: HTMLImageElement | null) {
-  moons = []; const M = img && MOONS[`${img.naturalWidth}x${img.naturalHeight}`]; if (!img || !M) return;
+  moons = []; lum = null; const M = img && MOONS[`${img.naturalWidth}x${img.naturalHeight}`]; if (!img || !M) return;
+  { const w = 160, h = Math.round(w * img.naturalHeight / img.naturalWidth), c = mk(w, h), x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, 0, 0, w, h); lum = { d: x.getImageData(0, 0, w, h).data, w, h }; }
+  const iw = img.naturalWidth, ih = img.naturalHeight, L = lum!;
+  const dark = (cx: number, cy: number, R: number) => { let m = 0; for (let v = cy - R; v <= cy + R; v += R / 4) for (let u = cx - R; u <= cx + R; u += R / 4) { const k = (Math.min(L.h - 1, Math.max(0, Math.round(v / ih * L.h))) * L.w + Math.min(L.w - 1, Math.max(0, Math.round(u / iw * L.w)))) * 4; m = Math.max(m, L.d[k] * 0.3 + L.d[k + 1] * 0.59 + L.d[k + 2] * 0.11); } return m; };
   for (const [mx, my, r] of M) {
     const R = Math.ceil(r + 16), s = R * 2, c = mk(s), x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, mx - R, my - R, s, s, 0, 0, s, s);
-    const d = x.getImageData(0, 0, s, s).data, ring: number[][] = [];
-    for (let y = 0; y < s; y += 2) for (let i = 0; i < s; i += 2) { const q = Math.hypot(i - R, y - R), k = (y * s + i) * 4; if (q > r + 8 && q < R) ring.push([d[k] + d[k + 1] + d[k + 2], d[k], d[k + 1], d[k + 2]]); }
-    const m = ring.sort((a, b) => a[0] - b[0])[ring.length >> 1] ?? [0, 0, 0, 0], col = `${m[1]},${m[2]},${m[3]}`;
-    const plate = mk(s), p = plate.getContext('2d')!, g = p.createRadialGradient(R, R, r + 3, R, R, R); g.addColorStop(0, `rgba(${col},1)`); g.addColorStop(1, `rgba(${col},0)`); p.fillStyle = g; p.fillRect(0, 0, s, s);
+    const d = x.getImageData(0, 0, s, s).data;
+    let best: number[] | null = null, bl = Infinity;
+    for (const [ox, oy] of [[-2.2, 0], [2.2, 0], [0, -2.2], [-1.6, -1.6], [1.6, -1.6]]) {
+      const cx = mx + ox * R, cy = my + oy * R; if (cx - R < 0 || cy - R < 0 || cx + R > iw || cy + R > ih || M.some(([qx, qy, qr]) => Math.hypot(cx - qx, cy - qy) < R + qr + 10)) continue;
+      const l = dark(cx, cy, R); if (l < bl) { bl = l; best = [cx, cy]; }
+    }
+    const plate = mk(s), p = plate.getContext('2d', { willReadFrequently: true })!;
+    if (best) p.drawImage(img, best[0] - R, best[1] - R, s, s, 0, 0, s, s); else p.drawImage(c, 0, 0);
+    const out = p.getImageData(0, 0, s, s), o = out.data, sum = [0, 0, 0, 0, 0, 0];
+    let n = 0; for (let y = 0; y < s; y++) for (let i = 0; i < s; i++) { const q = Math.hypot(i - R, y - R), k = (y * s + i) * 4; if (q > r + 8 && q < R) { for (let ch = 0; ch < 3; ch++) { sum[ch] += d[k + ch]; sum[ch + 3] += o[k + ch]; } n++; } }
+    for (let y = 0; y < s; y++) for (let i = 0; i < s; i++) {
+      const q = Math.hypot(i - R, y - R), k = (y * s + i) * 4, a = q < r + 4 ? 1 : 1 - sm(r + 4, r + 11, q);
+      for (let ch = 0; ch < 3; ch++) o[k + ch] += (sum[ch] - sum[ch + 3]) / Math.max(1, n);
+      o[k + 3] = 255 * a;
+    }
+    p.putImageData(out, 0, 0);
     const disc = mk(s), q = disc.getContext('2d')!; q.drawImage(c, 0, 0); q.globalCompositeOperation = 'destination-in';
-    const f = q.createRadialGradient(R, R, r + 1, R, R, r + 9); f.addColorStop(0, '#000'); f.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = f; q.fillRect(0, 0, s, s);
-    moons.push({ x: mx, y: my, R, plate, disc });
+    const f = q.createRadialGradient(R, R, r, R, R, r + 4); f.addColorStop(0, '#000'); f.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = f; q.fillRect(0, 0, s, s);
+    moons.push({ x: mx, y: my, r, R, plate, disc, dx: 0, dy: 0, hide: false });
   }
+  placeMoons();
+}
+
+export function keepMoons(rects: number[][]) { clear = rects; placeMoons(); }
+function placeMoons() {
+  const img = A.bg; if (!img || !moons.length) return;
+  const { W, H } = V, nw = img.naturalWidth, nh = img.naturalHeight, s = Math.max(W / nw, H / nh) * 1.07, x0 = (W - nw * s) / 2, y0 = (H - nh * s) / 2;
+  const gap = (x: number, y: number, r: number) => clear.reduce((g, [l, t, rr, b]) => Math.min(g, Math.hypot(Math.max(l - x, 0, x - rr), Math.max(t - y, 0, y - b)) - r), Infinity);
+  const sky = (x: number, y: number, r: number) => {
+    if (!lum) return true; const L = lum;
+    for (let a = 0; a < 16; a++) for (const q of [0.5, 1]) {
+      const px = x + Math.cos(a / 16 * TAU) * (r + 8) * q, py = y + Math.sin(a / 16 * TAU) * (r + 8) * q, u = (px - x0) / s, v = (py - y0) / s;
+      if (moons.some((m) => Math.hypot(u - m.x, v - m.y) < m.r + 10)) continue;
+      const k = (Math.min(L.h - 1, Math.max(0, Math.round(v / nh * L.h))) * L.w + Math.min(L.w - 1, Math.max(0, Math.round(u / nw * L.w)))) * 4;
+      if (L.d[k] * 0.3 + L.d[k + 1] * 0.59 + L.d[k + 2] * 0.11 > SKY) return false;
+    }
+    return true;
+  };
+  const at = moons.map((m) => [x0 + m.x * s, y0 + m.y * s, m.r * s]), placed: number[][] = [];
+  for (const m of moons) { m.dx = m.dy = 0; m.hide = false; }
+  const bad = moons.map((_, i) => gap(at[i][0], at[i][1], at[i][2]) < MOONGAP);
+  moons.forEach((_, i) => { if (!bad[i]) placed.push(at[i]); });
+  const ok = (x: number, y: number, r: number) => gap(x, y, r) >= MOONGAP && x + r * 0.2 <= W && x - r >= 0 && y - r >= 64 && placed.every(([px, py, pr]) => Math.hypot(x - px, y - py) >= r + pr + 8) && sky(x, y, r);
+  moons.forEach((m, i) => {
+    if (!bad[i]) return;
+    const [x, y, r] = at[i]; let best: number[] | null = null, bd = Infinity;
+    for (let dy = -96; dy <= 96; dy += 3) for (let dx = -96; dx <= 120; dx += 3) { const d = Math.hypot(dx, dy); if (d < bd && ok(x + dx, y + dy, r)) { bd = d; best = [dx, dy]; } }
+    if (best) { m.dx = best[0] / s; m.dy = best[1] / s; placed.push([x + best[0], y + best[1], r]); } else m.hide = true;
+  });
 }
 
 function drawMoons(B: { s: number; x: number; y: number }, br: number, t: number) {
-  const k = 1 - sm(0, 0.04, VP.p); if (!moons.length || k <= 0) return;
-  const ox = (G.px * 9 + 2.5 * Math.sin(t * 0.05)) * k, oy = (G.py * 4 + 1.2 * Math.sin(t * 0.037 + 1)) * k;
+  const k = 1 - sm(0, 0.12, VP.p); if (!moons.length || k <= 0) return;
+  const ox = G.px * 9 + 2.5 * Math.sin(t * 0.05), oy = G.py * 4 + 1.2 * Math.sin(t * 0.037 + 1);
   for (let i = 0; i < moons.length; i++) {
-    const m = moons[i], X = B.x + (m.x - m.R) * B.s, Y = B.y + (m.y - m.R) * B.s, S = m.R * 2 * B.s, z = i ? 0.7 : 1;
-    ctx.globalAlpha = DV.ba; ctx.drawImage(m.plate, X, Y, S, S); ctx.drawImage(m.disc, X + ox * z, Y + oy * z, S, S);
-    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = DV.ba * 0.16 * clamp((br - 0.82) / 0.34); ctx.drawImage(m.disc, X + ox * z, Y + oy * z, S, S); ctx.globalCompositeOperation = 'source-over';
+    const m = moons[i], X = B.x + (m.x - m.R) * B.s, Y = B.y + (m.y - m.R) * B.s, S = m.R * 2 * B.s, z = i ? 0.7 : 1, MX = X + m.dx * B.s + ox * z, MY = Y + m.dy * B.s + oy * z;
+    ctx.globalAlpha = DV.ba * k; ctx.drawImage(m.plate, X, Y, S, S);
+    if (m.hide) continue;
+    ctx.drawImage(m.disc, MX, MY, S, S);
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = DV.ba * k * 0.16 * clamp((br - 0.82) / 0.34); ctx.drawImage(m.disc, MX, MY, S, S); ctx.globalCompositeOperation = 'source-over';
   }
   ctx.globalAlpha = 1;
 }
@@ -143,6 +191,7 @@ export function drawOrbit() {
   const kx = DV.kx, ky = DV.ky, fx0 = W * 0.5, fy0 = H * 1.05, fade = 1 - sm(0, 0.35, VP.p);
   const place = (lift: number) => ctx.setTransform(kx * DPR, 0, 0, ky * DPR, (fx0 * (1 - kx) + C.sx) * DPR, (fy0 * (1 - ky) + DV.drop - lift + C.sy) * DPR);
   const bx = -px * 18 + Math.sin(t * 0.03) * W * 0.012, by = -py * 10 + scrollOff * 0.42, bz = 1.07 + Math.sin(t * 0.05) * 0.008;
+  scene.bx = bx; scene.by = by; scene.bz = bz;
   place(0); ctx.globalAlpha = DV.ba;
   const B = cover(A.bg, bx, by, bz, DV.fk);
   if (DV.zb > 0.02 && A.bg) { for (const [m, al] of [[0.035, 0.22], [0.08, 0.12]]) { place(H * m * DV.zb * (VP.dir < 0 ? -1 : 1)); ctx.globalAlpha = al * DV.zb * DV.ba; cover(A.bg, bx, by, bz, DV.fk); } place(0); }
@@ -184,6 +233,10 @@ export function drawOrbit() {
     }
   }
   ctx.globalCompositeOperation = 'source-over';
+  if (A.bgOld) {
+    const f = clamp((F.now - A.bgT) / 260);
+    if (f >= 1) A.bgOld = null; else { place(0); ctx.globalAlpha = (1 - f) * DV.ba; cover(A.bgOld, bx, by, bz, DV.fk); ctx.globalAlpha = 1; }
+  }
   screen();
 }
 

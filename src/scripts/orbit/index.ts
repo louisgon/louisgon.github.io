@@ -3,7 +3,7 @@ import { HI, reduce } from '../state';
 import { $, out, sstep } from '../util';
 import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, F, FAC, G, HOLD, initCore, input, LAND, lerp, MOUSE, restW, rs, scene, screen, ship, shipR, STICK, TYPES, V, VP } from './core';
 import { initArt, LIT, prepLight, prepSprites, S } from './art';
-import { analyse, drawOrbit, drawSpace, drawStreaks, initBackdrop, nozzles, prepMoons } from './backdrop';
+import { analyse, drawOrbit, drawSpace, drawStreaks, initBackdrop, keepMoons, nozzles, prepMoons } from './backdrop';
 import { compact, EN, gridBuild, rescale, sizeWorld, TQ, WS } from './world';
 import { separate, spawner, updEnemies } from './enemies';
 import { spdM, updBolts, updBullets, updMissiles, updNova, updShards, updWeapons, updWing } from './weapons';
@@ -16,23 +16,35 @@ import { played, store } from './store';
 import { bot, botPick, initTest, T } from './test';
 
 const metas = new Map<string, ReturnType<typeof analyse>>();
-let last = 0, slowFrames = 0, shown = '', flyShown = '0.000';
+let last = 0, slowFrames = 0, shown = '', flyShown = '0.000', shipAt = 0, bgOff = false, pic: HTMLImageElement;
 
 export let starVis = 0;
 export const heroEnd = () => $('hero').offsetHeight * 0.85;
 
 const load = (src: string) => new Promise<HTMLImageElement | null>((r) => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
 
+const still = () => new Promise<HTMLImageElement | null>((r) => { if (!pic.currentSrc || !pic.naturalWidth) return r(null); const i = new Image(); i.src = pic.currentSrc; i.decode().then(() => r(i), () => r(i.naturalWidth ? i : null)); });
 function useBg(img: HTMLImageElement | null) {
   A.bg = img && img.naturalWidth ? img : null; if (!A.bg) return;
-  let m = metas.get(A.bg.currentSrc); if (!m) metas.set(A.bg.currentSrc, (m = analyse(A.bg)));
+  let m = metas.get(A.bg.src); if (!m) metas.set(A.bg.src, (m = analyse(A.bg)));
   A.meta = m; scene.sun = m.sun; scene.limb = m.limb; scene.edge = m.edge; prepMoons(A.bg); light();
 }
+function swapBg(img: HTMLImageElement | null) {
+  if (!img || !A.bg || img.src === A.bg.src) return;
+  A.bgOld = A.bg; A.bgT = performance.now(); useBg(img); restLayout();
+}
+const copyRects = () => {
+  const h = D.hero.getBoundingClientRect(), r = document.createRange(), dy = reduce ? 0 : -scrollY * 0.18 + DV.drop * 0.7, out: number[][] = [];
+  const add = (q: DOMRect) => { if (q.width && q.height) out.push([q.left - h.left, q.top - h.top - dy, q.right - h.left, q.bottom - h.top - dy]); };
+  D.copy.querySelectorAll('.hl .ln > span, .hs').forEach((el) => { r.selectNodeContents(el); for (const q of r.getClientRects()) add(q); });
+  D.copy.querySelectorAll('.hc .btn').forEach((el) => add(el.getBoundingClientRect()));
+  return out;
+};
 
 const SHIP = { w: 0.62, gap: 24, cue: 12 };
 
 function restLayout() {
-  const { W, H, tall } = V, short = !tall && H < 520, pr = [...D.copy.children].filter((e): e is HTMLElement => e instanceof HTMLElement && e.offsetHeight > 0).pop(), cue = D.hero.querySelector<HTMLElement>('.hint');
+  const { W, H } = V, lay = getComputedStyle(D.hero).getPropertyValue('--lay').trim(), tall = lay === 'tall', short = lay === 'short', pr = [...D.copy.children].filter((e): e is HTMLElement => e instanceof HTMLElement && e.offsetHeight > 0).pop(), cue = D.hero.querySelector<HTMLElement>('.hint');
   let x = 0.5, y = tall ? 0.69 : 0.66, b = tall ? Math.min(W * 0.74, H * 0.42) : Math.min(W * 0.36, H * 0.62);
   if (tall && pr && cue) {
     const top = D.copy.offsetTop + pr.offsetTop + pr.offsetHeight, cy = (top + H) / 2;
@@ -43,7 +55,7 @@ function restLayout() {
     for (const el of D.copy.children) { r.selectNodeContents(el); right = Math.max(right, r.getBoundingClientRect().right - x0); }
     b = Math.min(H * 0.6, W - right - 56); x = (right + W) / 2 / W; y = 0.58;
   }
-  rs.restX = x; rs.restY = y; rs.base = b; light();
+  rs.restX = x; rs.restY = y; rs.base = Math.max(b, Math.min(W * 0.28, 110)); light(); keepMoons(copyRects());
 }
 
 function light() {
@@ -77,19 +89,25 @@ export function initOrbit() {
   egg.shown = store.get('lg01-whisper');
   showBest(); updateLabels(); $('bestLine').hidden = !played();
   size();
-  const pic = D.hero.querySelector<HTMLImageElement>('.bg img')!;
-  const bg = new Promise<HTMLImageElement | null>((r) => { if (pic.complete) r(pic.naturalWidth ? pic : null); else { pic.addEventListener('load', () => r(pic), { once: true }); pic.addEventListener('error', () => r(null), { once: true }); } }).then((i) => (i ? i.decode().then(() => i, () => i) : null));
-  const sp = DATA.sprites;
-  Promise.all([bg, load(sp.ship)]).then(([b, s]) => {
-    useBg(b); A.ship = s; A.base = true;
-    if (s) { rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; LIT.key = ''; }
+  pic = D.hero.querySelector<HTMLImageElement>('.bg img')!;
+  const bg = new Promise<void>((r) => { if (pic.complete) r(); else { pic.addEventListener('load', () => r(), { once: true }); pic.addEventListener('error', () => r(), { once: true }); } }).then(still).then((b) => {
+    useBg(b); A.base = true;
     size(); addEventListener('resize', size); new ResizeObserver(() => restLayout()).observe(D.copy); document.fonts.ready.then(() => restLayout());
-    pic.addEventListener('load', () => pic.decode().then(() => useBg(pic), () => useBg(pic)));
+    pic.addEventListener('load', () => still().then(swapBg));
+  });
+  const sp = DATA.sprites, sh = load(sp.ship).then((s) => {
+    A.ship = s; shipAt = performance.now();
+    if (!s) return;
+    rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; LIT.key = '';
+    if (HI.pt && !HI.skip && !G.on && !VP.p) rs.x = 0;
+    if (A.base) size();
+  });
+  Promise.all([bg, sh]).then(() => {
     const art = FAC.flatMap((f) => TYPES.map((T) => sp[`${f.id}-${T.role}`]));
     return Promise.all([sp['ship-top'], sp.nebula, ...art].map(load));
   }).then(([st, nb, ...art]) => {
     A.shipTop = st; A.nebula = nb; A.art = FAC.map((_, f) => art.slice(f * TYPES.length, (f + 1) * TYPES.length) as HTMLImageElement[]);
-    A.ready = !!(A.ship && st && nb && art.every(Boolean));
+    A.ready = !!(A.base && A.ship && st && nb && art.every(Boolean));
     if (!A.ready || !st) return;
     A.aspT = st.height / st.width; A.tsq0 = A.aspR * 0.5 / A.aspT; ship.tnoz = nozzles(st, ship.tnoz);
     prepSprites();
@@ -98,13 +116,18 @@ export function initOrbit() {
   if (import.meta.env.MODE === 'test') initTest();
 }
 
+function holdPicture() {
+  if (HI.planet >= 1 && A.bg) { pic.parentElement!.classList.add('off'); pic.style.transform = ''; bgOff = true; return; }
+  pic.style.transform = `translate3d(${scene.bx.toFixed(2)}px, ${scene.by.toFixed(2)}px, 0) scale3d(${scene.bz.toFixed(4)}, ${scene.bz.toFixed(4)}, 1)`;
+}
+
 function intro(now: number) {
   if (HI.done) return; const t = now - HI.t0, b = document.body.classList;
   if (!HI.pt && A.base) HI.pt = now;
-  if (HI.skip) { HI.space = HI.cue = clamp(t / 400); HI.planet = HI.pt ? clamp((now - HI.pt) / 400) : 0; if (!HI.copy) { HI.copy = now; D.hero.classList.add('in'); b.remove('hi-nav', 'hi-main'); } if (HI.space >= 1 && HI.planet >= 1) HI.done = true; return; }
+  if (HI.skip) { HI.space = HI.cue = clamp(t / 400); HI.planet = HI.pt ? clamp((now - HI.pt) / 400) : 0; if (!HI.copy) { HI.copy = now; b.remove('hi-nav', 'hi-main'); } if (HI.space >= 1 && HI.planet >= 1) HI.done = true; return; }
   HI.space = reduce ? clamp(t / 500) : out(clamp(t / 800));
   HI.planet = HI.pt ? (reduce ? clamp((now - HI.pt) / 600) : out(clamp((now - HI.pt) / 1000))) : 0;
-  if (!HI.copy) { b.remove('hi-main'); const at = HI.ff ? now : Math.min(HI.pt ? HI.pt + 250 : Infinity, HI.t0 + 3500); if (now >= at - 200) b.remove('hi-nav'); if (now >= at) { HI.copy = now; D.hero.classList.add('in'); } }
+  if (!HI.copy) { b.remove('hi-main'); const at = HI.ff ? now : Math.min(HI.pt ? HI.pt + 250 : Infinity, HI.t0 + 3500); if (now >= at - 200) b.remove('hi-nav'); if (now >= at) HI.copy = now; }
   if (HI.copy) HI.cue = reduce ? 1 : out(clamp((now - HI.copy - 900) / 700));
   if (HI.copy && HI.cue >= 1 && HI.planet >= 1 && HI.space >= 1) HI.done = true;
 }
@@ -134,8 +157,8 @@ export function orbitTick(now: number, hp: number) {
   if (auto && G.card && (G.mode === 'level' || G.mode === 'cache')) { T.botT += rdt; if (T.botT > 0.85) choose(botPick()); }
   const t = reduce ? 0 : now / 1000, sy = clamp(scrollY / H, 0, 1.2);
   Object.assign(F, { now, rdt, dt, t, sy, scroll: reduce ? 0 : scrollY });
-  D.hero.style.setProperty('--ho', ((1 - clamp(sy * 4)) * HI.cue).toFixed(3));
-  const fly = sstep(0, 0.41, VP.p).toFixed(3); if (fly !== flyShown) { flyShown = fly; D.cv.style.setProperty('--fly', fly); }
+  D.hero.style.setProperty('--ho', (1 - clamp(sy * 4)).toFixed(3));
+  const fly = sstep(0, 0.41, VP.p).toFixed(3); if (fly !== flyShown) { flyShown = fly; D.art.style.setProperty('--fly', fly); }
 
   if (input.charge && !G.on && !VP.p && now - input.charge.t0 > HOLD[input.charge.kind]) { const c = input.charge; if (c.kind === 'touch') grab(c.id, c.sx, c.sy); input.charge = null; start(c.kind); }
 
@@ -212,7 +235,7 @@ export function orbitTick(now: number, hp: number) {
   screen();
   const orbit = !VP.p || (VP.p < 1 && (reduce || VP.p < 0.6));
   if (VP.p > 0 && !reduce) drawSpace(t, DV.ga);
-  if (orbit) { scene.vp.x = W * 0.5; drawOrbit(); }
+  if (orbit) { scene.vp.x = W * 0.5; drawOrbit(); if (!bgOff) holdPicture(); }
   const dfx = G.card ? 0 : rdt * scale;
   if (VP.p > 0) {
     ctx.imageSmoothingQuality = 'medium';
@@ -222,7 +245,7 @@ export function orbitTick(now: number, hp: number) {
     drawDebris(dfx);
     ctx.imageSmoothingQuality = 'low';
   }
-  if (A.ship && VP.p < 1) { if (!VP.p) drawRear(rs.x, rs.y, restW(), 1, 1, rs.vx, rs.vy, 0); else drawRear(DV.rx, DV.ry, DV.rw, DV.rsq, DV.ra, 0, 0, 1, DV.punch); }
+  if (A.ship && VP.p < 1) { if (!VP.p) drawRear(rs.x, rs.y, restW(), 1, shipAt <= HI.pt ? 1 : reduce ? clamp((now - shipAt) / 600) : out(clamp((now - shipAt) / 800)), rs.vx, rs.vy, 0); else drawRear(DV.rx, DV.ry, DV.rw, DV.rsq, DV.ra, 0, 0, 1, DV.punch); }
   if (VP.p > 0) {
     ctx.imageSmoothingQuality = 'medium';
     if (A.shipTop && !G.dead) { drawTrail(dfx); drawTop(DV.tx, DV.ty, DV.tw, DV.tsq, DV.ta * (1 - VP.rv), t); }
