@@ -75,7 +75,7 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 - The hero is painted planet art on the hero canvas with LG-01 drawn over it and small life in the scene. Improve it by retouching or repainting the art, never by going back to procedural planets.
 - At rest the scene moves like real orbit and stays quiet behind the copy. Sunlit haze drifts toward the viewer across the surface in perspective, the sun breathes on a cycle of about 20 seconds, the moons drift on their own depth and a few stars glint. LG-01 takes its light from the scene, with a warm rim on the edges facing the sun, a cooler shaded underside, a touch of haze and engines that flicker and spill cyan light. Never change the ship's silhouette or soften it. There are no floating rocks.
 - The game stays an Easter egg. No button, banner or copy points to it beyond the ship hover and the single idle whisper.
-- The project planets are the real solar system in project order (Mercury Air Mail to Neptune UMF) with their real moons. Nothing is drawn behind a planet.
+- The project planets are the real solar system in project order (Mercury Air Mail to Neptune UMF) with their real moons. Nothing is drawn behind a planet. On phones and tablets each planet sits beside its project's title, small and fully in frame, inset so its moons never reach the screen edge, and the title wraps around the room it takes (`REACH` in `src/lib/planets.ts`).
 
 ### Motion
 - Everything is buttery. No flicker, no snapping, nothing pops in. Every show, hide, swap, image and texture eases in and out. Treat any instant change as a bug.
@@ -87,7 +87,9 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 - Anything parked off screen (like the skip link) must also be transparent, because phone browsers draw the page under the status bar.
 
 ### Interface
-- Header is HUD brackets around the active link, a 00 to 05 readout, the labels Log, Stack, Work, About and Contact, and a solid white Let's talk pill.
+- Header is HUD brackets around the active link, a 00 to 05 readout, the labels Log, Stack, Work, About and Contact, and a solid white Let's talk pill. Once the page leaves the top it sits on a solid dark backing that fades out just below it and eases in, so nothing shows through. No blur.
+- Each section carries one label. Stack, Work, About and Contact use their numbered divider (02 Systems to 05 Transmission) with no eyebrow repeating it and no coordinate readout. The Pilot log keeps its single eyebrow and Clients its line.
+- On phones a section starts 72px below its divider and ends 64px above the next, and the Pilot log takes its natural height. Contact is sized to its content on every screen, never a screen of empty space. On phones the brands are a still two column list with no Pause button, and wider screens keep the slow strip with its Pause control.
 - Buttons are refined pills, solid white primary and outline secondary, with labels only. No icon on View the work, Get in touch, Case study or Visit site, and never a diagonal external arrow anywhere.
 - Icons are Lucide inline SVG at a 1.5 stroke with round caps, used only for icon-only controls and small nav cues. Never use text glyph arrows.
 - Pilot Log is Big numbers in a divided row. The About timeline is Big years. Hero is Ready for launch, the subline, the two pills and the Scroll to launch cue, with no overline and no stats line. The stats belong to the Pilot log.
