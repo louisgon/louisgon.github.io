@@ -80,7 +80,7 @@ function plumeTex() {
 function boltTex(halo: string, rim: string, mid: string, core: string, outer = '') {
   const s = 64, c = mk(s), x = c.getContext('2d')!, disc = (r: number, f: string) => { x.beginPath(); x.arc(s / 2, s / 2, s * r, 0, TAU); x.fillStyle = f; x.fill(); };
   const g = x.createRadialGradient(s / 2, s / 2, s * 0.3, s / 2, s / 2, s / 2); g.addColorStop(0, `rgba(${halo},0.5)`); if (outer) g.addColorStop(0.45, `rgba(${outer},0.2)`); g.addColorStop(1, `rgba(${outer || halo},0)`); x.fillStyle = g; x.fillRect(0, 0, s, s);
-  disc(0.315, 'rgba(4,2,6,0.9)'); disc(0.27, rim); disc(0.235, mid); disc(0.11, core); return c;
+  disc(0.315, 'rgba(4,2,6,0.9)'); disc(0.275, rim); disc(0.25, mid); disc(0.11, core); return c;
 }
 const coreTex = (core: string, rgb: string) => glow([[0, `rgba(${core},0.85)`], [0.35, `rgba(${rgb},0.35)`], [1, `rgba(${rgb},0)`]]);
 const ember = (rgb: string) => glow([[0, `rgba(${rgb},0.5)`], [1, `rgba(${rgb},0)`]]);
