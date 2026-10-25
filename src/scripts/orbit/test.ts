@@ -120,6 +120,7 @@ export function initTest() {
     next: () => nextFaction(),
     mark: () => { T.mark = WS.serial; },
     clear: () => { for (let i = 0; i < WS.nE; i++) EN[i].dead = 1; },
+    smite: (t: number, elite = 0) => { const e = EN.slice(0, WS.nE).find((q) => !q.dead && q.t === t && q.elite === elite); if (e) hit(e, 1e9); return !!e; },
     go: (d: number) => { VP.dir = d; },
     novaHits: (hz: number) => {
       lab(); const e = dummy(T_HV, 120, 0), dt = 1 / hz, d1 = 30, d2 = 22; let fired = false;

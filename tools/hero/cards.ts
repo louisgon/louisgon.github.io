@@ -90,7 +90,7 @@ export async function cards(c: Ctx) {
     await lg(p, 'hurt()'); await p.waitForTimeout(80);
     const h = await st(p);
     c.ok('a hit costs hull, pulses the vignette and shakes', h.hull === hb - 1 && h.vig > 0.4 && h.shake > 0.1, `hull ${hb} to ${h.hull}, vig ${h.vig}, shake ${h.shake}`);
-    for (let i = 0; i < 4; i++) { await lg(p, 'hurt()'); await p.waitForTimeout(150); }
+    for (let i = 0; i < 8 && !(await st(p)).over; i++) { await lg(p, 'hurt()'); await p.waitForTimeout(150); }
     await p.waitForTimeout(1700);
     const ov = await st(p);
     c.ok('losing the hull ends the run with results over the top down view', ov.over && ov.card && ov.mode === 'over' && ov.view === 1, ov);

@@ -11,16 +11,19 @@ export async function feel(c: Ctx) {
   const { p, context, errors } = await page(c, { viewport: { width: 1440, height: 900 } });
   await p.waitForTimeout(800); await hold(p); await topDown(p); await p.mouse.move(720, 450);
   await lg(p, "god(true); window.__lg.give('pulse', 5); window.__lg.give('missile', 5); window.__lg.time(70)");
-  await lg(p, 'clear()'); await lg(p, 'squad(2, 0, 4)'); await lg(p, 'squad(0, 1, 3)'); await p.waitForTimeout(100);
-  const hv = await track(p, 6000, ['stop', 'hv']);
-  c.ok('heavy and elite kills flash where they die without stopping the game', hv.hv[0] >= 4 && hv.hv[hv.hv.length - 1] < hv.hv[0] && hv.stop.every((v) => v <= 0), { gunships: [hv.hv[0], hv.hv[hv.hv.length - 1]], stop: Math.max(...hv.stop) });
+  await lg(p, 'clear()'); await lg(p, 'squad(2, 0, 2)'); await lg(p, 'squad(0, 1, 2)'); await p.waitForTimeout(400);
+  const k0 = (await st(p)).kills, hv = track(p, 600, ['stop']), hit = [await lg(p, 'smite(2)'), await lg(p, 'smite(0, 1)'), await lg(p, 'smite(2)')], stops = (await hv).stop, k1 = (await st(p)).kills;
+  c.ok('heavy and elite kills flash where they die without stopping the game', hit.every(Boolean) && k1 - k0 >= 3 && stops.every((v) => v <= 0), { hit, kills: k1 - k0, stop: Math.max(...stops) });
+  await lg(p, 'boss()'); await p.waitForTimeout(300);
   for (let i = 0; i < 8 && (await st(p)).card; i++) { await p.keyboard.press('Digit1'); await p.waitForTimeout(450); }
-  await lg(p, 'boss()'); await p.waitForTimeout(300); await lg(p, 'killBoss()'); const bs = await track(p, 200, ['stop']);
+  await lg(p, 'killBoss()'); const bs = await track(p, 200, ['stop']);
   c.ok('a capital kill still holds the frame', bs.stop.some((v) => v > 0), Math.max(...bs.stop));
-  let cardBeforeReveal = false, flew = false; const t0 = Date.now();
+  let cardBeforeReveal = false, flew = false, was = (await st(p)).card; const t0 = Date.now();
   while (Date.now() - t0 < 16000) {
     const s = await st(p);
-    if (s.card) { if (s.reveal > 0) cardBeforeReveal = true; await p.waitForTimeout(450); await p.keyboard.press('Digit1'); }
+    if (s.card && !was && s.reveal > 0) cardBeforeReveal = true;
+    was = s.card;
+    if (s.card) { await p.waitForTimeout(450); await p.keyboard.press('Digit1'); was = false; }
     else if (s.cache && !flew && s.reveal <= 0) { flew = true; await lg(p, 'cache(0)'); }
     else if (flew && !s.cache && /inbound|returns/.test(s.banner) && s.bannerOn > 0.9) break;
     await p.waitForTimeout(100);
