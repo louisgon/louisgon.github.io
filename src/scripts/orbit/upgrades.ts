@@ -1,4 +1,4 @@
-import { addShake, G, rand, ship, V, type BoostId, type Option, type WeapId } from './core';
+import { addShake, G, ship, srand, V, type BoostId, type Option, type WeapId } from './core';
 import { fx, sparks } from './world';
 import { bl, BOOST, EVO, gainXP, maxHull, mkW, needFor, WD, WEAP } from './weapons';
 import { hideCard, live, msg, renderBuild, renderHull, showCard } from './hud';
@@ -26,7 +26,7 @@ export function options() {
   }
   while (out.length < 3 && pool.length) {
     let s = 0; for (const p of pool) s += p.w;
-    let r = rand() * s, k = 0; while (k < pool.length - 1 && (r -= pool[k].w) > 0) k++;
+    let r = srand() * s, k = 0; while (k < pool.length - 1 && (r -= pool[k].w) > 0) k++;
     out.push(pool.splice(k, 1)[0].o);
   }
   for (const w of G.W) if (!w.evo && w.lv < 5) G.miss[w.id] = out.some((o) => o.kind === 'w' && o.id === w.id) ? 0 : (G.miss[w.id] || 0) + 1;

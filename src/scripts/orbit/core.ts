@@ -11,7 +11,7 @@ export type Weapon = { id: WeapId; lv: number; evo: boolean; t: number; a: numbe
 export type Option = { kind: 'w' | 'b' | 'e' | 'x'; id: string; L: number; name: string; d: string; icon: string; pr: string };
 export type Enemy = {
   t: number; id: number; x: number; y: number; vx: number; vy: number; kx: number; ky: number; hp: number; max: number; w: number; r: number; L: number; sp: number; flash: number; elite: number; ph: number;
-  mode: number; st: number; dx: number; dy: number; fire: number; charge: number; sum: number; wingT: number; ringT: number; nova: number; arc: number; rot: number; alpha: number; age: number; dead: number; f: number; peel: number;
+  mode: number; st: number; dx: number; dy: number; fire: number; charge: number; sum: number; wingT: number; ringT: number; arc: number; rot: number; alpha: number; age: number; dead: number; f: number; peel: number;
 };
 export type Charge = { kind: Kind; t0: number; sx: number; sy: number; id: number; x: number; y: number };
 type Meta = { sun: { x: number; y: number }; limb: number; edge: number[] };
@@ -38,9 +38,14 @@ export const coarse = matchMedia('(pointer: coarse)').matches;
 export const HOLD: Record<Kind, number> = { touch: 300, mouse: 230, key: 230 };
 export const STICK = { r: 64, dz: 10, curve: 1.7, ease: 9, turn: 1.6, spin: 0.06, speed: 0.9 };
 
-let seed = 0x0b17;
-export const rand = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+const mix = (s: number) => { let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+let seed = 0x0b17, sseed = 0x0b17;
+export const rand = () => mix((seed = (seed + 0x6d2b79f5) | 0));
 export const rnd = (a: number, b: number) => a + rand() * (b - a);
+export const srand = () => mix((sseed = (sseed + 0x6d2b79f5) | 0));
+export const srnd = (a: number, b: number) => a + srand() * (b - a);
+export const reseed = (s: number) => { sseed = s | 0; };
+export const simSeed = () => sseed;
 export const ein = (k: number) => k * k * k;
 export const wrapA = (a: number) => a - TAU * Math.round(a / TAU);
 export const pad2 = (n: number) => String(n).padStart(2, '0');
@@ -63,7 +68,7 @@ export const G = {
   W: [] as Weapon[], wm: {} as Partial<Record<WeapId, Weapon>>, B: [] as BoostId[], bm: {} as Partial<Record<BoostId, number>>, miss: {} as Partial<Record<WeapId, number>>, opts: [] as Option[],
   spawnAcc: 0, dartT: 26, nextBoss: 100, bossN: 0, boss: null as Enemy | null, cache: null as { x: number; y: number; t: number; f: number } | null, warned: false, regen: 0, killsF: 0, msgT: -1e9, msgHold: 1100,
   fac: 0, lap: 0, switching: false,
-  novaId: 0, arcId: 0, tips: {} as Record<string, number>, trailAcc: 0, newBest: false, px: 0, py: 0, ease: 0,
+  arcId: 0, tips: {} as Record<string, number>, trailAcc: 0, newBest: false, px: 0, py: 0, ease: 0,
 };
 export const egg = { hover: 0, over: false, idleT: 0, whisper: -1, shown: 0 };
 export const F = { now: 0, rdt: 0, dt: 0, t: 0, sy: 0, scroll: 0, fc: 0 };
@@ -88,5 +93,5 @@ export const restW = () => rs.base * rs.sc, restH = () => restW() * A.aspR;
 export const LP = { x: 0, y: 0 }, RP = { x: 0, y: 0 };
 export const toWorld = (lx: number, ly: number) => { const c = Math.cos(ship.h), s = Math.sin(ship.h); LP.x = ship.x + lx * c - ly * s; LP.y = ship.y + lx * s + ly * c; return LP; };
 export const capD = (e: Enemy, x: number, y: number) => { const dx = x - e.x, dy = y - e.y; if (!e.L) return Math.hypot(dx, dy); const ux = Math.sin(e.rot), uy = -Math.cos(e.rot), s = clamp(dx * ux + dy * uy, -e.L, e.L); return Math.hypot(dx - ux * s, dy - uy * s); };
-export const ringPt = (m: number) => { const hw = V.vw / 2 + m, hh = V.vh / 2 + m, s = rand() < 0.5 ? -1 : 1; if (rand() * (hw + hh) < hw) { RP.x = cam.x + rnd(-hw, hw); RP.y = cam.y + s * hh; } else { RP.x = cam.x + s * hw; RP.y = cam.y + rnd(-hh, hh); } return RP; };
+export const ringPt = (m: number) => { const hw = V.vw / 2 + m, hh = V.vh / 2 + m, s = srand() < 0.5 ? -1 : 1; if (srand() * (hw + hh) < hw) { RP.x = cam.x + srnd(-hw, hw); RP.y = cam.y + s * hh; } else { RP.x = cam.x + s * hw; RP.y = cam.y + srnd(-hh, hh); } return RP; };
 export const addShake = (a: number) => { if (!reduce) G.shake = Math.min(1, G.shake + a * (1 - G.shake * 0.6)); };

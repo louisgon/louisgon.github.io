@@ -1,8 +1,8 @@
 import { $ } from '../util';
-import { A, C, cam, D, DV, FAC, G, input, onView, restW, rnd, rs, scene, ship, shipR, T_DA, T_HV, TAU, TYPES, V, VP, type BoostId, type WeapId } from './core';
+import { A, C, cam, D, DV, FAC, G, input, onView, restW, rs, scene, ship, shipR, simSeed, srnd, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, VP, type BoostId, type WeapId } from './core';
 import { LIT, prepFaction, S } from './art';
-import { EB, EN, QBOT, query, SH, spawn, TG, WS, BM, BO, MI, SP } from './world';
-import { bl, maxHull, mkW, spdM, WEAP, gainXP } from './weapons';
+import { AR, EB, EN, QBOT, query, SH, spawn, TG, WS, BM, BO, MI, NR, SP, compact, gridBuild, QB } from './world';
+import { addBolt, bl, maxHull, mkW, novaRing, railHits, spdM, updBolts, updNova, updWeapons, WEAP, gainXP } from './weapons';
 import { dartLine, hit, nextFaction, spawnBoss } from './enemies';
 import { hurt, start } from './flight';
 import { renderBuild, renderHull } from './hud';
@@ -13,7 +13,7 @@ export const T = { god: false, stress: false, auto: false, frozen: false, botT: 
 const TAUS = [0.05, 0.12, 0.24, 0.45], TAUW = [1.8, 1.4, 1, 0.55];
 export function bot(rdt: number) {
   const U = V.U, vmax = 640 * U * spdM() * (V.tall ? 1.1 : 1), R = 420 * U, n = query(ship.x, ship.y, R, QBOT), sr = shipR(), Cc = 150 * U;
-  T.botFlip -= rdt; if (T.botFlip <= 0) { T.botFlip = rnd(14, 26); T.botDir = -(T.botDir || 1); }
+  T.botFlip -= rdt; if (T.botFlip <= 0) { T.botFlip = srnd(14, 26); T.botDir = -(T.botDir || 1); }
   let tx = 0, ty = 0;
   for (let j = 0; j < n; j++) { const e = EN[QBOT[j]], dx = e.x - ship.x, dy = e.y - ship.y, d = Math.hypot(dx, dy) || 1, w = Math.sqrt(TYPES[e.t].mass) / (d * d + 3600); tx += dx / d * w; ty += dy / d * w; }
   let ox: number, oy: number; const tl = Math.hypot(tx, ty);
@@ -61,6 +61,9 @@ export function botPick() {
 }
 
 const live = () => EN.slice(0, WS.nE).filter((e) => !e.dead);
+const sizeErr = () => live().reduce((m, e) => { const w = TYPES[e.t].w * V.U * (e.elite ? 1.3 : 1); return Math.max(m, Math.abs(e.w - w) / w); }, 0);
+function lab() { T.frozen = true; for (let i = 0; i < WS.nE; i++) EN[i].dead = 1; compact(); BO.n = MI.n = EB.n = 0; for (const s of NR) s.on = false; G.boss = null; }
+function dummy(t: number, dx: number, dy: number) { const e = spawn(t, ship.x + dx * V.U, ship.y + dy * V.U)!; e.hp = e.max = 1e9; e.alpha = 1; e.vx = e.vy = 0; return e; }
 const art = (f: number, t: number) => (A.art[f][t].currentSrc || A.art[f][t].src).split('/').pop()!.split('.')[0];
 function heavyGap() {
   let worst = 9;
@@ -70,7 +73,7 @@ function heavyGap() {
 
 export function initTest() {
   const lg = {
-    st: () => ({ ready: A.ready && !!S.key && S.fk[G.fac] === S.key, on: G.on, clock: +G.clock.toFixed(2), enemies: WS.nE, level: G.level, kills: G.kills, hull: G.hull, over: G.over, card: G.card, mode: G.mode, sparks: SP.n, shards: SH.n, W: G.W.map((w) => `${w.id}${w.evo ? '*' : w.lv}`), B: G.B.map((b) => `${b}${bl(b)}`), evos: G.W.filter((w) => w.evo).map((w) => WEAP[w.id].evo), dpr: V.DPR, z: +V.Z.toFixed(3), u: +V.U.toFixed(3), vw: Math.round(V.vw), vh: Math.round(V.vh), boss: G.boss ? +(G.boss.hp / G.boss.max).toFixed(2) : -1, x: Math.round(ship.x), y: Math.round(ship.y), vx: Math.round(ship.vx), vy: Math.round(ship.vy), shots: BO.n + MI.n + BM.filter((b) => b.on).length, vig: +D.vig.style.opacity || 0, shake: +G.shake.toFixed(2), view: +VP.p.toFixed(3), dir: VP.dir, top: G.on && VP.p >= 1, hd: Math.round(((ship.h * 180 / Math.PI) % 360 + 360) % 360), sx: Math.round(V.W / 2 + (ship.x - cam.x) * V.Z), sy: Math.round(V.H / 2 + (ship.y - cam.y) * V.Z), rx: Math.round(rs.x), ry: Math.round(rs.y), rw0: Math.round(restW()), rh0: Math.round(restW() * A.aspR), light: !!LIT.light, lit: +scene.lit.toFixed(2), onscreen: EN.slice(0, WS.nE).filter((e) => !e.dead && onView(e.x, e.y, 0)).length, bossMode: G.boss ? G.boss.mode : -1, cache: !!G.cache, csx: G.cache ? Math.round(G.cache.x * C.wz + C.ox) : -1, csy: G.cache ? Math.round(G.cache.y * C.wz + C.oy) : -1, eligible: eligible(), nb: G.nextBoss, hv: EN.slice(0, WS.nE).filter((e) => !e.dead && e.t === T_HV).length, gap: heavyGap(), sw: Math.round(ship.play * V.Z), sh: Math.round(ship.play * V.Z * A.aspT),
+    st: () => ({ ready: A.ready && !!S.key && S.fk[G.fac] === S.key, on: G.on, clock: +G.clock.toFixed(2), enemies: WS.nE, level: G.level, kills: G.kills, hull: G.hull, over: G.over, card: G.card, mode: G.mode, sparks: SP.n, shards: SH.n, W: G.W.map((w) => `${w.id}${w.evo ? '*' : w.lv}`), B: G.B.map((b) => `${b}${bl(b)}`), evos: G.W.filter((w) => w.evo).map((w) => WEAP[w.id].evo), dpr: V.DPR, z: +V.Z.toFixed(3), u: +V.U.toFixed(3), vw: Math.round(V.vw), vh: Math.round(V.vh), boss: G.boss ? +(G.boss.hp / G.boss.max).toFixed(2) : -1, x: Math.round(ship.x), y: Math.round(ship.y), vx: Math.round(ship.vx), vy: Math.round(ship.vy), shots: BO.n + MI.n + BM.filter((b) => b.on).length, vig: +D.vig.style.opacity || 0, shake: +G.shake.toFixed(2), view: +VP.p.toFixed(3), dir: VP.dir, top: G.on && VP.p >= 1, hd: Math.round(((ship.h * 180 / Math.PI) % 360 + 360) % 360), sx: Math.round(V.W / 2 + (ship.x - cam.x) * V.Z), sy: Math.round(V.H / 2 + (ship.y - cam.y) * V.Z), rx: Math.round(rs.x), ry: Math.round(rs.y), rw0: Math.round(restW()), rh0: Math.round(restW() * A.aspR), light: !!LIT.light, lit: +scene.lit.toFixed(2), onscreen: EN.slice(0, WS.nE).filter((e) => !e.dead && onView(e.x, e.y, 0)).length, bossMode: G.boss ? G.boss.mode : -1, cache: !!G.cache, csx: G.cache ? Math.round(G.cache.x * C.wz + C.ox) : -1, csy: G.cache ? Math.round(G.cache.y * C.wz + C.oy) : -1, eligible: eligible(), nb: G.nextBoss, sizeErr: +sizeErr().toFixed(4), seed: simSeed(), hv: EN.slice(0, WS.nE).filter((e) => !e.dead && e.t === T_HV).length, gap: heavyGap(), sw: Math.round(ship.play * V.Z), sh: Math.round(ship.play * V.Z * A.aspT),
       fac: G.fac, faction: FAC[G.fac].id, lap: G.lap, switching: G.switching, fe: FAC.map((_, f) => live().filter((e) => e.f === f).length), peel: live().filter((e) => e.mode === 8).length,
       fresh: [...new Set(live().filter((e) => e.id >= T.mark && e.mode !== -1).map((e) => art(e.f, e.t)))].sort(), sprites: S.fk.map((k) => k === S.key),
       banner: $('msgB').textContent ?? '', bannerSub: $('msgS').textContent ?? '', bannerOn: +(D.msg.style.opacity || 0), bossName: D.bossName.textContent ?? '', bsx: G.boss ? Math.round(G.boss.x * C.wz + C.ox) : -1, bsy: G.boss ? Math.round(G.boss.y * C.wz + C.oy) : -1,
@@ -99,9 +102,10 @@ export function initTest() {
     opts: () => G.opts.map((o) => `${o.kind}:${o.id}`),
     darts: () => dartLine(),
     squad: (t: number, elite = 0, n = 5) => { for (let i = 0; i < n; i++) { const a = i / n * TAU; spawn(t, ship.x + Math.cos(a) * 230 * V.U, ship.y + Math.sin(a) * 230 * V.U, elite); } },
-    heavies: (n: number) => { for (let i = 0; i < n; i++) spawn(T_HV, ship.x + 260 * V.U + rnd(-4, 4), ship.y + rnd(-4, 4)); },
+    heavies: (n: number) => { for (let i = 0; i < n; i++) spawn(T_HV, ship.x + 260 * V.U + srnd(-4, 4), ship.y + srnd(-4, 4)); },
     hurt: () => { G.inv = 0; hurt('test'); },
     xp: (v: number) => gainXP(v),
+    level: () => gainXP(G.need - G.xp),
     autopilot: (on: boolean) => { T.auto = on; },
     god: (on: boolean) => { T.god = on; },
     stress: (on: boolean) => { T.stress = on; },
@@ -112,6 +116,39 @@ export function initTest() {
     mark: () => { T.mark = WS.serial; },
     clear: () => { for (let i = 0; i < WS.nE; i++) EN[i].dead = 1; },
     go: (d: number) => { VP.dir = d; },
+    novaHits: (hz: number) => {
+      lab(); const e = dummy(T_HV, 120, 0), dt = 1 / hz, d1 = 30, d2 = 22; let fired = false;
+      novaRing(ship.x, ship.y, 340 * V.U, d1, 0, 1, 0.7);
+      for (let t = 0; t < 1.2; t += dt) { if (!fired && t >= 0.2) { fired = true; novaRing(ship.x, ship.y, 280 * V.U, d2, 0, 2, 0.6); } gridBuild(); updNova(dt); }
+      const r = { hz, dealt: Math.round(e.max - e.hp), want: d1 + d2 }; lab(); return r;
+    },
+    boltHits: (hz: number) => {
+      let hits = 0, n = 0;
+      for (let off = 0; off < 60; off += 5) {
+        lab(); const e = dummy(T_DA, 300, 0); n++;
+        addBolt(ship.x + (300 - 120 - off) * V.U, ship.y, 1000 * V.U, 0, 1, 0);
+        for (let t = 0; t < 0.5 && BO.n; t += 1 / hz) { gridBuild(); updBolts(1 / hz); }
+        if (e.hp < e.max) hits++;
+      }
+      lab(); return { hz, hits, n };
+    },
+    railLine: () => {
+      lab(); for (const d of [410, 60, 260, 110, 360, 160, 310, 210]) dummy(T_SW, 0, -d);
+      gridBuild(); const n = railHits(ship.x, ship.y, 0, -1, 1200 * V.U, 10 * V.U, QB), ds = Array.from(QB.slice(0, n), (i) => Math.round((ship.y - EN[i].y) / V.U));
+      lab(); return ds;
+    },
+    railCap: (rot: number, side: number) => {
+      lab(); const e = dummy(T_BS, side, -300); e.rot = rot;
+      const n = railHits(ship.x, ship.y, 0, -1, 1200 * V.U, 10 * V.U, QB), r = { hit: n > 0, r: Math.round(e.r / V.U), L: Math.round(e.L / V.U) }; lab(); return r;
+    },
+    dps: (id: WeapId, lv: number, evo: boolean, secs = 8) => {
+      lab(); const W0 = G.W, wm0 = G.wm, bm0 = G.bm, c0 = G.clock, w = mkW(id); w.lv = lv; w.evo = evo; G.W = [w]; G.wm = { [id]: w }; G.bm = {};
+      const e = dummy(T_BS, 0, -300); e.rot = Math.PI / 2; G.boss = e; const dt = 1 / 60;
+      for (let t = 0; t < secs; t += dt) { G.clock += dt; gridBuild(); updWeapons(dt); updBolts(dt); }
+      const r = Math.round((e.max - e.hp) / secs * 10) / 10; G.W = W0; G.wm = wm0; G.bm = bm0; G.clock = c0; lab(); return r;
+    },
+    unfreeze: () => { T.frozen = false; },
+    zap: () => { const S = AR[0]; S.on = true; S.t = 0; S.d = 9; S.g = true; S.n = 3; S.p.set([ship.x, ship.y, ship.x + 200 * V.U, ship.y, ship.x + 200 * V.U, ship.y - 200 * V.U]); },
   };
   Object.assign(window, { __lg: lg });
 }

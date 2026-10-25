@@ -1,5 +1,5 @@
 import { reduce } from '../state';
-import { addShake, cam, capD, coarse, D, FAC, G, onView, pad2, rand, ringPt, rnd, ship, shipR, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, wrapA, type Enemy } from './core';
+import { addShake, cam, capD, coarse, D, FAC, G, onView, pad2, rand, ringPt, rnd, ship, shipR, srand, srnd, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, wrapA, type Enemy } from './core';
 import { PAL, prepFaction } from './art';
 import { CAPE, debris, EB, EN, fx, later, QS, query, SH, spark, spawn, TG, WS } from './world';
 import { bl, maxHull, regenEvery } from './weapons';
@@ -40,13 +40,13 @@ function dropShard(x: number, y: number, v: number) {
   const P = SH, U = V.U, kind = (n: number) => (n >= 8 ? 2 : n > 1 ? 1 : 0);
   if (P.n > 40) { const r2 = (70 * U) ** 2; for (let i = 0; i < P.n; i++) { if (P.st[i]) continue; const d = (P.x[i] - x) ** 2 + (P.y[i] - y) ** 2; if (d < r2) { P.v[i] += v; P.k[i] = kind(P.v[i]); return; } } }
   if (P.n >= P.cap) { let bi = 0, bd = 1e12; for (let i = 0; i < P.n; i++) { if (P.st[i]) continue; const d = (P.x[i] - x) ** 2 + (P.y[i] - y) ** 2; if (d < bd) { bd = d; bi = i; } } P.v[bi] += v; P.k[bi] = kind(P.v[bi]); return; }
-  const i = P.n++; P.x[i] = x + rnd(-4, 4) * U; P.y[i] = y + rnd(-4, 4) * U; P.v[i] = v; P.st[i] = 0; P.sp[i] = 0; P.ph[i] = rand() * TAU; P.k[i] = kind(v); P.a[i] = 0;
+  const i = P.n++; P.x[i] = x + srnd(-4, 4) * U; P.y[i] = y + srnd(-4, 4) * U; P.v[i] = v; P.st[i] = 0; P.sp[i] = 0; P.ph[i] = srand() * TAU; P.k[i] = kind(v); P.a[i] = 0;
 }
 
 function heavyFire(e: Enemy, dt: number) {
   e.fire -= dt; e.charge = e.fire < 0.7 && e.fire > 0 ? 1 - e.fire / 0.7 : 0;
   if (e.fire > 0) return;
-  e.fire = rnd(6.5, 10) * Math.max(0.7, 1 - (G.clock - 120) / 800) / FAC[e.f].fire;
+  e.fire = srnd(6.5, 10) * Math.max(0.7, 1 - (G.clock - 120) / 800) / FAC[e.f].fire;
   if (!onView(e.x, e.y, -10) || e.alpha < 1 || EB.n >= EB.cap) return;
   const sp = 190 * V.U, nx = e.x + Math.sin(e.rot) * e.w * 0.55, ny = e.y - Math.cos(e.rot) * e.w * 0.55, tt = Math.hypot(ship.x - nx, ship.y - ny) / sp, a = Math.atan2(ship.y + ship.vy * tt * 0.5 - ny, ship.x + ship.vx * tt * 0.5 - nx);
   const i = EB.n++; EB.x[i] = nx; EB.y[i] = ny; EB.vx[i] = Math.cos(a) * sp; EB.vy[i] = Math.sin(a) * sp; EB.l[i] = 0; EB.f[i] = e.f;
@@ -84,7 +84,7 @@ function bossDown(e: Enemy) {
   G.stop = reduce ? 0 : 0.1; if (!reduce) G.slow = 0.8; addShake(0.6);
   for (let i = 0; i < 8; i++) later(0.05 + i * 0.1, () => { const k = rnd(-1, 1); deathBurst(x + ux * k + rnd(-0.3, 0.3) * w, y + uy * k + rnd(-0.3, 0.3) * w, w * 0.9, T_HV, 0, f); addShake(0.25); });
   later(0.95, () => { deathBurst(x, y, w * 2.6, T_BS, 1, f); fx(2, x, y, w * 4.8, 0.9, 0); addShake(0.9); for (let i = 0; i < SH.n; i++) SH.st[i] = 1; G.cache = { x, y, t: 0, f }; });
-  for (let i = 0; i < 22; i++) { const k = rnd(-1, 1); dropShard(x + ux * k + rnd(-0.6, 0.6) * w, y + uy * k + rnd(-0.6, 0.6) * w, 8); }
+  for (let i = 0; i < 22; i++) { const k = srnd(-1, 1); dropShard(x + ux * k + srnd(-0.6, 0.6) * w, y + uy * k + srnd(-0.6, 0.6) * w, 8); }
   if (G.hull < maxHull()) { G.hull++; setHull(false, true); }
   const name = FAC[f].short;
   msg(`${name} down`, 'Fly over the cache', 2200, true); live(`${name} down. Hull repaired. Fly over the gold cache it drops.`);
@@ -94,7 +94,7 @@ export function nextFaction() {
   G.switching = false; if (G.over || !G.on) return;
   G.fac = (G.fac + 1) % FAC.length; if (!G.fac) G.lap++;
   prepFaction(G.fac);
-  for (let i = 0; i < WS.nE; i++) { const e = EN[i]; if (!e.dead && e.f !== G.fac && e.t !== T_DA && e.t !== T_BS && e.mode >= 0 && e.mode < 8) e.peel = rnd(0.3, 3.4); }
+  for (let i = 0; i < WS.nE; i++) { const e = EN[i]; if (!e.dead && e.f !== G.fac && e.t !== T_DA && e.t !== T_BS && e.mode >= 0 && e.mode < 8) e.peel = srnd(0.3, 3.4); }
   G.nextBoss = Math.max(G.nextBoss, G.clock + 8);
   const F = FAC[G.fac];
   msg(F.banner, F.sub || `Lap ${pad2(G.lap + 1)}`, 2600, true, F.id); live(`${F.banner}.`);
@@ -113,9 +113,9 @@ function group(c: number) {
   let nh = 0; for (let i = 0; i < WS.nE; i++) if (EN[i].t === T_HV && !EN[i].dead) nh++;
   const hp = t < 60 ? 0 : Math.min(0.12, 0.04 + (t - 60) / 240 * 0.08), el = t < 45 ? 0 : Math.min(0.03, 0.008 + (t - 45) / 600);
   for (let i = 0; i < c; i++) {
-    const type = rand() < hp && nh + 1 <= Math.max(2, (WS.nE + 1) * 0.15) ? T_HV : T_SW, elite = type === T_SW && rand() < el ? 1 : 0;
+    const type = srand() < hp && nh + 1 <= Math.max(2, (WS.nE + 1) * 0.15) ? T_HV : T_SW, elite = type === T_SW && srand() < el ? 1 : 0;
     if (type === T_HV) nh++;
-    if (!spawn(type, x + rnd(-1, 1) * 42 * U, y + rnd(-1, 1) * 42 * U, elite)) return;
+    if (!spawn(type, x + srnd(-1, 1) * 42 * U, y + srnd(-1, 1) * 42 * U, elite)) return;
   }
 }
 const popTarget = () => {
@@ -127,9 +127,9 @@ export function spawner(dt: number) {
   const t = G.clock, stress = import.meta.env.MODE === 'test' && T.stress; let target = popTarget(); if (G.boss) target *= 0.75;
   const rate = stress ? 400 : t < 20 ? 0.8 + t * 0.03 : 1.3 + t / 22 + Math.pow(Math.max(0, t - 60), 1.5) / 600;
   G.spawnAcc += dt * (rate + Math.max(0, target * 0.85 - WS.nE) * 0.6);
-  while (G.spawnAcc >= 1 && WS.nE < target) { const c = Math.max(1, Math.min(Math.floor(G.spawnAcc), 1 + Math.floor(rand() * Math.min(5, 1 + t / 35)))); G.spawnAcc -= c; group(c); }
+  while (G.spawnAcc >= 1 && WS.nE < target) { const c = Math.max(1, Math.min(Math.floor(G.spawnAcc), 1 + Math.floor(srand() * Math.min(5, 1 + t / 35)))); G.spawnAcc -= c; group(c); }
   if (G.spawnAcc > 6) G.spawnAcc = 6;
-  G.dartT -= dt; if (G.dartT <= 0 && !stress) { dartLine(); G.dartT = Math.max(4.5, 11 - t / 40) + rnd(0, 2.5); }
+  G.dartT -= dt; if (G.dartT <= 0 && !stress) { dartLine(); G.dartT = Math.max(4.5, 11 - t / 40) + srnd(0, 2.5); }
   if (!G.warned && !G.switching && t >= G.nextBoss - 3) { const n = FAC[G.fac].short; G.warned = true; msg('Warning', `${n} inbound`, 2400, true); live(`Warning. ${n} inbound.`); D.hero.classList.add('bossing'); }
   if (t >= G.nextBoss && !G.boss && !G.switching) { spawnBoss(); G.nextBoss += 180; G.warned = false; }
   if (t >= 60 && !G.tips.hv) { G.tips.hv = 1; msg('Gunships', 'Slow and armoured', 1200); }
@@ -169,7 +169,7 @@ export function updEnemies(dt: number, rdt: number) {
       const sw = e.t === T_SW, weave = sw && Fa.weave, wob = weave ? Math.sin(G.clock * 3.3 + e.ph) * 0.85 : Math.sin(G.clock * 2.1 + e.ph) * 0.35, sp = Ty.sp * U * e.sp * (sw ? Fa.speed : 1) * (onView(e.x, e.y, 0) ? 1 : 1.6) * tf / (weave ? Math.hypot(1, wob) : 1);
       const f = 1 - Math.exp(-dt * (e.t === T_HV ? 1.6 : 3.2));
       e.vx += ((dx - dy * wob) * sp - e.vx) * f; e.vy += ((dy + dx * wob) * sp - e.vy) * f;
-      if (sw && Fa.jink) { e.fire -= dt; if (e.fire <= 0) { e.fire = rnd(0.9, 2.1); const s = rand() < 0.5 ? -1 : 1, k = 240 * U; e.kx -= dy * s * k; e.ky += dx * s * k; } }
+      if (sw && Fa.jink) { e.fire -= dt; if (e.fire <= 0) { e.fire = srnd(0.9, 2.1); const s = srand() < 0.5 ? -1 : 1, k = 240 * U; e.kx -= dy * s * k; e.ky += dx * s * k; } }
       const hx = e.vx + (sw && Fa.jink ? e.kx * 0.6 : 0), hy = e.vy + (sw && Fa.jink ? e.ky * 0.6 : 0);
       if (hx * hx + hy * hy > 4) e.rot += wrapA(Math.atan2(hx, -hy) - e.rot) * (1 - Math.exp(-dt * Ty.turn));
       if (e.t === T_HV && armed) heavyFire(e, dt);

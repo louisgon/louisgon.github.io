@@ -1,6 +1,6 @@
 import { reduce } from '../state';
-import { addShake, C, capD, clamp, G, LP, onView, rand, rnd, ship, shipH, shipR, shipW, T_HV, TAU, toWorld, TYPES, V, type BoostId, type WeapId, type Weapon } from './core';
-import { AR, BM, BO, EB, EN, MI, MT, NK, nearestK, NR, QA, QB, QR, query, rm, SH, spark, sparks, fx, WS } from './world';
+import { addShake, C, clamp, G, LP, onView, rand, rnd, ship, shipH, shipR, shipW, T_HV, TAU, toWorld, TYPES, V, type BoostId, type Enemy, type WeapId, type Weapon } from './core';
+import { AR, BM, BO, EB, edist, EN, MI, MT, NK, nearestK, NR, QA, QB, QR, query, rm, SH, sortIn, spark, sparks, SS, sweep, fx, WS } from './world';
 import { hit } from './enemies';
 import { hurt } from './flight';
 import { live, lvlUp, setHull } from './hud';
@@ -21,7 +21,7 @@ export const WD: Record<WeapId, string[]> = {
   nova: ['A ring pulses out and shoves enemies back', 'A wider ring', 'Ring damage up 50%', 'Pulses sooner and wider', 'Every pulse comes twice'],
 };
 export const EVO: Record<string, { from: WeapId; name: string; d: string }> = {
-  railstorm: { from: 'pulse', name: 'Railstorm', d: 'Piercing rails rake three targets at once' },
+  railstorm: { from: 'pulse', name: 'Railstorm', d: 'Three piercing rails, each through up to six ships' },
   halo: { from: 'wing', name: 'Halo', d: 'Eight escorts ride a burning ring' },
   tempest: { from: 'arc', name: 'Tempest', d: 'Three storm chains strike twice a second' },
   hive: { from: 'missile', name: 'Hive', d: 'A swarm of twelve seekers every salvo' },
@@ -49,7 +49,7 @@ export const regenEvery = () => (bl('hull') ? 50 - 6 * bl('hull') : 0);
 export const needFor = (L: number) => (L === 1 ? 4 : Math.round(5 + 6 * (L - 1) + 1.8 * Math.pow(L - 1, 1.55) + 4 * Math.pow(Math.max(0, L - 10), 1.7)));
 export const mkW = (id: WeapId): Weapon => ({ id, lv: 1, evo: false, t: 0.25, a: 0, n: 0, p: 0, R: 0, px: new Float32Array(8), py: new Float32Array(8) });
 
-function addBolt(x: number, y: number, vx: number, vy: number, d: number, p: number) { const P = BO; if (P.n >= P.cap) return; const i = P.n++; P.x[i] = x; P.y[i] = y; P.vx[i] = vx; P.vy[i] = vy; P.l[i] = 0; P.d[i] = d; P.p[i] = p; P.h[i] = 0; }
+export function addBolt(x: number, y: number, vx: number, vy: number, d: number, p: number) { const P = BO; if (P.n >= P.cap) return; const i = P.n++; P.x[i] = x; P.y[i] = y; P.vx[i] = vx; P.vy[i] = vy; P.l[i] = 0; P.d[i] = d; P.p[i] = p; P.h[i] = 0; }
 const bossT = () => { const b = G.boss; return b && !b.dead && b.alpha > 0.5 && onView(b.x, b.y, -10) ? b : null; };
 
 function firePulse(w: Weapon) {
@@ -65,24 +65,28 @@ function firePulse(w: Weapon) {
   }
   ship.muzzle = 1; ship.kick = 0.7; return true;
 }
+export function railHits(x0: number, y0: number, dx: number, dy: number, len: number, bw: number, buf: Int32Array) {
+  const x1 = x0 + dx * len, y1 = y0 + dy * len; let n = 0;
+  for (let i = 0; i < WS.nE; i++) { const e = EN[i]; if (e.dead || e.mode === -1 || e.alpha < 0.4) continue; if (edist(e, x0, y0, x1, y1) <= e.r + bw) n = sortIn(buf, n, i, SS.t); }
+  return Math.min(n, 6);
+}
+const RT: Enemy[] = [];
 function fireRail() {
   const U = V.U; toWorld(0, -shipH() * 0.48); const x0 = LP.x, y0 = LP.y;
   const found = nearestK(x0, y0, Math.max(V.vw, V.vh), 3); if (!found) return false;
   const dmg = 13 * dmgM(), bw = 10 * U * areaM(), bt = bossT();
-  if (bt) { let has = false; for (let b = 0; b < found; b++) if (EN[NK[b]] === bt) has = true; if (!has) NK[found - 1] = EN.indexOf(bt); }
-  for (let b = 0; b < found; b++) {
-    const t = EN[NK[b]]; let dx = t.x - x0, dy = t.y - y0; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+  for (let b = 0; b < 3; b++) RT[b] = EN[NK[b % found]];
+  if (bt) { let o = bt; for (let b = 0; b < found; b++) if (EN[NK[b]] !== bt) { o = EN[NK[b]]; break; } RT[0] = o; RT[1] = RT[2] = bt; }
+  for (let b = 0; b < 3; b++) {
+    const t = RT[b], rep = (b > 0 && RT[b - 1] === t ? 1 : 0) + (b > 1 && RT[b - 2] === t ? 1 : 0), side = rep ? (rep === 1 ? 1 : -1) : 0;
+    let dx = t.x - x0, dy = t.y - y0, d = Math.hypot(dx, dy) || 1;
+    const ox = -dy / d * side * t.r * 0.45, oy = dx / d * side * t.r * 0.45; dx += ox; dy += oy; d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
     let len = Math.hypot(V.vw, V.vh);
     if (dy < -1e-3) len = Math.min(len, (C.y0 - 20 - y0) / dy); if (dx > 1e-3) len = Math.min(len, (C.x1 + 20 - x0) / dx); if (dx < -1e-3) len = Math.min(len, (C.x0 - 20 - x0) / dx); if (dy > 1e-3) len = Math.min(len, (C.y1 + 20 - y0) / dy);
     len = Math.max(len, d);
     const slot = BM.find((s) => !s.on); if (slot) { slot.on = true; slot.x0 = x0; slot.y0 = y0; slot.x1 = x0 + dx * len; slot.y1 = y0 + dy * len; slot.t = 0; slot.d = 0.22; slot.w = bw; }
-    let pierced = 0;
-    for (let i = 0; i < WS.nE && pierced < 6; i++) {
-      const e = EN[i]; if (e.dead || e.mode === -1 || e.alpha < 0.4) continue;
-      const ex = e.x - x0, ey = e.y - y0, along = ex * dx + ey * dy; if (along < 0 || along > len) continue;
-      const perp = Math.abs(ex * dy - ey * dx); if (perp > e.r + bw + e.L * 0.5) continue;
-      hit(e, dmg, dx * 110 * U, dy * 110 * U); pierced++; sparks(e.x, e.y, 3, 300 * U, 1, 6); fx(3, e.x, e.y, 20 * U, 0.12, 1, 0.6);
-    }
+    const n = railHits(x0, y0, dx, dy, len, bw, QB);
+    for (let j = 0; j < n; j++) { const e = EN[QB[j]]; hit(e, dmg, dx * 110 * U, dy * 110 * U); sparks(e.x, e.y, 3, 300 * U, 1, 6); fx(3, e.x, e.y, 20 * U, 0.12, 1, 0.6); }
   }
   ship.muzzle = 0.9; ship.kick = 1; fx(0, x0, y0, 40 * U, 0.14, 1, 0.5); addShake(0.02); return true;
 }
@@ -152,9 +156,9 @@ function explode(x: number, y: number, r: number, dmg: number, g: number) {
   for (let i = 0; i < (g ? 12 : 8) * m; i++) { const a = rand() * TAU, v = r * rnd(2, 6); spark(x, y, Math.cos(a) * v, Math.sin(a) * v, rnd(0.2, 0.45), rnd(5, 9) * U, i % 3 ? 0 : 1, 3.5); }
   addShake(g ? 0.03 : 0.022);
 }
-function novaRing(x: number, y: number, r: number, dmg: number, kb: number, c: number, d: number) {
+export function novaRing(x: number, y: number, r: number, dmg: number, kb: number, c: number, d: number) {
   const S = NR.find((s) => !s.on); if (!S) return;
-  S.on = true; S.x = x; S.y = y; S.r = r; S.t = 0; S.d = d; S.id = ++G.novaId; S.dmg = dmg; S.kb = kb; S.c = c;
+  S.on = true; S.x = x; S.y = y; S.r = r; S.t = 0; S.d = d; S.hit.clear(); S.dmg = dmg; S.kb = kb; S.c = c;
   fx(0, x, y, r * (c ? 0.24 : 0.3), 0.22, c ? 1 : 2, c ? 0.5 : 0.6);
 }
 function fireNova(w: Weapon) {
@@ -188,16 +192,18 @@ export function updWeapons(dt: number) {
 export function updBolts(dt: number) {
   const P = BO, U = V.U;
   for (let i = P.n - 1; i >= 0; i--) {
+    const x0 = P.x[i], y0 = P.y[i];
     P.x[i] += P.vx[i] * dt; P.y[i] += P.vy[i] * dt; P.l[i] += dt;
-    const x = P.x[i], y = P.y[i];
-    if (P.l[i] > 1.5 || !onView(x, y, 40)) { rm(P, i); continue; }
-    const n = query(x, y, 5 * U, QB);
-    for (let j = 0; j < n; j++) {
+    const x1 = P.x[i], y1 = P.y[i], n = sweep(x0, y0, x1, y1, 5 * U, QB);
+    let gone = false;
+    for (let j = 0; j < n && !gone; j++) {
       const e = EN[QB[j]]; if (e.id === P.h[i] || e.mode === -1) continue;
+      edist(e, x0, y0, x1, y1); const x = x0 + (x1 - x0) * SS.t, y = y0 + (y1 - y0) * SS.t;
       hit(e, P.d[i], P.vx[i] * 0.05, P.vy[i] * 0.05); sparks(x, y, 3, 200 * U, 2, 5); fx(3, x, y, 14 * U, 0.1, 2);
       P.h[i] = e.id; P.p[i]--;
-      if (P.p[i] < 0) { rm(P, i); break; }
+      if (P.p[i] < 0) { rm(P, i); gone = true; }
     }
+    if (!gone && (P.l[i] > 1.5 || !onView(x1, y1, 40))) rm(P, i);
   }
 }
 export function updMissiles(dt: number) {
@@ -210,12 +216,13 @@ export function updMissiles(dt: number) {
     let a = Math.atan2(vy, vx);
     if (t) { const b = Math.atan2(t.y - P.y[i], t.x - P.x[i]); let df = b - a; df -= TAU * Math.round(df / TAU); const turn = (5 + P.l[i] * 10) * dt; a += clamp(df, -turn, turn); }
     vx = Math.cos(a) * sp; vy = Math.sin(a) * sp; P.vx[i] = vx; P.vy[i] = vy;
+    const x0 = P.x[i], y0 = P.y[i];
     P.x[i] += vx * dt; P.y[i] += vy * dt;
     const x = P.x[i], y = P.y[i];
     if (rand() < 0.45) spark(x - vx * 0.03, y - vy * 0.03, -vx * 0.05 + rnd(-24, 24), -vy * 0.05 + rnd(-24, 24), rnd(0.25, 0.42), (P.g[i] ? 13 : 11) * U, P.g[i] ? 5 : 4, 3);
     let boom = P.l[i] > 2.8;
-    if (!boom && t && capD(t, x, y) < t.r + 6 * U) boom = true;
-    if (!boom && P.l[i] > 0.15 && query(x, y, 4 * U, QB) > 0) boom = true;
+    if (!boom && t && edist(t, x0, y0, x, y) < t.r + 6 * U) boom = true;
+    if (!boom && P.l[i] > 0.15 && sweep(x0, y0, x, y, 4 * U, QB) > 0) boom = true;
     if (!onView(x, y, 120)) { rm(P, i); MT[i] = MT[P.n]; continue; }
     if (boom) { explode(x, y, P.r[i], P.d[i], P.g[i]); rm(P, i); MT[i] = MT[P.n]; }
   }
@@ -226,9 +233,9 @@ export function updNova(dt: number) {
     S.t += dt; const f = S.t / S.d; if (f >= 1) { S.on = false; continue; }
     const cr = S.r * (1 - Math.pow(1 - f, 3)), c = query(S.x, S.y, cr, QR);
     for (let j = 0; j < c; j++) {
-      const e = EN[QR[j]]; if (e.nova === S.id) continue;
+      const e = EN[QR[j]]; if (S.hit.has(e.id)) continue;
       const dx = e.x - S.x, dy = e.y - S.y, de = Math.hypot(dx, dy); if (de > cr + e.r + e.L) continue;
-      e.nova = S.id; const d = de || 1, k = S.kb * (1 - 0.5 * clamp(de / S.r));
+      S.hit.add(e.id); const d = de || 1, k = S.kb * (1 - 0.5 * clamp(de / S.r));
       hit(e, S.dmg, dx / d * k, dy / d * k);
     }
   }

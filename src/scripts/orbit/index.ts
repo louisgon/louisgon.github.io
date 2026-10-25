@@ -4,10 +4,10 @@ import { $, out, sstep } from '../util';
 import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, F, FAC, G, HOLD, initCore, input, LAND, lerp, restW, rs, scene, screen, ship, shipR, STICK, TYPES, V, VP } from './core';
 import { initArt, LIT, prepLight, prepSprites, S } from './art';
 import { analyse, drawOrbit, drawSpace, drawStreaks, initBackdrop, nozzles, prepMoons } from './backdrop';
-import { compact, EN, gridBuild, sizeWorld, TQ, WS } from './world';
+import { compact, EN, gridBuild, rescale, sizeWorld, TQ, WS } from './world';
 import { separate, spawner, updEnemies } from './enemies';
 import { spdM, updBolts, updBullets, updMissiles, updNova, updShards, updWeapons, updWing } from './weapons';
-import { boost, boosted, land, landed, start, steerHead, updCam } from './flight';
+import { boost, boosted, land, landed, pause, start, steerHead, updCam } from './flight';
 import { hudTick, showBest, showCard, updateLabels } from './hud';
 import { choose, openCache } from './upgrades';
 import { grab, initInput, STEER } from './input';
@@ -54,7 +54,7 @@ function light() {
 }
 
 function size() {
-  const r = D.hero.getBoundingClientRect(), oW = V.W, oH = V.H, cv = D.cv;
+  const r = D.hero.getBoundingClientRect(), oW = V.W, oH = V.H, oU = V.U, oB = rs.base, cv = D.cv;
   V.W = r.width; V.H = r.height; V.DPR = Math.min(devicePixelRatio || 1, coarse ? V.dprCap : 2);
   const w = Math.round(V.W * V.DPR), h = Math.round(V.H * V.DPR); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
   ctx.setTransform(V.DPR, 0, 0, V.DPR, 0, 0);
@@ -65,6 +65,9 @@ function size() {
   ship.play = 172 * V.U * (tall ? 1.12 : 1);
   sizeWorld();
   if (oW && rs.x && (oW !== W || oH !== H)) { rs.x *= W / oW; rs.y *= H / oH; }
+  if (oW && VP.dir && (oW !== W || oH !== H)) { VP.rx *= W / oW; VP.ry *= H / oH; VP.rw *= rs.base / (oB || rs.base); }
+  if (G.on && V.U !== oU) rescale(V.U / oU);
+  if (G.on && oW && oW !== W) { input.stick = null; pause(); }
   prepSprites();
 }
 
@@ -187,10 +190,10 @@ export function orbitTick(now: number, hp: number) {
 
   if (top && dt > 0 && A.ready) {
     G.killsF = 0;
-    gridBuild();
     if (!G.over) spawner(dt);
-    updEnemies(dt, rdt); separate(dt);
-    if (!G.over) updWeapons(dt);
+    gridBuild(); updEnemies(dt, rdt);
+    gridBuild(); separate(dt);
+    gridBuild(); if (!G.over) updWeapons(dt);
     updBolts(dt); updMissiles(dt); updNova(dt); updShards(dt); updBullets(dt);
     if (G.cache && !G.over) { G.cache.t += dt; if (!G.card && Math.hypot(ship.x - G.cache.x, ship.y - G.cache.y) < shipR() + 46 * V.U) openCache(); }
     for (let i = TQ.length - 1; i >= 0; i--) { const q = TQ[i]; q.t -= dt; if (q.t <= 0) { TQ.splice(i, 1); if (q.run === G.run && G.on) q.fn(); } }
