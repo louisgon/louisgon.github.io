@@ -119,7 +119,7 @@ function drawLife(B: { x: number; y: number; w: number; h: number }, t: number, 
   ctx.save(); ctx.beginPath();
   for (let i = 0; i <= 16; i++) { const X = i / 16 * W, u = (X - B.x) / B.w, Y = B.y + (e[0] + e[1] * u + e[2] * u * u) * B.h + H * 0.012; if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
   ctx.lineTo(W, H * 2); ctx.lineTo(0, H * 2); ctx.closePath(); ctx.clip();
-  ctx.globalAlpha = k * 0.5; ctx.globalCompositeOperation = 'screen'; ctx.drawImage(hzBuf, 0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = k * 0.25; ctx.globalCompositeOperation = 'screen'; ctx.drawImage(hzBuf, 0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
   ctx.restore(); ctx.globalAlpha = 1;
 }
 
