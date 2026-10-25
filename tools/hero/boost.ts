@@ -35,7 +35,11 @@ export async function boost(c: Ctx) {
     await p.mouse.move(720, 450, { steps: 4 }); await p.waitForTimeout(300);
     const dirs: [string[], number][] = [[['KeyD'], 90], [['KeyS'], 180], [['KeyA'], 270], [['KeyW'], 0], [['KeyD', 'KeyS'], 135], [['ArrowLeft', 'ArrowUp'], 315], [['ArrowRight', 'ArrowUp'], 45], [['KeyA', 'KeyS'], 225]];
     const got: string[] = []; let worst = 0;
-    for (const [k, want] of dirs) { const s = await key(p, k, 650); const e = angErr(s.hd, want); worst = Math.max(worst, e); got.push(`${k.join('+')} ${s.hd} want ${want}`); }
+    for (const [k, want] of dirs) {
+      let s = await key(p, k, 650);
+      for (let i = 0; i < 2 && s.card; i++) { await clearCards(p); s = await key(p, k, 650); }
+      const e = angErr(s.hd, want); worst = Math.max(worst, e); got.push(`${k.join('+')} ${s.hd} want ${want}`);
+    }
     c.ok('the heading follows movement in all directions within 8 degrees', worst <= 8, got.join(', '));
     const h0 = (await st(p)).hd; await p.waitForTimeout(700); const h1 = (await st(p)).hd;
     c.ok('the heading holds when idle', angErr(h0, h1) <= 3, `${h0} then ${h1}`);
