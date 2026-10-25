@@ -1,7 +1,7 @@
 import { addShake, CAP, G, maxW, ship, srand, V, type BoostId, type Option, type WeapId } from './core';
 import { fx, sparks } from './world';
 import { bl, BOOST, EVO, gainXP, maxHull, mkW, needFor, wdesc, WEAP } from './weapons';
-import { hideCard, live, msg, renderBuild, renderHull, showCard } from './hud';
+import { hideCard, live, msg, picked, renderHull, showCard } from './hud';
 
 const WIDS: WeapId[] = ['pulse', 'wing', 'arc', 'missile', 'nova'], BIDS: BoostId[] = ['magnet', 'damage', 'cooldown', 'area', 'thrust', 'hull'];
 const pairOf = (id: BoostId) => WIDS.find((k) => WEAP[k].pair === id);
@@ -62,16 +62,18 @@ export function choose(i: number) {
   else if (o.kind === 'e') {
     const from = EVO[o.id].from, w = G.wm[from]!, t = tradeFor(from), pair = WEAP[from].pair;
     if (t) { G.B[G.B.indexOf(t)] = pair; delete G.bm[t]; G.bm[pair] = 1; }
-    w.evo = true; w.t = 0.1; msg(o.name, 'Evolution online', 1700, true); fx(2, ship.x, ship.y, 420 * U, 0.9, 0); fx(0, ship.x, ship.y, 220 * U, 0.5, 1); addShake(0.3); live(`${o.name}. Evolution online.`);
+    w.evo = true; w.t = 0.1; msg(o.name, 'Evolution online', 1700, true, '', 3); fx(2, ship.x, ship.y, 420 * U, 0.9, 0); fx(0, ship.x, ship.y, 220 * U, 0.5, 1); addShake(0.3); live(`${o.name}. Evolution online.`);
   }
   else if (o.id === 'repair') G.hull = Math.min(maxHull(), G.hull + 1);
   else if (o.id === 'salvage') G.xp += G.need * 0.5;
-  else if (o.id === 'overdrive') { for (const w of G.W) if (!w.evo && w.lv < 5) w.lv++; msg('Overdrive', 'Weapons up a level', 1500, true); }
-  else if (o.id === 'surge') { for (const b of G.B) G.bm[b] = Math.min(5, bl(b) + 1); msg('Surge', 'Boosts up a level', 1500, true); }
-  else if (o.id === 'refit') { G.hull = maxHull(); msg('Full refit', 'Hull restored', 1500, true); }
+  else if (o.id === 'overdrive') { for (const w of G.W) if (!w.evo && w.lv < 5) w.lv++; msg('Overdrive', 'Weapons up a level', 1500, true, '', 3); }
+  else if (o.id === 'surge') { for (const b of G.B) G.bm[b] = Math.min(5, bl(b) + 1); msg('Surge', 'Boosts up a level', 1500, true, '', 3); }
+  else if (o.id === 'refit') { G.hull = maxHull(); msg('Full refit', 'Hull restored', 1500, true, '', 3); }
   const after = maxHull(); if (after > before) G.hull += after - before;
   G.hull = Math.min(G.hull, maxHull());
-  renderHull(); renderBuild();
+  renderHull();
+  const key = o.kind === 'e' ? EVO[o.id].from : o.kind === 'x' ? '' : o.id, w = o.kind === 'w' ? G.wm[o.id as WeapId] : null;
+  picked(w ? `${o.name} level ${w.lv}` : o.kind === 'b' ? `${o.name} level ${bl(o.id as BoostId)}` : o.id === 'repair' || o.id === 'salvage' || o.id === 'windfall' ? o.name : '', key);
   if (fromCache) G.nextBoss = G.clock + CAP.gap; else G.pend--;
   if (o.id === 'windfall') gainXP(G.need - G.xp + needFor(G.level + 1));
   if (o.id === 'salvage') gainXP(0);

@@ -280,7 +280,7 @@ export function updBullets(dt: number) {
     P.l[i] += dt; P.x[i] += P.vx[i] * dt; P.y[i] += P.vy[i] * dt;
     const x = P.x[i], y = P.y[i];
     if (P.l[i] > 7 || !onView(x, y, 60)) { rm(P, i); continue; }
-    const q = sr + 7 * V.U; if (!G.over && G.inv <= 0 && (x - ship.x) ** 2 + (y - ship.y) ** 2 < q * q) { rm(P, i); hurt('bullet'); }
+    const q = sr + 7 * V.U; if (!G.over && G.inv <= 0 && (x - ship.x) ** 2 + (y - ship.y) ** 2 < q * q) { rm(P, i); hurt('bullet', x, y); }
   }
 }
 

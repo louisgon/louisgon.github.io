@@ -11,7 +11,7 @@ import { boost, boosted, land, landed, pause, start, steerHead, updCam } from '.
 import { hudTick, showBest, showCard, updateLabels } from './hud';
 import { choose, openCache } from './upgrades';
 import { grab, initInput, STEER } from './input';
-import { drawArcs, drawBeams, drawBolts, drawBullets, drawCache, drawCachePointer, drawCharge, drawStick, drawDebris, drawDim, drawEgg, drawEnemies, drawEnemyGlows, drawFX, drawMissiles, drawNova, drawRear, drawShards, drawSparks, drawTele, drawTop, drawTrail, drawWings } from './render';
+import { drawArcs, drawBeams, drawBolts, drawBullets, drawCache, drawCachePointer, drawCharge, drawHurt, drawStick, drawDebris, drawDim, drawEgg, drawEnemies, drawEnemyGlows, drawFX, drawMissiles, drawNova, drawRear, drawShards, drawSparks, drawTele, drawTop, drawTrail, drawWings } from './render';
 import { played, store } from './store';
 import { bot, botPick, initTest, T } from './test';
 
@@ -129,7 +129,7 @@ export function orbitTick(now: number, hp: number) {
   G.slow = Math.max(0, G.slow - rdt);
   const scale = G.stop > 0 || (import.meta.env.MODE === 'test' && T.frozen) ? 0 : G.slow > 0 ? 0.3 : 1, dt = top && !G.card ? rdt * scale : 0;
   if (top && !G.over) G.clock += dt;
-  if (top && G.lvlT > 0 && !G.card) { G.lvlT -= rdt; if (G.lvlT <= 0 && G.pend > 0 && !G.over) showCard('level'); }
+  if (top && G.lvlT > 0 && !G.card) { G.lvlT = Math.max(G.reveal > 0 ? 1e-6 : 0, G.lvlT - rdt); if (G.lvlT <= 0 && G.pend > 0 && !G.over) showCard('level'); }
   if (auto && G.card && (G.mode === 'level' || G.mode === 'cache')) { T.botT += rdt; if (T.botT > 0.85) choose(botPick()); }
   const t = reduce ? 0 : now / 1000, sy = clamp(scrollY / H, 0, 1.2);
   Object.assign(F, { now, rdt, dt, t, sy, scroll: reduce ? 0 : scrollY });
@@ -190,13 +190,13 @@ export function orbitTick(now: number, hp: number) {
   C.x0 = (C.sx - C.ox) / C.wz; C.x1 = (W + C.sx - C.ox) / C.wz; C.y0 = (C.sy - C.oy) / C.wz; C.y1 = (H + C.sy - C.oy) / C.wz;
 
   if (top && dt > 0 && A.ready) {
-    G.killsF = 0;
+    G.killsF = 0; G.reveal = Math.max(0, G.reveal - dt);
     if (!G.over) spawner(dt);
     gridBuild(); updEnemies(dt, rdt);
     gridBuild(); separate(dt);
     gridBuild(); if (!G.over) updWeapons(dt);
     updBolts(dt); updMissiles(dt); updNova(dt); updShards(dt); updBullets(dt);
-    if (G.cache && !G.over) { G.cache.t += dt; if (!G.card && Math.hypot(ship.x - G.cache.x, ship.y - G.cache.y) < shipR() + 46 * V.U) openCache(); }
+    if (G.cache && !G.over) { G.cache.t += dt; if (!G.card && G.reveal <= 0 && Math.hypot(ship.x - G.cache.x, ship.y - G.cache.y) < shipR() + 46 * V.U) openCache(); }
     for (let i = TQ.length - 1; i >= 0; i--) { const q = TQ[i]; q.t -= dt; if (q.t <= 0) { TQ.splice(i, 1); if (q.run === G.run && G.on) q.fn(); } }
     compact();
   } else if (top && A.ready) {
@@ -232,6 +232,7 @@ export function orbitTick(now: number, hp: number) {
   }
   screen();
   drawStreaks(G.card ? 0 : rdt);
+  drawHurt(rdt);
   drawCachePointer(t);
   drawDim();
   drawEgg();

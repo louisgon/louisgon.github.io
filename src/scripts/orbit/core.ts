@@ -34,8 +34,8 @@ export const FAC: readonly Faction[] = [
     eng: [[[0.42, 0.9], [0.58, 0.9]], [[0.47, 0.82], [0.54, 0.82]], [[0.4, 0.88], [0.6, 0.88]], [[0.42, 0.87], [0.59, 0.87]]] },
 ];
 export const TAU = Math.PI * 2, BOOST = 1.45, LAND = 1, CAPH = 300, GZ0 = 1.15, TURN = Math.PI * 3;
-export const maxW = 4;
-export const CAP = { first: 75, gap: 120, calm: 3, ramp: 5, track: 0.45, retrack: 0.25, lock: 0.6 };
+export const maxW = 4, HIT = 0.26;
+export const CAP = { first: 75, gap: 120, calm: 3, ramp: 5, track: 0.45, retrack: 0.25, lock: 0.6, reveal: 1.95 };
 export const coarse = matchMedia('(pointer: coarse)').matches;
 export const HOLD: Record<Kind, number> = { touch: 300, mouse: 230, key: 230 };
 export const STICK = { r: 64, dz: 10, curve: 1.7, ease: 9, turn: 1.6, spin: 0.06, speed: 0.9 };
@@ -68,19 +68,19 @@ export const input = { mx: 0.5, my: 0.5, gx: 0, gy: 0, follow: false, charge: nu
 export const G = {
   on: false, run: 0, clock: 0, kills: 0, level: 1, xp: 0, need: 4, pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, over: false, dead: false, card: false, mode: '' as Mode,
   W: [] as Weapon[], wm: {} as Partial<Record<WeapId, Weapon>>, B: [] as BoostId[], bm: {} as Partial<Record<BoostId, number>>, miss: {} as Partial<Record<WeapId, number>>, opts: [] as Option[],
-  spawnAcc: 0, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null as Enemy | null, cache: null as { x: number; y: number; t: number; f: number } | null, warned: false, regen: 0, killsF: 0, msgT: -1e9, msgHold: 1100,
+  spawnAcc: 0, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null as Enemy | null, cache: null as { x: number; y: number; t: number; f: number } | null, warned: false, regen: 0, killsF: 0, reveal: 0, hitA: 0, hitT: 0,
   fac: 0, lap: 0, switching: false,
   arcId: 0, tips: {} as Record<string, number>, trailAcc: 0, newBest: false, px: 0, py: 0, ease: 0,
 };
 export const egg = { hover: 0, over: false, idleT: 0, whisper: -1, shown: 0 };
 export const F = { now: 0, rdt: 0, dt: 0, t: 0, sy: 0, scroll: 0, fc: 0 };
 
-type Els = 'hero' | 'hud' | 'card' | 'opts' | 'msg' | 'vig' | 'toast' | 'clock' | 'kills' | 'lvl' | 'lvN' | 'xpFill' | 'build' | 'lv' | 'bossBar' | 'bossFill' | 'bossName' | 'cardMore';
+type Els = 'hero' | 'hud' | 'card' | 'opts' | 'msg' | 'vig' | 'toast' | 'clock' | 'kills' | 'lvl' | 'lvN' | 'xpFill' | 'build' | 'pick' | 'lv' | 'bossBar' | 'bossFill' | 'bossName' | 'cardMore';
 export const D = {} as Record<Els, HTMLElement> & { cv: HTMLCanvasElement; copy: HTMLElement };
 export let ctx: CanvasRenderingContext2D;
 
 export function initCore() {
-  (['hero', 'hud', 'card', 'opts', 'msg', 'vig', 'toast', 'clock', 'kills', 'lvl', 'lvN', 'xpFill', 'build', 'lv', 'bossBar', 'bossFill', 'bossName', 'cardMore'] as const).forEach((id) => (D[id] = $(id)));
+  (['hero', 'hud', 'card', 'opts', 'msg', 'vig', 'toast', 'clock', 'kills', 'lvl', 'lvN', 'xpFill', 'build', 'pick', 'lv', 'bossBar', 'bossFill', 'bossName', 'cardMore'] as const).forEach((id) => (D[id] = $(id)));
   D.cv = $<HTMLCanvasElement>('orbit'); D.copy = D.hero.querySelector<HTMLElement>('.copy')!; ctx = D.cv.getContext('2d')!;
 }
 

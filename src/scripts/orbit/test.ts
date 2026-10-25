@@ -8,7 +8,7 @@ import { hurt, start } from './flight';
 import { renderBuild, renderHull } from './hud';
 import { eligible } from './upgrades';
 
-export const T = { god: false, stress: false, auto: false, frozen: false, botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [] as string[], work: new Float32Array(240), wi: 0, mark: 0, draws: 0 };
+export const T = { god: false, stress: false, auto: false, frozen: false, botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [] as string[], notes: [] as string[], work: new Float32Array(240), wi: 0, mark: 0, draws: 0 };
 
 const TAUS = [0.05, 0.12, 0.24, 0.45], TAUW = [1.8, 1.4, 1, 0.55];
 export function bot(rdt: number) {
@@ -77,7 +77,7 @@ export function initTest() {
       fac: G.fac, faction: FAC[G.fac].id, lap: G.lap, switching: G.switching, fe: FAC.map((_, f) => live().filter((e) => e.f === f).length), peel: live().filter((e) => e.mode === 8).length,
       fresh: [...new Set(live().filter((e) => e.id >= T.mark && e.mode !== -1).map((e) => art(e.f, e.t)))].sort(), sprites: S.fk.map((k) => k === S.key),
       banner: $('msgB').textContent ?? '', bannerSub: $('msgS').textContent ?? '', bannerOn: +(D.msg.style.opacity || 0), bossName: D.bossName.textContent ?? '', bsx: G.boss ? Math.round(G.boss.x * C.wz + C.ox) : -1, bsy: G.boss ? Math.round(G.boss.y * C.wz + C.oy) : -1,
-      drop: +(DV.drop / V.H).toFixed(3), th: +DV.th.toFixed(3), ba: +DV.ba.toFixed(3), punch: +DV.punch.toFixed(3), ra: +DV.ra.toFixed(3), ta: +DV.ta.toFixed(3), rw: Math.round(DV.rw), tw: Math.round(DV.tw) }),
+      drop: +(DV.drop / V.H).toFixed(3), th: +DV.th.toFixed(3), ba: +DV.ba.toFixed(3), punch: +DV.punch.toFixed(3), ra: +DV.ra.toFixed(3), ta: +DV.ta.toFixed(3), rw: Math.round(DV.rw), tw: Math.round(DV.tw), hitA: Math.round(((G.hitA * 180 / Math.PI) % 360 + 360) % 360), hitT: +G.hitT.toFixed(3), reveal: +G.reveal.toFixed(2) }),
     work: () => Array.from(T.work).filter((v) => v > 0),
     shipGap: (rects: number[][]) => {
       if (!A.ship) return -1;
@@ -92,6 +92,8 @@ export function initTest() {
       return Math.round(best);
     },
     hits: () => T.hits,
+    notes: () => T.notes,
+    hurtAt: (dx: number, dy: number) => { G.inv = 0; hurt('test', ship.x + dx * V.U, ship.y + dy * V.U); },
     start: () => start('mouse'),
     give: (id: string, lv = 5, evo = false) => { if (id in WEAP) { const wid = id as WeapId; let w = G.wm[wid]; if (!w) { w = mkW(wid); G.W.push(w); G.wm[wid] = w; } w.lv = lv; w.evo = evo; } else { const bid = id as BoostId; if (!G.B.includes(bid)) G.B.push(bid); G.bm[bid] = lv; } renderBuild(); renderHull(); },
     time: (t: number) => { G.clock = t; if (!G.bossN && !G.boss) G.nextBoss = Math.max(CAP.first, t + 40); },

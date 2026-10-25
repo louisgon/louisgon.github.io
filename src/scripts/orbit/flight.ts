@@ -1,6 +1,6 @@
 import { reduce } from '../state';
 import { $ } from '../util';
-import { A, addShake, cam, CAP, clamp, D, DV, egg, eio, eout, fmtT, G, GZ0, input, lerp, reseed, restW, rs, sayT, ship, shipW, sm, STICK, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
+import { A, addShake, cam, CAP, clamp, D, DV, egg, eio, eout, fmtT, G, GZ0, HIT, input, lerp, reseed, restW, rs, sayT, ship, shipW, sm, STICK, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
 import { AR, BM, BO, DB, EB, EN, fx, MI, NR, QR, query, RB, resetWorld, SH, SP, sparks, TG, TQ, WS } from './world';
 import { deathBurst } from './enemies';
 import { mkW, needFor } from './weapons';
@@ -14,8 +14,8 @@ export const cancelInput = () => { input.charge = null; input.keys.clear(); inpu
 export function start(kind?: Kind) {
   G.run++; reseed(0x0b17 ^ Math.imul(G.run, 0x9e3779b1)); store.set('lg01-played', 1); egg.whisper = -1; egg.over = false; D.hero.style.cursor = '';
   resetWorld();
-  Object.assign(G, { on: true, over: false, dead: false, card: false, mode: '', clock: 0, kills: 0, level: 1, xp: 0, need: needFor(1), pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, W: [], wm: {}, B: [], bm: {}, miss: {}, opts: [], spawnAcc: 2.5, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null, cache: null, warned: false, regen: 0, killsF: 0, msgT: -1e9, arcId: 0, tips: {}, newBest: false, fac: 0, lap: 0, switching: false });
-  if (import.meta.env.MODE === 'test') Object.assign(T, { botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [] });
+  Object.assign(G, { on: true, over: false, dead: false, card: false, mode: '', clock: 0, kills: 0, level: 1, xp: 0, need: needFor(1), pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, W: [], wm: {}, B: [], bm: {}, miss: {}, opts: [], spawnAcc: 2.5, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null, cache: null, warned: false, regen: 0, killsF: 0, reveal: 0, hitT: 0, arcId: 0, tips: {}, newBest: false, fac: 0, lap: 0, switching: false });
+  if (import.meta.env.MODE === 'test') Object.assign(T, { botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [], notes: [] });
   const w = mkW('pulse'); G.W.push(w); G.wm.pulse = w;
   renderHull(); renderBuild(); resetHud();
   D.hero.classList.add('playing'); D.hero.classList.remove('bossing', 'carded', 'late'); D.toast.classList.remove('on'); D.card.classList.remove('on');
@@ -69,11 +69,12 @@ export function landed() {
   rs.x = VP.rx; rs.y = VP.ry; rs.vx = rs.vy = 0; rs.sc = 1; rs.bank = 0;
 }
 
-export function hurt(src = '') {
+export function hurt(src = '', hx = ship.x, hy = ship.y) {
   if (G.inv > 0 || G.over) return;
   if (import.meta.env.MODE === 'test') { T.hits.push(`${G.clock.toFixed(1)}s ${src}`); if (T.god) { G.inv = 0.6; return; } }
   const U = V.U;
   G.hull--; G.inv = 1.4; G.blinkT = 1.4; G.vig = 1; G.regen = 0;
+  if (Math.hypot(hx - ship.x, hy - ship.y) > 1) { G.hitA = Math.atan2(hy - ship.y, hx - ship.x); G.hitT = HIT; }
   addShake(0.55); buzz(30); setHull(true);
   sparks(ship.x, ship.y, 22, 420 * U, 2, 9); fx(1, ship.x, ship.y, shipW() * 0.9, 0.35, 2); fx(0, ship.x, ship.y, shipW() * 0.6, 0.2, 2);
   const n = query(ship.x, ship.y, 150 * U, QR);

@@ -28,11 +28,23 @@ const ICON: Record<string, string> = {
 };
 export const svg = (k: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 
-let armT = 0, clockT = 0, upT = 0;
-const H = { sec: -1, kills: -1, lv: -1, xp: 0, xpSet: -1, msg: -1, vig: -1, boss: -1 };
-export const resetHud = () => Object.assign(H, { sec: -1, kills: -1, lv: -1, xp: 0 });
+let armT = 0, clockT = 0, upT = 0, pickT = 0;
+const H = { sec: -1, kills: -1, lv: -1, xp: 0, xpSet: -1, msg: -1, ma: 0, vig: -1, boss: -1 };
+type Note = { b: string; s: string; hold: number; gold: boolean; f: string; pri: number; wait: (() => boolean) | null; age: number };
+const MQ: Note[] = [], TIP = 4, WAIT = 6;
+let note: Note | null = null, noteT = 0;
+export const resetHud = () => { Object.assign(H, { sec: -1, kills: -1, lv: -1, xp: 0 }); MQ.length = 0; note = null; D.pick.classList.remove('on'); };
 
-export const msg = (b: string, s: string, hold = 1100, gold = false, f = '') => { $('msgB').textContent = b; $('msgS').textContent = s; D.msg.classList.toggle('gold', gold); D.msg.dataset.f = f; G.msgT = performance.now(); G.msgHold = hold; };
+export const msg = (b: string, s: string, hold = 1100, gold = false, f = '', pri = 1, wait: (() => boolean) | null = null) => { MQ.push({ b, s, hold, gold, f, pri, wait, age: 0 }); };
+function nextNote() {
+  for (let i = MQ.length - 1; i >= 0; i--) if (!MQ[i].pri && MQ[i].age > TIP) MQ.splice(i, 1);
+  let k = -1;
+  for (let i = 0; i < MQ.length; i++) { const n = MQ[i]; if ((!n.wait || !n.wait() || n.age > WAIT) && (k < 0 || n.pri > MQ[k].pri)) k = i; }
+  if (k < 0) return;
+  note = MQ.splice(k, 1)[0]; noteT = 0;
+  $('msgB').textContent = note.b; $('msgS').textContent = note.s; D.msg.classList.toggle('gold', note.gold); D.msg.dataset.f = note.f;
+  if (import.meta.env.MODE === 'test') T.notes.push(note.b);
+}
 export const live = (t: string) => { $('live').textContent = ''; setTimeout(() => ($('live').textContent = t), 30); };
 export const buzz = (ms: number) => { try { if (navigator.vibrate && navigator.userActivation && navigator.userActivation.hasBeenActive) navigator.vibrate(ms); } catch {} };
 
@@ -41,12 +53,19 @@ export function setHull(lost: boolean, gain = false) {
   [...lv.children].forEach((i, n) => { i.classList.toggle('off', n >= G.hull); if (lost && n === G.hull) { i.classList.remove('lost'); void (i as HTMLElement).offsetWidth; i.classList.add('lost'); } if (gain && n === G.hull - 1) { i.classList.remove('gain'); void (i as HTMLElement).offsetWidth; i.classList.add('gain'); } });
 }
 export function renderHull() { D.lv.innerHTML = '<i></i>'.repeat(maxHull()); setHull(false); }
-export function buildHTML() {
-  const w = G.W.map((x) => `<span class="${x.evo ? 'evo' : ''}">${svg(x.evo ? WEAP[x.id].evo : x.id)}${x.evo ? '' : `<em>${x.lv}</em>`}</span>`).join('');
-  const b = G.B.map((id) => `<span class="b">${svg(id)}<em>${bl(id)}</em></span>`).join('');
+export function buildHTML(hit = '') {
+  const k = (id: string, c: string) => `class="${c}${id === hit ? ' hit' : ''}" data-k="${id}"`;
+  const w = G.W.map((x) => `<span ${k(x.id, x.evo ? 'evo' : '')}>${svg(x.evo ? WEAP[x.id].evo : x.id)}${x.evo ? '' : `<em>${x.lv}</em>`}</span>`).join('');
+  const b = G.B.map((id) => `<span ${k(id, 'b')}>${svg(id)}<em>${bl(id)}</em></span>`).join('');
   return w + (b ? `<i class="gap"></i>${b}` : '');
 }
-export const renderBuild = () => (D.build.innerHTML = buildHTML());
+export const renderBuild = (hit = '') => (D.build.innerHTML = buildHTML(hit));
+export function picked(label: string, key: string) {
+  renderBuild(key);
+  if (!label) return;
+  D.pick.textContent = label; D.pick.classList.add('on'); clearTimeout(pickT); pickT = window.setTimeout(() => D.pick.classList.remove('on'), 1600);
+  live(`${label}.`);
+}
 export function showBest() { $('best0').innerHTML = $('best1').innerHTML = fmtT(P.best); $('best1').parentElement!.hidden = !P.best; }
 export function updateLabels() {
   const t = input.last === 'touch';
@@ -72,7 +91,7 @@ export function showCard(mode: Mode, f = 0) {
   const card = D.card, parts = { big: $('cardBig'), sub: $('cardSub'), rs: $('cardStats'), far: $('cardFar'), bld: $('cardBuild'), opts: D.opts, act: $('cardActions') };
   const show = (on: string[]) => Object.entries(parts).forEach(([k, el]) => (el.hidden = !on.includes(k)));
   let opts: Option[] = [];
-  if (import.meta.env.MODE === 'test') T.botT = 0;
+  if (import.meta.env.MODE === 'test') { T.botT = 0; T.notes.push(`card:${mode}`); }
   if (mode === 'level') {
     opts = options();
     $('cardT').textContent = `Level ${pad2(G.level - G.pend + 1)} · Choose one`;
@@ -119,8 +138,12 @@ export function hudTick(rdt: number, now: number) {
     const bb = G.boss && !G.boss.dead ? clamp(G.boss.hp / G.boss.max) : -1;
     if (Math.abs(bb - H.boss) > 0.002) { D.bossBar.classList.toggle('on', bb >= 0); if (bb >= 0) D.bossFill.style.transform = `scale3d(${bb.toFixed(3)}, 1, 1)`; H.boss = bb; }
   }
-  const ma = G.on && !G.card ? clamp(1 - (now - G.msgT - G.msgHold) / 400) * clamp((now - G.msgT) / 200) : 0;
-  if (Math.abs(ma - H.msg) > 0.01) { H.msg = ma; D.msg.style.opacity = ma.toFixed(2); }
+  const vis = G.on && !G.card && VP.p >= 1;
+  if (vis) { for (const n of MQ) n.age += rdt; if (!note && H.ma < 0.02) nextNote(); if (note) noteT += rdt * 1000; }
+  const want = vis && note ? clamp(1 - (noteT - note.hold) / 400) * clamp(noteT / 200) : 0;
+  if (note && noteT >= note.hold + 400) note = null;
+  H.ma += (want - H.ma) * (1 - Math.exp(-rdt * 18)); if (H.ma < 0.005) H.ma = 0;
+  if (Math.abs(H.ma - H.msg) > 0.01 || (!H.ma && H.msg)) { H.msg = H.ma; D.msg.style.opacity = H.ma.toFixed(2); }
   G.vig = Math.max(0, G.vig - rdt * 1.6);
   const va = G.on ? Math.max(G.vig, !G.over && G.hull === 1 ? 0.22 + 0.08 * Math.sin(now / 260) : 0) * (reduce ? 0.6 : 1) : 0;
   if (Math.abs(va - H.vig) > 0.01) { H.vig = va; D.vig.style.opacity = va.toFixed(2); }
