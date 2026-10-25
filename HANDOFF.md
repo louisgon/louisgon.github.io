@@ -567,3 +567,49 @@
 - The review copy is republished at http://localhost:4747/a/8t5qjd6kq3na/ (local only).
 - Not done. A real iPhone in Safari and an Android phone in Chrome for the haze cost and the look of the rim at device scale 3, and how the two phone compositions feel in the hand (the default at 58 percent and the `mobile-B` alternative at 62 percent). The moon positions are measured per painting (`MOONS`), so new hero art skips the moon layer until they are measured again. On a 667 wide landscape phone the ship sits about 26px from the right edge.
 - 2026-10-24. Louis reviewed the idle polish through comparison pages. He chose phone layout B with LG-01 always centred between the last line of copy and the bottom of the screen, the haze at half strength, no overline and no stats line in the hero. The stats live only in the Pilot log.
+
+## Review fixes, pass 1 (2026-10-25)
+- A Codex code review of the hidden game (`hero-lab/review-space/review.md` in the session scratch folder) found combat accounting bugs, handoffs that left the player exposed and a run that took six minutes to show its third fleet. Louis approved all of it. This pass on `louis/review-fixes` covers the bugs and the pacing. A second pass does feel, readability, controls, the hero first impression and accessibility. The hero at rest, the boost, the factions' look, the joystick tuning, the locked camera and the art are unchanged.
+- Combat accounting.
+  - Each Nova ring keeps a set of the enemy serials it has hit, cleared when the slot is reused, so overlapping Supernova rings hit an enemy once each (B1). The old single id per enemy let the two rings take turns and rehit every frame, which a fixed step lab measured at 416 damage at 20Hz and 3276 at 144Hz where 52 is right.
+  - The grid is rebuilt after spawning, after movement and after separation, and bolts and missiles test the segment they swept that step against each hull (`sweep`, `edist` and `segSeg` in `world.ts`) and hit the first one along it (B5). At 20Hz two of twelve bolts used to pass straight through an interceptor.
+  - Rails collect every hull the beam touches, capitals as the same capsule `capD` uses, sort them along the beam and hit the nearest six (B7).
+  - Railstorm always fires three rails. With fewer than three targets the spare rails rake the same hull a little apart, and with a capital in play two of the three go to it, as Pulse does with its lock (V1). A lone capital takes 82.9 damage a second against 64.1 from Pulse level 5, where the single rail gave 27.6.
+  - A resize mid run scales every world position, speed and size by the new unit (`rescale`), rebases the boost and landing poses, and a width change pauses the run and drops the joystick origin (B2).
+- Random streams (Q2). `srand` and `srnd` drive the simulation and are reseeded from the run number at every start. `rand` and `rnd` keep the old seed for everything that only draws, so the hero at rest is pixel identical and rendering, the refresh rate or time on a card can no longer change later spawns or offers.
+- Handoffs.
+  - Losing focus or hiding the tab pauses during the boost too. The boost holds where it is with the pause card over the scene, and Resume finishes it (B3).
+  - A mouse launch no longer drifts toward a pointer resting below centre. Steering waits until the pointer moves 5px from where it was when the boost landed, and every card exit uses the same handoff in place of the old 28px accumulator (C1).
+  - Cards clear held keys and recentre the joystick when they open and close, autorepeat never revives a released key, queued level cards swap in place with no flight between them, and every exit, Resume included, gives 0.6 seconds of protection (B4).
+  - Phones draw the idle hero on a 30ms budget, measured at 30 draws a second at rest and 60 in play (Q1). The old frame counter was bumped twice a frame and skipped only the first one.
+- Cards.
+  - Level and cache cards show the four weapon and four boost slots, every weapon card names its paired boost from its first offer, and boost cards say which weapon they evolve or pair with, or that Thrusters has no pair (V2).
+  - When a maxed weapon's boost cannot fit because all four boost slots are full, its cache evolution trades out the lowest boost no held weapon needs, shown on the card (Trades Thrusters for Cooldown), so an evolution can never be locked out (V2).
+  - Rewards that do nothing are filtered (Surge with nothing to raise, Full refit and Field repair at full hull), Overdrive and Surge name what they raise, and every level and boost line is generated from the balance tables (`wdesc` and `BOOST` in `weapons.ts`) with the real gains, for example Arc damage up 38% where the card said 40% (V3).
+- Pacing.
+  - Until the first level, shards drift toward LG-01 at 90 units a second and the magnet reaches 1.6 times as far, so the first card is reachable without hunting (P1).
+  - The first capital ship arrives at 75 seconds (`CAP` in `core.ts`). The next one is scheduled 120 seconds after the cache reward resolves and never while a cache waits, and `spawnBoss` only consumes the encounter when it spawns (P3, B6).
+  - Capital hull starts at 700 and grows 1.6 times per capital (`CAPHP` in `enemies.ts`), tuned on the autopilot for fights of about 15 to 25 seconds (P2).
+  - A capital kill opens a 3 second breather with a quarter of the spawns and no interceptor lines, then the next faction takes over and ramps to full spawns over 5 seconds (P3).
+  - Each capital has one move of its own (`passes`, `dash`, `wide` and `brood` in `FAC`). The Rival flagship makes one long charge twice as wide, the Pirate dreadnought makes two short passes, and the Hive mothership stops to release three waves of six fighters in place of the periodic summon. Every charge tracks, then holds its aim for 0.6 seconds, and the telegraph band matches the width (P4).
+- Measured with the test hooks and the autopilot in god mode at 1440 by 900, two runs before and after, in game seconds (card time does not count). A player who steers around was scripted as a slow figure of eight with the mouse, plus a straight run and no input.
+
+  | Moment | Before | After |
+  |---|---|---|
+  | First kill | 1.0 and 2.3 | 1.9 |
+  | First card, autopilot | 5.2 and 5.9 | 5.5 and 6.2 |
+  | First card, steering | 11.0 to 13.1 | 8.9 to 10.3 |
+  | First card, straight run | 19.2 and 20.3 | 9.6 and 11.1 |
+  | First card, no input | 13.7 and 15.6 | 7.2 and 7.5 |
+  | First capital | 100.0 | 75.0 |
+  | First capital fight | 27.5 and 29.6 | 15.8 and 17.3 |
+  | First evolution | 133.9 and 135.7 | 91.9 and 94.4 |
+  | Space pirates arrive | 130.4 and 132.3 | 93.9 and 95.4 |
+  | Second capital fight | 94.6 and 97.2 | 11.2 and 16.6 |
+  | Alien swarm arrives | 377.3 and 380.0 | 228.7 and 231.5 |
+  | Third capital fight | 78.6 and 103.0 | 19.7 and 21.2 |
+  | Rival fleet lap 02 | 541.4 and 565.9 | 375.3 and 376.3 |
+
+- Checks. `bun run hero` gains `combat` (the Nova, bolt, rail and Railstorm labs step the real update functions at fixed rates, and the random stream checks hold an arc on screen through a card and a frozen loop). `pause` covers a blur during the boost and Resume protection, `boost` the still mouse launch and the 5px handoff, `cards` held keys and a held thumb through a card, the queue, slots and pairs, the boost trade, filtered rewards, generated descriptions, the 75 second capital, the breather, a cache surviving an ignored interval and the 120 second schedule, `fleets` each capital's move, the locked aim and the hull growth, `world` a resize mid run and mid landing, and `idle` the phone draw rate. Reintroducing the old Nova, bolt, Railstorm, rail and random stream code makes the matching checks fail.
+- Results. `bun run hero` passes all 250 checks. With the GPU on, desktop at 1440 by 900 and device scale 2 holds 315 to 320 enemies at a 16.7ms median and 16.8ms p95 with 1.1ms of work per frame, the Pixel 7 profile holds 147 to 150 at a pixel ratio of 1.5 and 16.7ms, and the idle hero costs 0.7ms on desktop and 0.8ms on the phone profile. `bun run check`, `bun run build` and the parity `output` check are clean and the live bundle has no test hooks. Parity against a build of `next` at fa5c882 with `--mask hero` matches all 14 compared scenarios on every sampled frame, every screenshot without the hero on screen matches to the pixel, the desktop hero marks match too, and all 24 fresh scenarios pass. The phone load hero mark differs by 9715px at a peak channel difference of 26, which is the 30fps idle draw showing a frame a beat older.
+- Not done. The fight lengths come from the autopilot, which keeps its distance and dodges, and they swing with its picks (one pair of runs at 781 hull took 50 and 61 seconds for the first capital, a diagnostic run at the same hull took 18.5), so they want real play. Deferred to the second pass or later are F1 to F4, C2 to C4, R1 to R4, H1 to H4, A1 to A4, V4 and V5 (survival and Area or Thrusters balance), Q3 (quality changes inside a live frame) and Q4 (moving threat timers out of render). The device checks on a real iPhone and Android phone still stand.
