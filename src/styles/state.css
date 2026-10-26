@@ -2,6 +2,7 @@ body.hi-nav nav { opacity: 0; pointer-events: none; }
 body.hi-main main, body.hi-main footer { opacity: 0; }
 body.hi-nav nav, body.hi-main main, body.hi-main footer { animation: hiFail .4s 8s forwards; }
 @keyframes hiFail { to { opacity: 1; } }
+html.landing #hero { opacity: 0; animation: hiFail .4s 8s forwards; }
 #jump { position: fixed; left: 50%; top: 50%; z-index: 50; transform: translate3d(-50%, -50%, 0); text-align: center; pointer-events: none; opacity: 0; color: #eaf4ff; text-shadow: 0 0 14px rgb(120 200 255 / 90%); }
 #jump .k { font: 600 11px/1 "JetBrains Mono", monospace; letter-spacing: .32em; color: #cfeaff; }
 #jump .d { margin-top: 12px; font: 700 clamp(18px, 2.4vw, 34px)/1 "Syncopate", sans-serif; text-transform: uppercase; letter-spacing: .06em; }

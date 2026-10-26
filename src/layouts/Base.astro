@@ -37,6 +37,7 @@ const page = pageMeta(open === undefined ? undefined : site.projects[open]);
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-.5 -.5 5 6%27%3E%3Cpath fill=%27%238fd3ff%27 d=%27M1,0H.5L0,.5v4L.5,5h2V4H1ZM2,2.5H4v2L3.5,5H3V3.5H2ZM1.5,0V1H3v.5H4V.5L3.5,0Z%27/%3E%3C/svg%3E">
 <link rel="preload" href={syncopate} as="font" type="font/woff2" crossorigin>
 <link rel="preload" href={interTight} as="font" type="font/woff2" crossorigin>
+<script is:inline>history.scrollRestoration = 'manual'; try { const n = performance.getEntriesByType('navigation')[0]; if ((location.hash.length > 1 && location.hash !== '#hero') || (/reload|back_forward/.test(n?.type ?? '') && +(sessionStorage.getItem('space-y') ?? 0) > innerHeight * 0.5)) document.documentElement.classList.add('landing'); } catch {}</script>
 <script type="application/json" id="site-data" set:html={data}></script>
 </head>
 <body class={open === undefined ? 'hi-nav hi-main' : 'hi-nav hi-main case-open'}>
