@@ -20,9 +20,9 @@ const sizes = '(max-width: 860px) clamp(84px, 24vw, 112px), clamp(240px, 27vw, 4
   <div id="projects">
     {projects.map((p, i) => (
       <article class="proj" data-i={i} aria-labelledby={`pt${i}`} style={`--rx:${REACH[i][0]};--ry:${REACH[i][1]}`}>
-        <div class="planet" aria-hidden="true"><img src={p.planet} srcset={planets[i]} sizes={sizes} alt="" loading="lazy" /><Fragment set:html={moonsHTML(i)} /></div>
+        <div class="planet" aria-hidden="true"><img data-src={p.planet} data-srcset={planets[i]} sizes={sizes} alt="" loading="lazy" /><Fragment set:html={moonsHTML(i)} /></div>
         <a class="pic rv" href={workURL(p.id)} data-case aria-label={`${p.title} case study`}>
-          <img src={p.shot} alt="" loading="lazy" />
+          <img data-src={p.shot} alt="" loading="lazy" />
           <div class="ring"></div>
           <div class="hud"></div>
           <div class="tag" aria-hidden="true"><b>DEST {nn(i + 1)}</b><span>{new URL(p.url).hostname.replace(/^www\./, '')}</span></div>
