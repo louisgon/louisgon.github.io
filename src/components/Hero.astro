@@ -6,8 +6,7 @@ const [wideAvif, wideWebp, tallAvif, tallWebp, lowAvif, lowWebp] = await Promise
 ---
 <section id="hero" aria-label="LG-01 above a desert world.">
   <div class="art" id="art" aria-hidden="true">
-    <noscript><picture class="bg in"><source media={low} type="image/avif" srcset={lowAvif}><source media={low} type="image/webp" srcset={lowWebp}><source media={tall} type="image/avif" srcset={tallAvif}><source media={tall} type="image/webp" srcset={tallWebp}><source type="image/avif" srcset={wideAvif}><img src={wideWebp} alt=""></picture></noscript>
-    <picture class="bg"><source media={low} type="image/avif" data-srcset={lowAvif}><source media={low} type="image/webp" data-srcset={lowWebp}><source media={tall} type="image/avif" data-srcset={tallAvif}><source media={tall} type="image/webp" data-srcset={tallWebp}><source type="image/avif" data-srcset={wideAvif}><img data-src={wideWebp} alt="" fetchpriority="high"></picture>
+    <picture class="bg"><source media={low} type="image/avif" srcset={lowAvif}><source media={low} type="image/webp" srcset={lowWebp}><source media={tall} type="image/avif" srcset={tallAvif}><source media={tall} type="image/webp" srcset={tallWebp}><source type="image/avif" srcset={wideAvif}><img src={wideWebp} alt="" fetchpriority="low"></picture>
     <canvas id="orbit"></canvas>
   </div>
   <div class="vig" id="vig" aria-hidden="true"></div>

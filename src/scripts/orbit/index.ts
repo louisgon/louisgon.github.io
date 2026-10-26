@@ -136,7 +136,7 @@ export function initOrbit() {
   });
   rested = Promise.all([bg, sh]);
   const fetchArt = () => { const sp = DATA.sprites; for (const k of ['ship-top', 'nebula', ...FAC.flatMap((f) => TYPES.map((T) => `${f.id}-${T.role}`))]) { const l = document.createElement('link'); l.rel = 'prefetch'; l.href = sp[k]; document.head.append(l); } };
-  if (document.readyState === 'complete') fetchArt(); else addEventListener('load', fetchArt, { once: true });
+  rested.then(() => (document.readyState === 'complete' ? fetchArt() : addEventListener('load', fetchArt, { once: true })));
   new IntersectionObserver((es) => { V.vis = es[0].isIntersecting; if (!V.vis) { input.fly = false; game?.land(); } }).observe(D.hero);
   if (import.meta.env.MODE === 'test') import('./test').then((m) => { lab = m; m.initTest(); });
 }
