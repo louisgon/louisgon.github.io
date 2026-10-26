@@ -10,7 +10,7 @@ import { drawCharge, drawDim, drawEgg, drawRear } from './render';
 import { played, store } from './store';
 
 const metas = new Map<string, ReturnType<typeof analyse>>();
-let lab: typeof import('./test') | null = null, last = 0, slowFrames = 0, shown = '', flyShown = '0.000', shipAt = 0, bgOff = false, pic: HTMLImageElement, rested: Promise<unknown> | null = null, loading: Promise<void> | null = null, asked = false;
+let lab: typeof import('./test') | null = null, last = 0, slowFrames = 0, shown = '', flyShown = '0.000', shipAt = 0, bgOff = false, pic: HTMLImageElement, rested: Promise<unknown> | null = null, loading: Promise<void> | null = null;
 
 export let starVis = 0;
 export const heroEnd = () => $('hero').offsetHeight * 0.85;
@@ -133,6 +133,8 @@ export function initOrbit() {
     if (A.base) size();
   });
   rested = Promise.all([bg, sh]);
+  const fetchArt = () => { const sp = DATA.sprites; for (const k of ['ship-top', 'nebula', ...FAC.flatMap((f) => TYPES.map((T) => `${f.id}-${T.role}`))]) { const l = document.createElement('link'); l.rel = 'prefetch'; l.href = sp[k]; document.head.append(l); } };
+  if (document.readyState === 'complete') fetchArt(); else addEventListener('load', fetchArt, { once: true });
   new IntersectionObserver((es) => { V.vis = es[0].isIntersecting; if (!V.vis) { input.fly = false; game?.land(); } }).observe(D.hero);
   if (import.meta.env.MODE === 'test') import('./test').then((m) => { lab = m; m.initTest(); });
 }
@@ -155,7 +157,6 @@ function intro(now: number) {
 
 export function orbitTick(now: number, hp: number) {
   intro(now);
-  if (HI.done && V.vis && !asked) { asked = true; if ('requestIdleCallback' in window) requestIdleCallback(loadGame, { timeout: 1000 }); else setTimeout(loadGame, 200); }
   const M = game;
   starVis = HI.space * sstep(0, 0.5, hp);
   const fade = HI.planet.toFixed(3); if (fade !== shown) { shown = fade; D.cv.style.opacity = fade; }
