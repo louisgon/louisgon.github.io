@@ -1,5 +1,4 @@
 import { MOONS } from '../lib/planets';
-import { PROJECTS } from './data';
 import { reduce, TR } from './state';
 import { $, clamp, sstep, visible } from './util';
 import { orbit } from './planets';
@@ -11,7 +10,7 @@ export function initWork() {
   const projEls = [...document.querySelectorAll<HTMLElement>('.proj')]; trajNodes = projEls.map(() => { const n = document.createElement('i'); n.className = 'node'; traj.append(n); return n; });
   function placeNodes() { projEls.forEach((p, i) => (trajNodes[i].style.top = `${p.offsetTop + p.offsetHeight / 2 - 4}px`)); }
   placeNodes(); addEventListener('resize', placeNodes); document.fonts && document.fonts.ready.then(placeNodes); setTimeout(placeNodes, 400);
-  document.querySelectorAll<HTMLElement>('.proj .planet').forEach((pl, i) => { const src = PROJECTS[i].planet; const g = document.createElement('i'); g.className = 'glint'; g.style.webkitMaskImage = g.style.maskImage = `url(${src})`; g.style.animationDelay = `${-i * 1.3}s`; pl.append(g); });
+  document.querySelectorAll<HTMLElement>('.proj .planet').forEach((pl, i) => { const img = pl.querySelector('img')!; img.decode().then(() => { const g = document.createElement('i'); g.className = 'glint'; g.style.webkitMaskImage = g.style.maskImage = `url(${new URL(img.currentSrc).pathname})`; g.style.animationDelay = `${-i * 1.3}s`; pl.append(g); }, () => {}); });
   document.querySelectorAll<HTMLElement>('.proj .pic').forEach((pic) => {
     pic.addEventListener('pointermove', (e) => { if (reduce || TR.busy || e.pointerType !== 'mouse') return; const r = pic.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; pic.style.transform = `perspective(1100px) rotate3d(1, 0, 0, ${-y * 7}deg) rotate3d(0, 1, 0, ${x * 9}deg) translate3d(0, 0, 0)`; });
     pic.addEventListener('pointerleave', () => (pic.style.transform = ''));

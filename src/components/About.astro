@@ -1,13 +1,13 @@
 ---
 import Divider from './Divider.astro';
 import Heading from './Heading.astro';
-import { webp } from '../lib/assets';
+import { srcset, webp } from '../lib/assets';
 
-const pilot = await webp('pilot');
+const [pilot, pilotSet] = await Promise.all([webp('pilot'), srcset('pilot')]);
 ---
 <section class="s" id="pilot">
   <Divider n={4} name="The pilot" />
-  <div class="holo-wrap rv"><div class="holo" id="holo"><img id="pilotImg" alt="Portrait of Louis Gonzalez" src={pilot} loading="lazy" /><div class="lines" aria-hidden="true"></div><div class="sheen" aria-hidden="true"></div><div class="rim" aria-hidden="true"></div><div class="tag mono"><i>●</i> Comms · Louis G.</div><div class="sig mono"><span>Signal <b id="sigV">98</b>%</span><span>Lag <b id="sigL">0.42</b>s</span><span>Dallas, TX</span></div><div class="hud"></div></div></div>
+  <div class="holo-wrap rv"><div class="holo" id="holo"><img id="pilotImg" alt="Portrait of Louis Gonzalez" src={pilot} srcset={pilotSet} sizes="(max-width: 860px) 300px, 440px" loading="lazy" /><div class="lines" aria-hidden="true"></div><div class="sheen" aria-hidden="true"></div><div class="rim" aria-hidden="true"></div><div class="tag mono"><i>●</i> Comms · Louis G.</div><div class="sig mono"><span>Signal <b id="sigV">98</b>%</span><span>Lag <b id="sigL">0.42</b>s</span><span>Dallas, TX</span></div><div class="hud"></div></div></div>
   <div class="pt" data-stage>
     <Heading lines={['Hi, I’m', 'Louis']} />
     <p class="lead st" style="--i:2">I started building for the web in 2013, freelancing for big brands before moving into agency teams. At Goodfolks I look after long-running client platforms, and the part I care about most is the years after launch, when a site has to stay fast, stable and easy for the client to run.</p>

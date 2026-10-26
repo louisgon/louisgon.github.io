@@ -1,5 +1,6 @@
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import { WIDTHS } from './widths';
 
 const WEBP = 85;
 const AVIF = 60;
@@ -12,5 +13,7 @@ const source = (name: string) => {
   return file.default;
 };
 
-export const webp = async (name: string) => (await getImage({ src: source(name), format: 'webp', quality: WEBP })).src;
-export const avif = async (name: string) => (await getImage({ src: source(name), format: 'avif', quality: AVIF })).src;
+export const webp = async (name: string, width?: number) => (await getImage({ src: source(name), format: 'webp', quality: WEBP, width })).src;
+export const avif = async (name: string, width?: number) => (await getImage({ src: source(name), format: 'avif', quality: AVIF, width })).src;
+export const small = (name: string) => WIDTHS[name.split('/').pop()!][0];
+export const srcset = async (name: string) => { const full = source(name).width, w = small(name); return `${await webp(name, w)} ${w}w, ${await webp(name)} ${full}w`; };

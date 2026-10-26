@@ -5,8 +5,11 @@ import { getProjects } from '../lib/site';
 import { REACH, moonsHTML } from '../lib/planets';
 import { nn } from '../lib/sections';
 import { workURL } from '../lib/pages';
+import { srcset } from '../lib/assets';
 
 const projects = await getProjects();
+const planets = await Promise.all(projects.map((p) => srcset(`p${p.order}`)));
+const sizes = '(max-width: 860px) clamp(84px, 24vw, 112px), clamp(240px, 27vw, 440px)';
 ---
 <section class="s" id="work">
   <Divider n={3} name="Destinations" />
@@ -17,7 +20,7 @@ const projects = await getProjects();
   <div id="projects">
     {projects.map((p, i) => (
       <article class="proj" data-i={i} aria-labelledby={`pt${i}`} style={`--rx:${REACH[i][0]};--ry:${REACH[i][1]}`}>
-        <div class="planet" aria-hidden="true"><img src={p.planet} alt="" loading="lazy" /><Fragment set:html={moonsHTML(i)} /></div>
+        <div class="planet" aria-hidden="true"><img src={p.planet} srcset={planets[i]} sizes={sizes} alt="" loading="lazy" /><Fragment set:html={moonsHTML(i)} /></div>
         <a class="pic rv" href={workURL(p.id)} data-case aria-label={`${p.title} case study`}>
           <img src={p.shot} alt="" loading="lazy" />
           <div class="ring"></div>

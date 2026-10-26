@@ -2,6 +2,7 @@ import sharp from 'sharp';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import projects from '../../src/content/projects.json';
+import { WIDTHS } from '../../src/lib/widths';
 
 const TWO_D = /\b(translate[XYZ]?|scale[XYZ]?|rotate[XYZ]?|translate|scale|rotate)\(/g;
 const NOINDEX = '<meta name="robots" content="noindex">';
@@ -31,7 +32,8 @@ export async function output(dist: string, review: boolean) {
   const assets = new Map(files('src/assets', /\.webp$/).map((f) => [basename(f, '.webp'), f]));
   for (const f of readdirSync(join(dist, '_astro')).filter((f) => /\.(webp|avif)$/.test(f))) {
     const name = f.split('.')[0], [out, src] = await Promise.all([sharp(join(dist, '_astro', f)).metadata(), sharp(assets.get(name) ?? join('src/assets', `${name}.webp`)).metadata()]);
-    if (out.width !== src.width || out.height !== src.height) problems.push(`${f} is ${out.width}x${out.height}, source ${src.width}x${src.height}`);
+    const variant = WIDTHS[name]?.includes(out.width!) && out.height === Math.round(src.height! * out.width! / src.width!);
+    if ((out.width !== src.width || out.height !== src.height) && !variant) problems.push(`${f} is ${out.width}x${out.height}, source ${src.width}x${src.height}`);
   }
   console.log(problems.length ? problems.join('\n') : `output: clean (${review ? 'review' : 'live'} build)`);
   return problems;

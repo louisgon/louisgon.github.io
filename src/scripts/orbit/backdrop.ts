@@ -4,7 +4,7 @@ import { S, SPR, TX } from './art';
 
 type Star = { x: number; y: number; r: number; p: number; s: number };
 type Dust = { a: number; d: number; s: number };
-type Moon = { x: number; y: number; r: number; R: number; plate: HTMLCanvasElement; disc: HTMLCanvasElement; dx: number; dy: number; hide: boolean };
+type Moon = { x: number; y: number; r: number; R: number; plate: HTMLCanvasElement; disc: HTMLCanvasElement; dx: number; dy: number; hide: boolean; sk: number };
 type Mote = { x: number; y: number; s: number; l: number };
 type Twinkle = { x: number; y: number; r: number; p: number; s: number };
 let stars: Star[] = [], dust: Dust[] = [], streaks: Dust[] = [], motes: Mote[] = [], twinkles: Twinkle[] = [];
@@ -81,31 +81,34 @@ function initLife() {
 }
 
 export function prepMoons(img: HTMLImageElement | null) {
-  moons = []; lum = null; const M = img && MOONS[`${img.naturalWidth}x${img.naturalHeight}`]; if (!img || !M) return;
-  { const w = 160, h = Math.round(w * img.naturalHeight / img.naturalWidth), c = mk(w, h), x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, 0, 0, w, h); lum = { d: x.getImageData(0, 0, w, h).data, w, h }; }
-  const iw = img.naturalWidth, ih = img.naturalHeight, L = lum!;
+  moons = []; lum = null; if (!img) return;
+  const iw = img.naturalWidth, ih = img.naturalHeight, ref = Object.keys(MOONS).find((k) => { const [w, h] = k.split('x').map(Number); return Math.abs(w * ih - h * iw) < w; });
+  if (!ref) return;
+  const sk = iw / +ref.split('x')[0], M = MOONS[ref].map(([x, y, r]) => [x * sk, y * sk, r * sk]);
+  { const w = 160, h = Math.round(w * ih / iw), c = mk(w, h), x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, 0, 0, w, h); lum = { d: x.getImageData(0, 0, w, h).data, w, h }; }
+  const L = lum!;
   const dark = (cx: number, cy: number, R: number) => { let m = 0; for (let v = cy - R; v <= cy + R; v += R / 4) for (let u = cx - R; u <= cx + R; u += R / 4) { const k = (Math.min(L.h - 1, Math.max(0, Math.round(v / ih * L.h))) * L.w + Math.min(L.w - 1, Math.max(0, Math.round(u / iw * L.w)))) * 4; m = Math.max(m, L.d[k] * 0.3 + L.d[k + 1] * 0.59 + L.d[k + 2] * 0.11); } return m; };
   for (const [mx, my, r] of M) {
-    const R = Math.ceil(r + 16), s = R * 2, c = mk(s), x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, mx - R, my - R, s, s, 0, 0, s, s);
+    const R = Math.ceil(r + 16 * sk), s = R * 2, c = mk(s), x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, mx - R, my - R, s, s, 0, 0, s, s);
     const d = x.getImageData(0, 0, s, s).data;
     let best: number[] | null = null, bl = Infinity;
     for (const [ox, oy] of [[-2.2, 0], [2.2, 0], [0, -2.2], [-1.6, -1.6], [1.6, -1.6]]) {
-      const cx = mx + ox * R, cy = my + oy * R; if (cx - R < 0 || cy - R < 0 || cx + R > iw || cy + R > ih || M.some(([qx, qy, qr]) => Math.hypot(cx - qx, cy - qy) < R + qr + 10)) continue;
+      const cx = mx + ox * R, cy = my + oy * R; if (cx - R < 0 || cy - R < 0 || cx + R > iw || cy + R > ih || M.some(([qx, qy, qr]) => Math.hypot(cx - qx, cy - qy) < R + qr + 10 * sk)) continue;
       const l = dark(cx, cy, R); if (l < bl) { bl = l; best = [cx, cy]; }
     }
     const plate = mk(s), p = plate.getContext('2d', { willReadFrequently: true })!;
     if (best) p.drawImage(img, best[0] - R, best[1] - R, s, s, 0, 0, s, s); else p.drawImage(c, 0, 0);
     const out = p.getImageData(0, 0, s, s), o = out.data, sum = [0, 0, 0, 0, 0, 0];
-    let n = 0; for (let y = 0; y < s; y++) for (let i = 0; i < s; i++) { const q = Math.hypot(i - R, y - R), k = (y * s + i) * 4; if (q > r + 8 && q < R) { for (let ch = 0; ch < 3; ch++) { sum[ch] += d[k + ch]; sum[ch + 3] += o[k + ch]; } n++; } }
+    let n = 0; for (let y = 0; y < s; y++) for (let i = 0; i < s; i++) { const q = Math.hypot(i - R, y - R), k = (y * s + i) * 4; if (q > r + 8 * sk && q < R) { for (let ch = 0; ch < 3; ch++) { sum[ch] += d[k + ch]; sum[ch + 3] += o[k + ch]; } n++; } }
     for (let y = 0; y < s; y++) for (let i = 0; i < s; i++) {
-      const q = Math.hypot(i - R, y - R), k = (y * s + i) * 4, a = q < r + 4 ? 1 : 1 - sm(r + 4, r + 11, q);
+      const q = Math.hypot(i - R, y - R), k = (y * s + i) * 4, a = q < r + 4 * sk ? 1 : 1 - sm(r + 4 * sk, r + 11 * sk, q);
       for (let ch = 0; ch < 3; ch++) o[k + ch] += (sum[ch] - sum[ch + 3]) / Math.max(1, n);
       o[k + 3] = 255 * a;
     }
     p.putImageData(out, 0, 0);
     const disc = mk(s), q = disc.getContext('2d')!; q.drawImage(c, 0, 0); q.globalCompositeOperation = 'destination-in';
-    const f = q.createRadialGradient(R, R, r, R, R, r + 4); f.addColorStop(0, '#000'); f.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = f; q.fillRect(0, 0, s, s);
-    moons.push({ x: mx, y: my, r, R, plate, disc, dx: 0, dy: 0, hide: false });
+    const f = q.createRadialGradient(R, R, r, R, R, r + 4 * sk); f.addColorStop(0, '#000'); f.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = f; q.fillRect(0, 0, s, s);
+    moons.push({ x: mx, y: my, r, R, plate, disc, dx: 0, dy: 0, hide: false, sk });
   }
   placeMoons();
 }
@@ -124,7 +127,7 @@ function placeMoons() {
     if (!lum) return true; const L = lum;
     for (let a = 0; a < 16; a++) for (const q of [0.5, 1]) {
       const px = x + Math.cos(a / 16 * TAU) * (r + 8) * q, py = y + Math.sin(a / 16 * TAU) * (r + 8) * q, u = (px - x0) / s, v = (py - y0) / s;
-      if (moons.some((m) => Math.hypot(u - m.x, v - m.y) < m.r + 10)) continue;
+      if (moons.some((m) => Math.hypot(u - m.x, v - m.y) < m.r + 10 * m.sk)) continue;
       const k = (Math.min(L.h - 1, Math.max(0, Math.round(v / nh * L.h))) * L.w + Math.min(L.w - 1, Math.max(0, Math.round(u / nw * L.w)))) * 4;
       if (L.d[k] * 0.3 + L.d[k + 1] * 0.59 + L.d[k + 2] * 0.11 > SKY) return false;
     }
