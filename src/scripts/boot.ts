@@ -1,4 +1,5 @@
 const release = () => {
+  document.getElementById('late')?.removeAttribute('media');
   document.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((img) => {
     if (img.dataset.srcset) img.srcset = img.dataset.srcset;
     img.src = img.dataset.src!;
