@@ -1,6 +1,6 @@
 import { DATA } from '../data';
 import { HI, reduce } from '../state';
-import { $, out, sstep } from '../util';
+import { $, nextTask, out, sstep } from '../util';
 import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, eio, eout, F, FAC, G, game, GZ0, HOLD, initCore, input, LAND, lerp, MOUSE, restW, rs, scene, screen, setGame, ship, shipR, shipW, sm, STICK, T, TYPES, V, VP } from './core';
 import { initArt, LIT, prepLight } from './art';
 import { analyse, drawOrbit, initBackdrop, keepMoons, nozzles, prepMoons } from './backdrop';
@@ -16,6 +16,7 @@ export let starVis = 0;
 export const heroEnd = () => $('hero').offsetHeight * 0.85;
 
 const load = (src: string) => new Promise<HTMLImageElement | null>((r) => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+const decoded = (src: string) => load(src).then((i) => i && i.decode().then(() => i, () => i));
 
 const still = () => new Promise<HTMLImageElement | null>((r) => { if (!pic.currentSrc || !pic.naturalWidth) return r(null); const i = new Image(); i.src = pic.currentSrc; i.decode().then(() => r(i), () => r(i.naturalWidth ? i : null)); });
 function useBg(img: HTMLImageElement | null) {
@@ -101,7 +102,7 @@ export function loadGame() {
   loading = Promise.all([rested, import('./play')]).then(([, m]) => {
     setGame(m); m.initSprites(); m.sizeWorld();
     const art = FAC.flatMap((f) => TYPES.map((T) => sp[`${f.id}-${T.role}`]));
-    return Promise.all([sp['ship-top'], sp.nebula, ...art].map(load));
+    return Promise.all([sp['ship-top'], sp.nebula, ...art].map(decoded));
   }).then(([st, nb, ...art]) => {
     A.shipTop = st; A.nebula = nb; A.art = FAC.map((_, f) => art.slice(f * TYPES.length, (f + 1) * TYPES.length) as HTMLImageElement[]);
     A.ready = !!(A.base && A.ship && st && nb && art.every(Boolean));
@@ -118,8 +119,9 @@ export function initOrbit() {
   showBest(); updateLabels(); $('bestLine').hidden = !played();
   size();
   pic = D.hero.querySelector<HTMLImageElement>('.bg img')!;
-  const bg = new Promise<void>((r) => { if (pic.complete) r(); else { pic.addEventListener('load', () => r(), { once: true }); pic.addEventListener('error', () => r(), { once: true }); } }).then(still).then((b) => {
-    useBg(b); A.base = true;
+  const bg = new Promise<void>((r) => { if (pic.complete) r(); else { pic.addEventListener('load', () => r(), { once: true }); pic.addEventListener('error', () => r(), { once: true }); } }).then(still).then(async (b) => {
+    if (b && b.naturalWidth && !metas.has(b.src)) { metas.set(b.src, analyse(b)); await nextTask(); }
+    useBg(b); await nextTask(); A.base = true;
     size(); addEventListener('resize', size); new ResizeObserver(() => restLayout()).observe(D.copy); document.fonts.ready.then(() => restLayout());
     pic.addEventListener('load', () => still().then(swapBg));
   });
