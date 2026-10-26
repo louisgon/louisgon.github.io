@@ -1,10 +1,13 @@
 const release = () => {
   document.getElementById('late')?.removeAttribute('media');
+  document.querySelectorAll<HTMLSourceElement>('source[data-srcset]').forEach((el) => { el.srcset = el.dataset.srcset!; el.removeAttribute('data-srcset'); });
   document.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((img) => {
     if (img.dataset.srcset) img.srcset = img.dataset.srcset;
     img.src = img.dataset.src!;
     img.removeAttribute('data-src'); img.removeAttribute('data-srcset');
   });
+  const art = document.querySelector<HTMLImageElement>('#hero .bg img');
+  art?.decode().then(() => art.parentElement!.classList.add('in'), () => art.parentElement!.classList.add('in'));
 };
 
 let started = false;
