@@ -17,7 +17,7 @@ const projects = await getProjects();
   <div id="projects">
     {projects.map((p, i) => (
       <article class="proj" data-i={i} aria-labelledby={`pt${i}`} style={`--rx:${REACH[i][0]};--ry:${REACH[i][1]}`}>
-        <div class="planet" aria-hidden="true"><img src={p.planet} alt="" /><Fragment set:html={moonsHTML(i)} /></div>
+        <div class="planet" aria-hidden="true"><img src={p.planet} alt="" loading="lazy" /><Fragment set:html={moonsHTML(i)} /></div>
         <a class="pic rv" href={workURL(p.id)} data-case aria-label={`${p.title} case study`}>
           <img src={p.shot} alt="" loading="lazy" />
           <div class="ring"></div>

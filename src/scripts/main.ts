@@ -41,6 +41,8 @@ initCursor();
 initCases();
 initBus();
 initWork();
+// lazy in the markup only to keep them off the first paint
+document.querySelectorAll('.proj .planet img, #pilotImg').forEach((img) => img.removeAttribute('loading'));
 resize(); addEventListener('resize', resize);
 
 let last = performance.now(), heroP = 0;
