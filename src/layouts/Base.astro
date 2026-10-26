@@ -41,7 +41,7 @@ const page = pageMeta(open === undefined ? undefined : site.projects[open]);
 <link rel="preload" href={interTight} as="font" type="font/woff2" crossorigin>
 {open !== undefined && <link rel="preload" href={syncopateExt} as="font" type="font/woff2" crossorigin>}
 <style is:inline id="late" media={open === undefined ? 'not all' : undefined} set:html={lateFonts}></style>
-<script is:inline>history.scrollRestoration = 'manual'; try { const n = performance.getEntriesByType('navigation')[0]; if ((location.hash.length > 1 && location.hash !== '#hero') || (/reload|back_forward/.test(n?.type ?? '') && +(sessionStorage.getItem('space-y') ?? 0) > innerHeight * 0.5)) document.documentElement.classList.add('landing'); } catch {}</script>
+<script is:inline>history.scrollRestoration = 'manual'; try { const n = performance.getEntriesByType('navigation')[0]; if ((location.hash.length > 1 && location.hash !== '#hero') || (/reload|back_forward/.test(n?.type ?? '') && +(sessionStorage.getItem('space-y') ?? 0) > innerHeight * 0.5)) { document.documentElement.classList.add('landing'); document.getElementById('late')?.removeAttribute('media'); } } catch {}</script>
 <script type="application/json" id="site-data" set:html={data}></script>
 </head>
 <body class={open === undefined ? 'hi-nav hi-main' : 'hi-nav hi-main case-open'}>
