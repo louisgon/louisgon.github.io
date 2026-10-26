@@ -2,7 +2,7 @@ import { DATA } from '../data';
 import { HI, reduce } from '../state';
 import { $, nextTask, out, sstep } from '../util';
 import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, eio, eout, F, FAC, G, game, GZ0, HOLD, initCore, input, LAND, lerp, MOUSE, restW, rs, scene, screen, setGame, ship, shipR, shipW, sm, STICK, T, TYPES, V, VP } from './core';
-import { initArt, LIT, prepLight } from './art';
+import { initArt, LIT, prepLight, prepLightSoon } from './art';
 import { drawOrbit, initBackdrop, keepMoons, prepMoons } from './backdrop';
 import { edge, locate, moons, nozzles, type Scan } from './paint';
 import PAINT from '../../lib/paint.json';
@@ -27,10 +27,10 @@ async function scanBg(img: HTMLImageElement, step: () => Promise<void>) {
   const m = locate(img); await step(); const e = edge(img, m.limb); await step();
   const sc = { ...m, edge: e, ...moons(img) }; metas.set(img.src, sc); return sc;
 }
-async function useBg(img: HTMLImageElement | null, step = async () => {}) {
+async function useBg(img: HTMLImageElement | null, step = async () => {}, soft = false) {
   if (!img || !img.naturalWidth) { A.bg = null; return; }
   const m = await scanBg(img, step);
-  A.bg = img; A.meta = m; scene.sun = m.sun; scene.limb = m.limb; scene.edge = m.edge; await step(); prepMoons(img, m); light();
+  A.bg = img; A.meta = m; scene.sun = m.sun; scene.limb = m.limb; scene.edge = m.edge; await step(); await prepMoons(img, m, soft ? step : undefined); await step(); await light(soft);
 }
 async function swapBg(img: HTMLImageElement | null) {
   if (!img || !A.bg || img.src === A.bg.src) return;
@@ -62,11 +62,11 @@ function restLayout() {
   const fw = Math.round(rs.base), fh = Math.round(fw * A.aspR); Object.assign(D.fly.style, { left: `${Math.round(W * x - fw / 2)}px`, top: `${Math.round(H * y - fh / 2)}px`, width: `${fw}px`, height: `${fh}px` });
 }
 
-function light() {
+function light(soft = false) {
   if (!A.ship) return;
   const { W, H } = V, img = A.bg; let sx = W * scene.sun.x, sy = H * scene.sun.y;
   if (img) { const nw = img.naturalWidth, nh = img.naturalHeight, s = Math.max(W / nw, H / nh) * 1.07, w = nw * s, h = nh * s; sx = (W - w) / 2 + scene.sun.x * w; sy = (H - h) / 2 + scene.sun.y * h; }
-  prepLight(sx - W * rs.restX, sy - H * rs.restY, rs.base * V.DPR * 1.15);
+  return (soft ? prepLightSoon : prepLight)(sx - W * rs.restX, sy - H * rs.restY, rs.base * V.DPR * 1.15);
 }
 
 function boost(p: number) {
@@ -129,7 +129,7 @@ export function initOrbit() {
   pic = D.hero.querySelector<HTMLImageElement>('.bg img')!;
   const bg = new Promise<void>((r) => { if (pic.complete) r(); else { pic.addEventListener('load', () => r(), { once: true }); pic.addEventListener('error', () => r(), { once: true }); } }).then(still).then(async (b) => {
     await nextTask();
-    await useBg(b, nextTask); await nextTask(); initArt(); await nextTask(); A.base = true;
+    await useBg(b, nextTask, true); await nextTask(); initArt(); await nextTask(); A.base = true;
     size(); addEventListener('resize', size); new ResizeObserver(() => restLayout()).observe(D.copy); document.fonts.ready.then(() => restLayout());
     pic.addEventListener('load', () => still().then(swapBg));
   });

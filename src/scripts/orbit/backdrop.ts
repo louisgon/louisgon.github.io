@@ -32,7 +32,7 @@ export function initBackdrop() {
 async function initLife() {
   const n = HZ.n, c = mk(n), x = c.getContext('2d')!, id = x.createImageData(n, n), d = id.data;
   for (let y = 0; y < n; y++) for (let i = 0; i < n; i++) {
-    if (y === n / 2 && !i) await nextTask();
+    if (y && !(y % 32) && !i) await nextTask();
     const u = i / n, v = y / n, a = sm(0.44, 0.78, pnoise(u * 4, v * 3, 4, 3) * 0.58 + pnoise(u * 8, v * 6, 8, 6) * 0.28 + pnoise(u * 16, v * 12, 16, 12) * 0.14), j = (y * n + i) * 4;
     d[j] = 255; d[j + 1] = 176 + 40 * a; d[j + 2] = 96 + 52 * a; d[j + 3] = 255 * a;
   }
@@ -44,11 +44,12 @@ async function initLife() {
   lifeT0 = performance.now();
 }
 
-export function prepMoons(img: HTMLImageElement | null, sc: Scan | null) {
+export async function prepMoons(img: HTMLImageElement | null, sc: Scan | null, step?: () => Promise<void>) {
   const out: Moon[] = []; if (!img || !sc?.moons || !sc.lit) { moons = out; lit = null; return; }
   const ref = moonRef(img.naturalWidth, img.naturalHeight); if (!ref) { moons = out; lit = null; return; }
   const { sk, M } = ref;
   for (const [i, [mx, my, r]] of M.entries()) {
+    if (i && step) await step();
     const R = moonR(r, sk), s = R * 2, c = mk(s), x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, mx - R, my - R, s, s, 0, 0, s, s);
     const disc = mk(s), q = disc.getContext('2d')!; q.drawImage(c, 0, 0); q.globalCompositeOperation = 'destination-in';
     const f = q.createRadialGradient(R, R, r, R, R, r + 4 * sk); f.addColorStop(0, '#000'); f.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = f; q.fillRect(0, 0, s, s);

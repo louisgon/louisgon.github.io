@@ -1,6 +1,6 @@
 import { initReview } from '#review';
 import { HI, reduce, S, TR, lf } from './state';
-import { $, clamp, lerp } from './util';
+import { $, clamp, lerp, nextTask } from './util';
 import { initAnchors, initLanding, initScroll, initWheelHush, lenis } from './scroll';
 import { initMenu } from './menu';
 import { heroEnd, initOrbit, orbitTick } from './orbit';
@@ -32,6 +32,7 @@ let settled = deep;
 async function init() {
   if (deep) await wake().catch(() => {});
   await document.fonts.ready;
+  if (!deep) await nextTask();
   initWords();
   initRoles();
   initOsc();
@@ -39,6 +40,7 @@ async function init() {
   initStats();
   initCards();
   initMarquee();
+  if (!deep) await nextTask();
   initNav();
   initDividers();
   initMagnetic();
