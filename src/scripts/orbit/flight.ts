@@ -1,16 +1,16 @@
 import { reduce } from '../state';
 import { $ } from '../util';
-import { A, addShake, cam, CAP, clamp, D, DV, egg, eio, eout, fmtT, G, GZ0, HIT, input, lerp, reseed, restW, rs, sayT, ship, shipW, sm, STICK, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
+import { addShake, cam, CAP, clamp, D, egg, fmtT, G, HIT, input, lerp, reseed, restW, rs, sayT, ship, shipW, STICK, T, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
 import { AR, BM, BO, DB, EB, EN, fx, MI, NR, QR, query, RB, resetWorld, SH, SP, sparks, TG, TQ, WS } from './world';
-import { flushSprites } from './art';
+import { flushSprites } from './sprites';
 import { deathBurst } from './enemies';
 import { mkW, needFor } from './weapons';
-import { anchor, buzz, live, modal, renderBuild, renderHull, resetHud, setHull, setLast, showBest, showCard } from './hud';
+import { anchor, buzz, live, resetHud, setLast, showBest } from './hud';
+import { modal, renderBuild, renderHull, setHull, showCard } from './cards';
+import { cancelInput } from './input';
 import { P, store } from './store';
-import { T } from './test';
 
 let lateT = 0, tipT = 0, toastT = 0;
-export const cancelInput = () => { input.charge = null; input.keys.clear(); input.tid = null; input.stick = null; };
 
 export function start(kind?: Kind) {
   flushSprites();
@@ -99,22 +99,6 @@ function die() {
 }
 
 export const pause = () => { if (G.on && (VP.p >= 1 || VP.dir > 0) && !G.card && !G.over) { cancelInput(); showCard('pause'); } };
-
-export function boost(p: number) {
-  const { W, H, Z } = V, sx = W / 2 + (ship.x - cam.x) * Z, sy = H / 2 + (ship.y - cam.y) * Z;
-  DV.tx = sx; DV.ty = sy; DV.tw = shipW() * Z; DV.tsq = 1; DV.th = 1; DV.drop = 0; DV.kx = DV.ky = 1; DV.fk = 0; DV.ba = 1; DV.punch = 0; DV.zb = 0; DV.gz = Z; DV.rsq = 1;
-  if (!p) { DV.th = 0; DV.ga = 0; DV.ra = 1; DV.ta = 0; DV.rx = rs.x; DV.ry = rs.y; DV.rw = restW(); return; }
-  if (reduce) { DV.ga = p; DV.ra = 1 - p; DV.ta = p; DV.rx = VP.rx; DV.ry = VP.ry; DV.rw = VP.rw; return; }
-  const up = VP.dir >= 0, th = eio(clamp((p - 0.05) / 0.95)), dk = clamp((p - 0.04) / 0.58), e = eio(clamp((p - 0.03) / 0.9)), es = eio(p);
-  DV.th = th; DV.drop = H * 1.3 * dk ** 1.7; DV.kx = 1 - 0.05 * dk; DV.ky = 1 - 0.18 * dk;
-  DV.fk = clamp(DV.drop / (H * 0.15)); DV.ba = 1 - sm(0.42, 0.58, p); DV.zb = Math.sin(Math.PI * th);
-  DV.punch = up ? sm(0, 0.05, p) * (1 - sm(0.28, 0.62, p)) : 0;
-  DV.ga = 1; DV.gz = lerp(GZ0, 1, eio(sm(0.45, 1, p))) * Z;
-  DV.rx = DV.tx = lerp(VP.rx, sx, e); DV.ry = DV.ty = lerp(VP.ry, sy, e) + (up ? H * 0.022 * Math.sin(Math.PI * clamp(p / 0.16)) : 0);
-  DV.rw = DV.tw = lerp(VP.rw, shipW() * Z, es);
-  DV.rsq = 1 - 0.5 * sm(0.12, 0.5, p); DV.ra = 1 - sm(0.42, 0.56, p); DV.ta = sm(0.42, 0.56, p);
-  DV.tsq = lerp(A.tsq0, 1, eout(sm(0.44, 0.9, p)));
-}
 
 export function steerHead(k: number) {
   if (k <= 0) return;

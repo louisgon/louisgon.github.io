@@ -1,13 +1,14 @@
 import { reduce } from '../state';
-import { A, C, cam, clamp, ctx, D, DV, F, G, mk, rand, scene, screen, ship, sm, sprite, TAU, V, VP } from './core';
-import { S, SPR, TX } from './art';
+import { A, C, clamp, ctx, DV, F, G, mk, rand, scene, screen, sm, sprite, TAU, V, VP } from './core';
+import { SPR } from './art';
 
 type Star = { x: number; y: number; r: number; p: number; s: number };
 type Dust = { a: number; d: number; s: number };
 type Moon = { x: number; y: number; r: number; R: number; plate: HTMLCanvasElement; disc: HTMLCanvasElement; dx: number; dy: number; hide: boolean; sk: number };
 type Mote = { x: number; y: number; s: number; l: number };
 type Twinkle = { x: number; y: number; r: number; p: number; s: number };
-let stars: Star[] = [], dust: Dust[] = [], streaks: Dust[] = [], motes: Mote[] = [], twinkles: Twinkle[] = [];
+let stars: Star[] = [], dust: Dust[] = [];
+export let streaks: Dust[] = [], motes: Mote[] = [], twinkles: Twinkle[] = [];
 const sats = [{ p: 0.1, v: 0.012, y: 0.12, warm: false }, { p: 0.62, v: 0.008, y: 0.2, warm: true }];
 const PM = new DOMMatrix();
 const MOONS: Record<string, number[][]> = { '3200x1800': [[2898, 250, 121], [2678, 372, 44]], '1800x3200': [[1441, 876, 96], [1614, 1012, 31]] };
@@ -17,7 +18,6 @@ let haze: CanvasPattern | null = null, hzBuf: HTMLCanvasElement | null = null, h
 const hash = (x: number, y: number) => { let h = (Math.imul(x, 374761393) + Math.imul(y, 668265263)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 const pnoise = (x: number, y: number, px: number, py: number) => { const xi = Math.floor(x), yi = Math.floor(y), u = x - xi, v = y - yi, h = (i: number, j: number) => hash(((i % px) + px) % px, ((j % py) + py) % py), a = h(xi, yi), b = h(xi + 1, yi), c = h(xi, yi + 1), d = h(xi + 1, yi + 1), su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v); return a + (b - a) * su + (c - a) * sv + (a - b - c + d) * su * sv; };
 const HZ = { n: 256, k: 150, v: 0.045, wind: 0.012 };
-let vg: CanvasGradient | null = null, vgK = '';
 
 export function analyse(img: HTMLImageElement) {
   const c = document.createElement('canvas'), w = 96, h = Math.round(96 * img.naturalHeight / img.naturalWidth); c.width = w; c.height = h;
@@ -246,55 +246,4 @@ export function drawOrbit() {
     if (f >= 1) A.bgOld = null; else { place(0); ctx.globalAlpha = (1 - f) * DV.ba; cover(A.bgOld, bx, by, bz, DV.fk); ctx.globalAlpha = 1; }
   }
   screen();
-}
-
-export function drawSpace(t: number, a: number) {
-  const { W, H, DPR, U, Z } = V, cv = D.cv; if (a <= 0.003 || !S.neb) return;
-  const zk = C.wz / Z, lift = (DV.th - 1) * H * 1.75;
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  const pat = (L: { pat: CanvasPattern; size: number; k: number }, dev: number) => {
-    const k = L.k, z = 1 + (zk - 1) * k, sc = dev * z / L.size, cx = W / 2 * DPR, cy = H / 2 * DPR;
-    PM.a = sc; PM.d = sc; PM.e = cx + (C.sx - cam.x * k * C.wz) * DPR * z; PM.f = cy + (C.sy - cam.y * k * C.wz + lift * (0.55 + 0.45 * k)) * DPR * z;
-    L.pat.setTransform(PM); ctx.fillStyle = L.pat; ctx.fillRect(0, 0, cv.width, cv.height);
-  };
-  ctx.globalAlpha = a;
-  pat(S.neb, Math.max(S.neb.size, Math.max(W, H) * 1.1 * DPR));
-  for (const L of S.stars) pat(L, L.size);
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  ctx.globalCompositeOperation = 'lighter';
-  const tw = W + 120, th = H + 120;
-  for (const s of twinkles) {
-    let x = (s.x * tw - cam.x * 0.75 * C.wz) % tw; if (x < 0) x += tw;
-    let y = (s.y * th - cam.y * 0.75 * C.wz + lift * 0.89) % th; if (y < 0) y += th;
-    const k = reduce ? 0.5 : Math.max(0, Math.sin(t * s.s + s.p)); if (k < 0.04) continue;
-    sprite(SPR.star, x - 60 + C.sx, y - 60 + C.sy, s.r * U, a * 0.41 * k * k);
-  }
-  ctx.globalCompositeOperation = 'source-over';
-  const vk = `${cv.width},${cv.height}`;
-  if (vk !== vgK || !vg) { vgK = vk; const cx = cv.width / 2, cy = cv.height / 2, r = Math.hypot(cx, cy); vg = ctx.createRadialGradient(cx, cy, r * 0.45, cx, cy, r); vg.addColorStop(0, 'rgba(2,3,8,0)'); vg.addColorStop(0.55, 'rgba(2,3,8,0.22)'); vg.addColorStop(1, 'rgba(2,3,8,0.62)'); }
-  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = a; ctx.fillStyle = vg; ctx.fillRect(0, 0, cv.width, cv.height);
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  const spx = W + 80, spy = H + 80, par = 1.5 * C.wz, vxs = 18 * U - ship.vx * par, vys = 8 * U - ship.vy * par, vs = Math.hypot(vxs, vys) || 1, nx = vxs / vs, ny = vys / vs;
-  ctx.strokeStyle = 'rgb(206,224,255)'; ctx.globalAlpha = a * 0.13; ctx.lineWidth = 1; ctx.lineCap = 'round'; ctx.beginPath();
-  for (const m of motes) {
-    let x = (m.x * spx + t * 18 * U * m.s - ship.x * par) % spx; if (x < 0) x += spx;
-    let y = (m.y * spy + t * 8 * U * m.s - ship.y * par + lift * 1.3) % spy; if (y < 0) y += spy;
-    x -= 40; y -= 40; const L = (1.5 + vs * 0.02) * m.l * U;
-    ctx.moveTo(x, y); ctx.lineTo(x - nx * L, y - ny * L);
-  }
-  ctx.stroke(); ctx.globalAlpha = 1;
-}
-
-export function drawStreaks(rdt: number) {
-  if (reduce || DV.zb < 0.01) return;
-  const { W, H, DPR, U } = V, vx = W * 0.5, vy = -H * 1.6, R = Math.hypot(W, H * 2.6), spread = Math.atan(W / (4.2 * H)) * 2.6, sp = rdt * 1.5 * (VP.dir < 0 ? -1 : 1), tex = TX.dust;
-  ctx.globalCompositeOperation = 'lighter';
-  for (const s of streaks) {
-    s.d += s.s * sp * DV.zb; if (s.d > 1) { s.d -= 1; s.a = rand(); } else if (s.d < 0) { s.d += 1; s.a = rand(); }
-    const ang = Math.PI / 2 + (s.a - 0.5) * spread, c = Math.cos(ang), sn = Math.sin(ang), r = R * (0.52 + s.d * 0.62), len = (60 + 260 * DV.zb * s.s) * U, th = (1.4 + s.s * 2) * U;
-    ctx.globalAlpha = DV.zb * 0.5 * clamp(s.d * 4) * clamp((1 - s.d) * 4);
-    ctx.setTransform(c * DPR, sn * DPR, -sn * DPR, c * DPR, (vx + c * r + C.sx) * DPR, (vy + sn * r + C.sy) * DPR);
-    ctx.drawImage(tex, -len / 2, -th / 2, len, th);
-  }
-  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; screen();
 }

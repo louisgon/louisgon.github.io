@@ -1,22 +1,16 @@
 import { DATA } from '../data';
 import { HI, reduce } from '../state';
 import { $, out, sstep } from '../util';
-import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, F, FAC, G, HOLD, initCore, input, LAND, lerp, MOUSE, restW, rs, scene, screen, ship, shipR, STICK, TYPES, V, VP } from './core';
-import { initArt, LIT, prepLight, prepSprites, S } from './art';
-import { analyse, drawOrbit, drawSpace, drawStreaks, initBackdrop, keepMoons, nozzles, prepMoons } from './backdrop';
-import { compact, EN, gridBuild, rescale, sizeWorld, TQ, WS } from './world';
-import { separate, spawner, updEnemies } from './enemies';
-import { spdM, updBolts, updBullets, updMissiles, updNova, updShards, updWeapons, updWing } from './weapons';
-import { boost, boosted, land, landed, pause, start, steerHead, updCam } from './flight';
-import { hudTick, measureLane, showBest, showCard, updateLabels } from './hud';
-import { choose, openCache } from './upgrades';
+import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, eio, eout, F, FAC, G, game, GZ0, HOLD, initCore, input, LAND, lerp, MOUSE, restW, rs, scene, screen, setGame, ship, shipR, shipW, sm, STICK, T, TYPES, V, VP } from './core';
+import { initArt, LIT, prepLight } from './art';
+import { analyse, drawOrbit, initBackdrop, keepMoons, nozzles, prepMoons } from './backdrop';
+import { hudTick, measureLane, showBest, updateLabels } from './hud';
 import { grab, initInput, STEER } from './input';
-import { drawArcs, drawBeams, drawBolts, drawBullets, drawCache, drawCachePointer, drawCharge, drawHurt, drawPointer, drawStick, drawDebris, drawDim, drawEgg, drawEnemies, drawEnemyGlows, drawFX, drawMissiles, drawNova, drawRear, drawShards, drawSparks, drawTele, drawTop, drawTrail, drawWings } from './render';
+import { drawCharge, drawDim, drawEgg, drawRear } from './render';
 import { played, store } from './store';
-import { bot, botPick, initTest, T } from './test';
 
 const metas = new Map<string, ReturnType<typeof analyse>>();
-let last = 0, slowFrames = 0, shown = '', flyShown = '0.000', shipAt = 0, bgOff = false, pic: HTMLImageElement;
+let lab: typeof import('./test') | null = null, last = 0, slowFrames = 0, shown = '', flyShown = '0.000', shipAt = 0, bgOff = false, pic: HTMLImageElement, rested: Promise<unknown> | null = null, loading: Promise<void> | null = null, asked = false;
 
 export let starVis = 0;
 export const heroEnd = () => $('hero').offsetHeight * 0.85;
@@ -66,6 +60,22 @@ function light() {
   prepLight(sx - W * rs.restX, sy - H * rs.restY, rs.base * V.DPR * 1.15);
 }
 
+function boost(p: number) {
+  const { W, H, Z } = V, sx = W / 2 + (ship.x - cam.x) * Z, sy = H / 2 + (ship.y - cam.y) * Z;
+  DV.tx = sx; DV.ty = sy; DV.tw = shipW() * Z; DV.tsq = 1; DV.th = 1; DV.drop = 0; DV.kx = DV.ky = 1; DV.fk = 0; DV.ba = 1; DV.punch = 0; DV.zb = 0; DV.gz = Z; DV.rsq = 1;
+  if (!p) { DV.th = 0; DV.ga = 0; DV.ra = 1; DV.ta = 0; DV.rx = rs.x; DV.ry = rs.y; DV.rw = restW(); return; }
+  if (reduce) { DV.ga = p; DV.ra = 1 - p; DV.ta = p; DV.rx = VP.rx; DV.ry = VP.ry; DV.rw = VP.rw; return; }
+  const up = VP.dir >= 0, th = eio(clamp((p - 0.05) / 0.95)), dk = clamp((p - 0.04) / 0.58), e = eio(clamp((p - 0.03) / 0.9)), es = eio(p);
+  DV.th = th; DV.drop = H * 1.3 * dk ** 1.7; DV.kx = 1 - 0.05 * dk; DV.ky = 1 - 0.18 * dk;
+  DV.fk = clamp(DV.drop / (H * 0.15)); DV.ba = 1 - sm(0.42, 0.58, p); DV.zb = Math.sin(Math.PI * th);
+  DV.punch = up ? sm(0, 0.05, p) * (1 - sm(0.28, 0.62, p)) : 0;
+  DV.ga = 1; DV.gz = lerp(GZ0, 1, eio(sm(0.45, 1, p))) * Z;
+  DV.rx = DV.tx = lerp(VP.rx, sx, e); DV.ry = DV.ty = lerp(VP.ry, sy, e) + (up ? H * 0.022 * Math.sin(Math.PI * clamp(p / 0.16)) : 0);
+  DV.rw = DV.tw = lerp(VP.rw, shipW() * Z, es);
+  DV.rsq = 1 - 0.5 * sm(0.12, 0.5, p); DV.ra = 1 - sm(0.42, 0.56, p); DV.ta = sm(0.42, 0.56, p);
+  DV.tsq = lerp(A.tsq0, 1, eout(sm(0.44, 0.9, p)));
+}
+
 function size() {
   const r = D.hero.getBoundingClientRect(), oW = V.W, oH = V.H, oU = V.U, oB = rs.base, cv = D.cv;
   V.W = r.width; V.H = r.height; V.DPR = Math.min(devicePixelRatio || 1, coarse ? V.dprCap : 2);
@@ -76,14 +86,31 @@ function size() {
   restLayout();
   V.U = clamp(Math.min(W, H) / 900, 0.55, 1.3); V.Z = clamp(Math.min(W, H) / (V.U * 860), 0.8, 1); V.vw = W / V.Z; V.vh = H / V.Z;
   ship.play = 172 * V.U * (tall ? 1.12 : 1);
-  sizeWorld();
+  game?.sizeWorld();
   if (oW && rs.x && (oW !== W || oH !== H)) { rs.x *= W / oW; rs.y *= H / oH; }
   if (oW && VP.dir && (oW !== W || oH !== H)) { VP.rx *= W / oW; VP.ry *= H / oH; VP.rw *= rs.base / (oB || rs.base); }
-  if (G.on && V.U !== oU) rescale(V.U / oU);
-  if (G.on && oW && oW !== W) { input.stick = null; pause(); }
+  if (G.on && V.U !== oU) game!.rescale(V.U / oU);
+  if (G.on && oW && oW !== W) { input.stick = null; game!.pause(); }
   if (G.on) measureLane();
-  prepSprites();
+  game?.prepSprites();
 }
+
+export function loadGame() {
+  if (loading || !rested) return;
+  const sp = DATA.sprites;
+  loading = Promise.all([rested, import('./play')]).then(([, m]) => {
+    setGame(m); m.initSprites(); m.sizeWorld();
+    const art = FAC.flatMap((f) => TYPES.map((T) => sp[`${f.id}-${T.role}`]));
+    return Promise.all([sp['ship-top'], sp.nebula, ...art].map(load));
+  }).then(([st, nb, ...art]) => {
+    A.shipTop = st; A.nebula = nb; A.art = FAC.map((_, f) => art.slice(f * TYPES.length, (f + 1) * TYPES.length) as HTMLImageElement[]);
+    A.ready = !!(A.base && A.ship && st && nb && art.every(Boolean));
+    if (!A.ready || !st) return;
+    A.aspT = st.height / st.width; A.tsq0 = A.aspR * 0.5 / A.aspT; ship.tnoz = nozzles(st, ship.tnoz);
+    game!.prepSprites();
+  });
+}
+export const ready = () => A.ready && !!game && game.prepped();
 
 export function initOrbit() {
   initCore(); initBackdrop(); initArt(); initInput();
@@ -96,25 +123,16 @@ export function initOrbit() {
     size(); addEventListener('resize', size); new ResizeObserver(() => restLayout()).observe(D.copy); document.fonts.ready.then(() => restLayout());
     pic.addEventListener('load', () => still().then(swapBg));
   });
-  const sp = DATA.sprites, sh = load(sp.ship).then((s) => {
+  const sh = load(DATA.sprites.ship).then((s) => {
     A.ship = s; shipAt = performance.now();
     if (!s) return;
     rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; LIT.key = '';
     if (HI.pt && !HI.skip && !G.on && !VP.p) rs.x = 0;
     if (A.base) size();
   });
-  Promise.all([bg, sh]).then(() => {
-    const art = FAC.flatMap((f) => TYPES.map((T) => sp[`${f.id}-${T.role}`]));
-    return Promise.all([sp['ship-top'], sp.nebula, ...art].map(load));
-  }).then(([st, nb, ...art]) => {
-    A.shipTop = st; A.nebula = nb; A.art = FAC.map((_, f) => art.slice(f * TYPES.length, (f + 1) * TYPES.length) as HTMLImageElement[]);
-    A.ready = !!(A.base && A.ship && st && nb && art.every(Boolean));
-    if (!A.ready || !st) return;
-    A.aspT = st.height / st.width; A.tsq0 = A.aspR * 0.5 / A.aspT; ship.tnoz = nozzles(st, ship.tnoz);
-    prepSprites();
-  });
-  new IntersectionObserver((es) => { V.vis = es[0].isIntersecting; if (!V.vis) land(); }).observe(D.hero);
-  if (import.meta.env.MODE === 'test') initTest();
+  rested = Promise.all([bg, sh]);
+  new IntersectionObserver((es) => { V.vis = es[0].isIntersecting; if (!V.vis) { input.fly = false; game?.land(); } }).observe(D.hero);
+  if (import.meta.env.MODE === 'test') import('./test').then((m) => { lab = m; m.initTest(); });
 }
 
 function holdPicture() {
@@ -135,33 +153,36 @@ function intro(now: number) {
 
 export function orbitTick(now: number, hp: number) {
   intro(now);
+  if (HI.done && V.vis && !asked) { asked = true; if ('requestIdleCallback' in window) requestIdleCallback(loadGame, { timeout: 1000 }); else setTimeout(loadGame, 200); }
+  const M = game;
   starVis = HI.space * sstep(0, 0.5, hp);
   const fade = HI.planet.toFixed(3); if (fade !== shown) { shown = fade; D.cv.style.opacity = fade; }
-  if (!V.vis || !A.base) { if (VP.dir < 0) landed(); last = now; return; }
+  if (!V.vis || !A.base) { if (VP.dir < 0) M!.landed(); last = now; return; }
   if (!G.on && !VP.p && coarse && !input.charge && now - last < 30) return;
   F.fc++;
   if (import.meta.env.MODE === 'test') T.draws++;
   const w0 = performance.now(), { W, H } = V, rdt = Math.min((now - last) / 1000, 0.05); last = now;
-  if (coarse && rdt > 0.021 && G.on) { if (++slowFrames > 90 && V.dprCap > 1.01) { V.dprCap = V.dprCap > 1.3 ? 1.25 : 1; slowFrames = 0; S.key = ''; size(); } } else slowFrames = Math.max(0, slowFrames - 1);
+  if (coarse && rdt > 0.021 && G.on) { if (++slowFrames > 90 && V.dprCap > 1.01) { V.dprCap = V.dprCap > 1.3 ? 1.25 : 1; slowFrames = 0; M!.S.key = ''; size(); } } else slowFrames = Math.max(0, slowFrames - 1);
   if (VP.dir && !(VP.dir > 0 && G.card)) {
     VP.p = clamp(VP.p + VP.dir * rdt / (reduce ? 0.3 : VP.dir > 0 ? BOOST : LAND));
-    if (VP.dir > 0 && VP.p >= 1) { VP.dir = 0; boosted(); }
+    if (VP.dir > 0 && VP.p >= 1) { VP.dir = 0; M!.boosted(); }
     else if (VP.dir < 0 && VP.p < 0.28 && D.hero.classList.contains('playing')) D.hero.classList.remove('playing');
-    if (VP.dir < 0 && VP.p <= 0) landed();
+    if (VP.dir < 0 && VP.p <= 0) M!.landed();
   }
   const top = G.on && VP.p >= 1, auto = import.meta.env.MODE === 'test' && T.auto;
   if (G.stop > 0) G.stop -= rdt;
   G.slow = Math.max(0, G.slow - rdt);
   const scale = G.stop > 0 || (import.meta.env.MODE === 'test' && T.frozen) ? 0 : G.slow > 0 ? 0.3 : 1, dt = top && !G.card ? rdt * scale : 0;
   if (top && !G.over) G.clock += dt;
-  if (top && G.lvlT > 0 && !G.card) { G.lvlT = Math.max(G.reveal > 0 ? 1e-6 : 0, G.lvlT - rdt); if (G.lvlT <= 0 && G.pend > 0 && !G.over) showCard('level'); }
-  if (auto && G.card && (G.mode === 'level' || G.mode === 'cache')) { T.botT += rdt; if (T.botT > 0.85) choose(botPick()); }
+  if (top && G.lvlT > 0 && !G.card) { G.lvlT = Math.max(G.reveal > 0 ? 1e-6 : 0, G.lvlT - rdt); if (G.lvlT <= 0 && G.pend > 0 && !G.over) M!.showCard('level'); }
+  if (auto && G.card && (G.mode === 'level' || G.mode === 'cache')) { T.botT += rdt; if (T.botT > 0.85) M!.choose(lab!.botPick()); }
   const t = reduce ? 0 : now / 1000, sy = clamp(scrollY / H, 0, 1.2);
   Object.assign(F, { now, rdt, dt, t, sy, scroll: reduce ? 0 : scrollY });
   D.hero.style.setProperty('--ho', (1 - clamp(sy * 4)).toFixed(3));
   const fly = sstep(0, 0.41, VP.p).toFixed(3); if (fly !== flyShown) { flyShown = fly; D.art.style.setProperty('--fly', fly); }
 
-  if (input.charge && !G.on && !VP.p && now - input.charge.t0 > HOLD[input.charge.kind]) { const c = input.charge; if (c.kind === 'touch') grab(c.id, c.sx, c.sy); input.charge = null; start(c.kind); }
+  if (input.charge && !G.on && !VP.p && now - input.charge.t0 > HOLD[input.charge.kind] && ready()) { const c = input.charge; if (c.kind === 'touch') grab(c.id, c.sx, c.sy); input.charge = null; M!.start(c.kind); }
+  if (input.fly && !G.on && !VP.p && ready()) { input.fly = false; M!.start('key'); }
 
   const px = coarse || reduce ? 0 : input.mx - 0.5, py = coarse || reduce ? 0 : input.my - 0.5;
   if (G.on || VP.p) G.ease = 1;
@@ -178,7 +199,7 @@ export function orbitTick(now: number, hp: number) {
 
   const px0 = ship.x, py0 = ship.y;
   if (top && !G.card && !G.dead) {
-    const maxV = 640 * V.U * spdM() * (input.stick ? STICK.speed : V.tall ? 1.1 : 1);
+    const maxV = 640 * V.U * M!.spdM() * (input.stick ? STICK.speed : V.tall ? 1.1 : 1);
     let dvx = 0, dvy = 0;
     if (input.keys.size && !auto) {
       let kx = 0, ky = 0; input.keys.forEach((k) => { kx += STEER[k][0]; ky += STEER[k][1]; });
@@ -193,7 +214,7 @@ export function orbitTick(now: number, hp: number) {
       if (k > 0) { dvx = dx / d * k * maxV; dvy = dy / d * k * maxV; }
       input.gx = ship.x; input.gy = ship.y;
     } else {
-      if (auto && dt > 0) { gridBuild(); bot(rdt); }
+      if (auto && dt > 0) { M!.gridBuild(); lab!.bot(rdt); }
       else if (!auto) { input.gx = ship.x; input.gy = ship.y; }
       const dx = input.gx - ship.x, dy = input.gy - ship.y, d = Math.hypot(dx, dy);
       if (d > 0.5) { const s = Math.min(maxV, d * 9); dvx = dx / d * s; dvy = dy / d * s; }
@@ -204,7 +225,7 @@ export function orbitTick(now: number, hp: number) {
     ship.x += ship.vx * dt; ship.y += ship.vy * dt;
   } else if (top && G.card) { ship.vx *= 0.9; ship.vy *= 0.9; ship.cx = ship.cy = 0; }
   else if (VP.dir < 0) { const k = Math.exp(-rdt * 4); ship.vx *= k; ship.vy *= k; ship.x += ship.vx * rdt; ship.y += ship.vy * rdt; }
-  if (VP.p > 0) { const k = top ? dt : rdt; steerHead(k); updCam(k, ship.x - px0, ship.y - py0, rdt); }
+  if (VP.p > 0) { const k = top ? dt : rdt; M!.steerHead(k); M!.updCam(k, ship.x - px0, ship.y - py0, rdt); }
   ship.kick = Math.max(0, ship.kick - rdt * 30); ship.muzzle = Math.max(0, ship.muzzle - rdt * 14);
   G.inv = Math.max(0, G.inv - dt); G.blinkT = Math.max(0, G.blinkT - dt);
   VP.rv = Math.max(0, VP.rv - rdt * 2.5);
@@ -217,56 +238,53 @@ export function orbitTick(now: number, hp: number) {
   C.wz = DV.gz; C.dz = V.DPR * C.wz; C.ox = DV.tx - ship.x * C.wz + C.sx; C.oy = DV.ty - ship.y * C.wz + C.sy;
   C.x0 = (C.sx - C.ox) / C.wz; C.x1 = (W + C.sx - C.ox) / C.wz; C.y0 = (C.sy - C.oy) / C.wz; C.y1 = (H + C.sy - C.oy) / C.wz;
 
-  if (top && dt > 0 && A.ready) {
+  if (top && dt > 0 && A.ready && M) {
     G.killsF = 0; G.reveal = Math.max(0, G.reveal - dt);
-    if (!G.over) spawner(dt);
-    gridBuild(); updEnemies(dt, rdt);
-    gridBuild(); separate(dt);
-    gridBuild(); if (!G.over) updWeapons(dt);
-    updBolts(dt); updMissiles(dt); updNova(dt); updShards(dt); updBullets(dt);
-    if (G.cache && !G.over) { G.cache.t += dt; if (!G.card && G.reveal <= 0 && Math.hypot(ship.x - G.cache.x, ship.y - G.cache.y) < shipR() + 46 * V.U) openCache(); }
-    for (let i = TQ.length - 1; i >= 0; i--) { const q = TQ[i]; q.t -= dt; if (q.t <= 0) { TQ.splice(i, 1); if (q.run === G.run && G.on) q.fn(); } }
-    compact();
-  } else if (top && A.ready) {
-    for (let i = 0; i < WS.nE; i++) EN[i].flash -= rdt;
-    if (G.wm.wing) updWing(G.wm.wing, 0);
-  } else if (WS.nE) { updEnemies(rdt, rdt); compact(); }
+    if (!G.over) M.spawner(dt);
+    M.gridBuild(); M.updEnemies(dt, rdt);
+    M.gridBuild(); M.separate(dt);
+    M.gridBuild(); if (!G.over) M.updWeapons(dt);
+    M.updBolts(dt); M.updMissiles(dt); M.updNova(dt); M.updShards(dt); M.updBullets(dt);
+    if (G.cache && !G.over) { G.cache.t += dt; if (!G.card && G.reveal <= 0 && Math.hypot(ship.x - G.cache.x, ship.y - G.cache.y) < shipR() + 46 * V.U) M.openCache(); }
+    for (let i = M.TQ.length - 1; i >= 0; i--) { const q = M.TQ[i]; q.t -= dt; if (q.t <= 0) { M.TQ.splice(i, 1); if (q.run === G.run && G.on) q.fn(); } }
+    M.compact();
+  } else if (top && A.ready && M) {
+    for (let i = 0; i < M.WS.nE; i++) M.EN[i].flash -= rdt;
+    if (G.wm.wing) M.updWing(G.wm.wing, 0);
+  } else if (M && M.WS.nE) { M.updEnemies(rdt, rdt); M.compact(); }
 
   ctx.save();
   screen();
   const orbit = !VP.p || (VP.p < 1 && (reduce || VP.p < 0.6));
-  if (VP.p > 0 && !reduce) drawSpace(t, DV.ga);
+  if (VP.p > 0 && !reduce) M!.drawSpace(t, DV.ga);
   if (orbit) { scene.vp.x = W * 0.5; drawOrbit(); if (!bgOff) holdPicture(); }
   const dfx = G.card ? 0 : rdt * scale;
   if (VP.p > 0) {
     ctx.imageSmoothingQuality = 'medium';
-    if (reduce) drawSpace(t, DV.ga);
+    if (reduce) M!.drawSpace(t, DV.ga);
     base();
-    if (G.on || WS.nE) { drawTele(dfx, t); drawShards(t); drawCache(t); if (G.on) { ctx.globalCompositeOperation = 'lighter'; drawNova(); ctx.globalCompositeOperation = 'source-over'; } drawEnemies(); }
-    drawDebris(dfx);
+    if (G.on || M!.WS.nE) { M!.drawTele(dfx, t); M!.drawShards(t); M!.drawCache(t); if (G.on) { ctx.globalCompositeOperation = 'lighter'; M!.drawNova(); ctx.globalCompositeOperation = 'source-over'; } M!.drawEnemies(); }
+    M!.drawDebris(dfx);
     ctx.imageSmoothingQuality = 'low';
   }
   if (A.ship && VP.p < 1) { if (!VP.p) drawRear(rs.x, rs.y, restW(), 1, shipAt <= HI.pt ? 1 : reduce ? clamp((now - shipAt) / 600) : out(clamp((now - shipAt) / 800)), rs.vx, rs.vy, 0); else drawRear(DV.rx, DV.ry, DV.rw, DV.rsq, DV.ra, 0, 0, 1, DV.punch); }
   if (VP.p > 0) {
     ctx.imageSmoothingQuality = 'medium';
-    if (A.shipTop && !G.dead) { drawTrail(dfx); drawTop(DV.tx, DV.ty, DV.tw, DV.tsq, DV.ta * (1 - VP.rv), t); }
+    if (A.shipTop && !G.dead) { M!.drawTrail(dfx); M!.drawTop(DV.tx, DV.ty, DV.tw, DV.tsq, DV.ta * (1 - VP.rv), t); }
     base();
-    if (top && !G.dead) drawWings();
+    if (top && !G.dead) M!.drawWings();
     ctx.globalCompositeOperation = 'lighter';
-    drawEnemyGlows(t);
-    drawBeams(dfx); drawBolts(); drawMissiles(); drawArcs(dfx); drawFX(dfx, G.card ? 0 : rdt); drawSparks(dfx);
+    M!.drawEnemyGlows(t);
+    M!.drawBeams(dfx); M!.drawBolts(); M!.drawMissiles(); M!.drawArcs(dfx); M!.drawFX(dfx, G.card ? 0 : rdt); M!.drawSparks(dfx);
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-    drawBullets();
+    M!.drawBullets();
   }
   screen();
-  drawStreaks(G.card ? 0 : rdt);
-  drawHurt(rdt);
-  drawCachePointer(t);
+  if (M) { M.drawStreaks(G.card ? 0 : rdt); M.drawHurt(rdt); M.drawCachePointer(t); }
   drawDim();
   drawEgg();
   drawCharge();
-  drawStick();
-  drawPointer();
+  if (M) { M.drawStick(); M.drawPointer(); }
   ctx.restore();
   hudTick(rdt, now);
   if (import.meta.env.MODE === 'test') T.work[T.wi++ % T.work.length] = performance.now() - w0;

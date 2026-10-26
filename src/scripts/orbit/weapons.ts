@@ -1,10 +1,10 @@
 import { reduce } from '../state';
-import { addShake, C, clamp, G, LP, onView, rand, rnd, ship, shipH, shipR, shipW, T_HV, TAU, toWorld, TYPES, V, type BoostId, type Enemy, type WeapId, type Weapon } from './core';
+import { addShake, C, clamp, G, LP, onView, rand, rnd, ship, shipH, shipR, shipW, T, T_HV, TAU, toWorld, TYPES, V, type BoostId, type Enemy, type WeapId, type Weapon } from './core';
 import { AR, BM, BO, EB, edist, EN, MI, MT, NK, nearestK, NR, QA, QB, QR, query, rm, SH, sortIn, spark, sparks, SS, sweep, fx, WS } from './world';
 import { hit } from './enemies';
 import { hurt } from './flight';
-import { live, lvlUp, setHull } from './hud';
-import { T } from './test';
+import { live } from './hud';
+import { lvlUp, setHull } from './cards';
 
 export const WEAP: Record<WeapId, { name: string; evo: string; pair: BoostId; prio: number }> = {
   pulse: { name: 'Pulse cannon', evo: 'railstorm', pair: 'cooldown', prio: 12 },

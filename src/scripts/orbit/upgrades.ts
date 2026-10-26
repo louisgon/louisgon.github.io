@@ -1,7 +1,8 @@
 import { addShake, CAP, G, maxW, ship, srand, V, type BoostId, type Option, type WeapId } from './core';
 import { fx, sparks } from './world';
 import { bl, BOOST, EVO, gainXP, maxHull, mkW, needFor, wdesc, WEAP } from './weapons';
-import { hideCard, live, msg, picked, renderHull, showCard } from './hud';
+import { live, msg } from './hud';
+import { hideCard, picked, renderHull, showCard } from './cards';
 
 const WIDS: WeapId[] = ['pulse', 'wing', 'arc', 'missile', 'nova'], BIDS: BoostId[] = ['magnet', 'damage', 'cooldown', 'area', 'thrust', 'hull'];
 const pairOf = (id: BoostId) => WIDS.find((k) => WEAP[k].pair === id);

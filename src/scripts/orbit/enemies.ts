@@ -1,11 +1,11 @@
 import { reduce } from '../state';
-import { addShake, cam, CAP, capD, clamp, coarse, D, FAC, G, onView, pad2, rand, ringPt, rnd, ship, shipR, srand, srnd, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, wrapA, type Enemy } from './core';
-import { PAL, prepFaction } from './art';
+import { addShake, cam, CAP, capD, clamp, coarse, D, FAC, G, onView, pad2, rand, ringPt, rnd, ship, shipR, srand, srnd, T, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, wrapA, type Enemy } from './core';
+import { PAL, prepFaction } from './sprites';
 import { CAPE, debris, EB, EN, fx, later, QS, query, SH, spark, spawn, TG, WS } from './world';
 import { bl, maxHull, regenEvery } from './weapons';
 import { hurt } from './flight';
-import { live, msg, setHull } from './hud';
-import { T } from './test';
+import { live, msg } from './hud';
+import { setHull } from './cards';
 
 export function hit(e: Enemy, dmg: number, kx = 0, ky = 0) {
   if (e.dead) return;

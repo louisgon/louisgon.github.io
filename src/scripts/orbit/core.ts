@@ -65,7 +65,7 @@ export const cam = { x: 0, y: 0 };
 export const VP = { p: 0, dir: 0, rx: 0, ry: 0, rw: 1, rv: 0 };
 export const DV = { th: 0, drop: 0, kx: 1, ky: 1, fk: 0, ba: 1, punch: 0, zb: 0, ga: 0, gz: 1, rx: 0, ry: 0, rw: 1, rsq: 1, ra: 1, tx: 0, ty: 0, tw: 1, tsq: 1, ta: 0 };
 export const C = { ox: 0, oy: 0, wz: 1, dz: 1, x0: 0, x1: 1, y0: 0, y1: 1, sx: 0, sy: 0 };
-export const input = { mx: 0.5, my: 0.5, gx: 0, gy: 0, follow: false, charge: null as Charge | null, tid: null as number | null, stick: null as { ox: number; oy: number; x: number; y: number } | null, keys: new Set<string>(), last: (coarse ? 'touch' : 'mouse') as Kind, moveAcc: 0, wheelAcc: 0, wheelT: 0, focusBack: null as HTMLElement | null, mlock: false, ax: 0.5, ay: 0.5, inside: false, guide: -1 };
+export const input = { mx: 0.5, my: 0.5, gx: 0, gy: 0, follow: false, charge: null as Charge | null, tid: null as number | null, stick: null as { ox: number; oy: number; x: number; y: number } | null, keys: new Set<string>(), last: (coarse ? 'touch' : 'mouse') as Kind, moveAcc: 0, wheelAcc: 0, wheelT: 0, focusBack: null as HTMLElement | null, mlock: false, ax: 0.5, ay: 0.5, inside: false, guide: -1, fly: false };
 export const G = {
   on: false, run: 0, clock: 0, kills: 0, level: 1, xp: 0, need: 4, pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, over: false, dead: false, card: false, mode: '' as Mode,
   W: [] as Weapon[], wm: {} as Partial<Record<WeapId, Weapon>>, B: [] as BoostId[], bm: {} as Partial<Record<BoostId, number>>, miss: {} as Partial<Record<WeapId, number>>, opts: [] as Option[],
@@ -74,7 +74,11 @@ export const G = {
   arcId: 0, tips: {} as Record<string, number>, trailAcc: 0, newBest: false, px: 0, py: 0, ease: 0,
 };
 export const egg = { hover: 0, over: false, focus: false, idleT: 0, whisper: -1, shown: 0 };
+export const heroReady = () => A.base && !!A.ship;
+export let game: typeof import('./play') | null = null;
+export const setGame = (g: typeof import('./play')) => { game = g; };
 export const F = { now: 0, rdt: 0, dt: 0, t: 0, sy: 0, scroll: 0, fc: 0 };
+export const T = { god: false, stress: false, auto: false, frozen: false, botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [] as string[], notes: [] as string[], brood: 0, work: new Float32Array(240), wi: 0, mark: 0, draws: 0 };
 
 type Els = 'hero' | 'art' | 'fly' | 'hud' | 'card' | 'opts' | 'msg' | 'vig' | 'toast' | 'clock' | 'kills' | 'lvl' | 'lvN' | 'xpFill' | 'build' | 'pick' | 'lv' | 'bossBar' | 'bossFill' | 'bossName' | 'cardMore';
 export const D = {} as Record<Els, HTMLElement> & { cv: HTMLCanvasElement; copy: HTMLElement };

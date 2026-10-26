@@ -1,15 +1,15 @@
 import { $ } from '../util';
-import { A, C, cam, CAP, D, DV, egg, FAC, G, input, onView, restW, rs, scene, ship, shipR, simSeed, srnd, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, VP, type BoostId, type WeapId } from './core';
-import { LIT, PAL, prepFaction, S } from './art';
+import { A, C, cam, CAP, D, DV, egg, FAC, G, input, onView, restW, rs, scene, ship, shipR, simSeed, srnd, T, T_BS, T_DA, T_HV, T_SW, TAU, TYPES, V, VP, type BoostId, type WeapId } from './core';
+import { LIT } from './art';
+import { PAL, prepFaction, S } from './sprites';
 import { moonSpots } from './backdrop';
 import { AR, EB, EN, QBOT, query, SH, spawn, TG, WS, BM, BO, MI, NR, SP, compact, gridBuild, QB } from './world';
 import { addBolt, bl, BOOST, EVO, maxHull, mkW, novaRing, railHits, spdM, updBolts, updNova, updWeapons, wdesc, WEAP, gainXP } from './weapons';
 import { calmK, dartLine, hit, nextFaction, spawnBoss } from './enemies';
 import { hurt, start } from './flight';
-import { renderBuild, renderHull } from './hud';
+import { renderBuild, renderHull } from './cards';
 import { eligible } from './upgrades';
 
-export const T = { god: false, stress: false, auto: false, frozen: false, botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [] as string[], notes: [] as string[], brood: 0, work: new Float32Array(240), wi: 0, mark: 0, draws: 0 };
 
 const TAUS = [0.05, 0.12, 0.24, 0.45], TAUW = [1.8, 1.4, 1, 0.55];
 export function bot(rdt: number) {
