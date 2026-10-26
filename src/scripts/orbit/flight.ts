@@ -2,6 +2,7 @@ import { reduce } from '../state';
 import { $ } from '../util';
 import { A, addShake, cam, CAP, clamp, D, DV, egg, eio, eout, fmtT, G, GZ0, HIT, input, lerp, reseed, restW, rs, sayT, ship, shipW, sm, STICK, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
 import { AR, BM, BO, DB, EB, EN, fx, MI, NR, QR, query, RB, resetWorld, SH, SP, sparks, TG, TQ, WS } from './world';
+import { flushSprites } from './art';
 import { deathBurst } from './enemies';
 import { mkW, needFor } from './weapons';
 import { anchor, buzz, live, modal, renderBuild, renderHull, resetHud, setHull, setLast, showBest, showCard } from './hud';
@@ -12,6 +13,7 @@ let lateT = 0, tipT = 0, toastT = 0;
 export const cancelInput = () => { input.charge = null; input.keys.clear(); input.tid = null; input.stick = null; };
 
 export function start(kind?: Kind) {
+  flushSprites();
   G.run++; reseed(0x0b17 ^ Math.imul(G.run, 0x9e3779b1)); store.set('lg01-played', 1); egg.whisper = -1; egg.over = false; D.hero.style.cursor = '';
   resetWorld();
   Object.assign(G, { on: true, over: false, dead: false, card: false, mode: '', clock: 0, kills: 0, level: 1, xp: 0, need: needFor(1), pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, W: [], wm: {}, B: [], bm: {}, miss: {}, opts: [], spawnAcc: 2.5, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null, cache: null, warned: false, regen: 0, killsF: 0, reveal: 0, hitT: 0, arcId: 0, tips: {}, newBest: false, fac: 0, lap: 0, switching: false });

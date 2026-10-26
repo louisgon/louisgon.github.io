@@ -1,3 +1,4 @@
+import { nextTask } from '../util';
 import { A, CAPH, ctx, FAC, G, mk, rs, ship, TAU, TYPES, V } from './core';
 
 export type Spr = { c: HTMLCanvasElement; w: number; h: number; iw: number; ih: number; pad: number };
@@ -12,8 +13,16 @@ type Layer = { pat: CanvasPattern; size: number; k: number };
 export const S = {
   key: '', fk: ['', '', ''], n: [[], [], []] as Spr[][], e: [[], [], []] as Spr[][], w: [[], [], []] as Spr[][], g: [[], [], []] as Spr[][], dwf: [[], [], []] as number[][],
   mini: null as HTMLCanvasElement | null, minig: null as HTMLCanvasElement | null, shipT: null as HTMLCanvasElement | null,
-  neb: null as Layer | null, stars: [] as Layer[], idle: 0,
+  neb: null as Layer | null, stars: [] as Layer[],
 };
+const jobs: (() => void)[] = [];
+let pumping = false;
+function pump() {
+  if (pumping) return; pumping = true;
+  const step = () => { const job = jobs.shift(); if (!job) { pumping = false; return; } job(); nextTask().then(step); };
+  nextTask().then(step);
+}
+export const flushSprites = () => { while (jobs.length) jobs.shift()!(); };
 
 function glow(stops: [number, string][], size = 128) {
   const c = mk(size), x = c.getContext('2d')!;
@@ -147,19 +156,21 @@ function engineSprite(R: Spr, pts: readonly (readonly [number, number])[], er: n
   return { c, w: c.width, h: c.height, iw: R.iw, ih: R.ih, pad };
 }
 
+function prepType(f: number, i: number) {
+  const { DPR, U } = V, F = FAC[f], T = TYPES[i];
+  const img = A.art[f][i], dwf = T.dw || CAPH * img.width / img.height / T.w, outW = Math.min(img.width, Math.ceil(T.w * dwf * Math.max(U, 0.7) * 1.35 * DPR));
+  S.dwf[f][i] = dwf;
+  S.n[f][i] = topSprite(img, outW, '#05070d');
+  S.e[f][i] = topSprite(img, outW, '#ffd08a', '255,190,100', 0.9, 'rgba(255,190,100,0.2)');
+  S.w[f][i] = whiteSprite(img, S.n[f][i]);
+  S.g[f][i] = engineSprite(S.n[f][i], F.eng[i], T.er, F.glow, F.core);
+}
 export function prepFaction(f: number) {
   if (!A.ready || S.fk[f] === S.key) return;
-  const { DPR, U } = V, F = FAC[f];
-  TYPES.forEach((T, i) => {
-    const img = A.art[f][i], dwf = T.dw || CAPH * img.width / img.height / T.w, outW = Math.min(img.width, Math.ceil(T.w * dwf * Math.max(U, 0.7) * 1.35 * DPR));
-    S.dwf[f][i] = dwf;
-    S.n[f][i] = topSprite(img, outW, '#05070d');
-    S.e[f][i] = topSprite(img, outW, '#ffd08a', '255,190,100', 0.9, 'rgba(255,190,100,0.2)');
-    S.w[f][i] = whiteSprite(img, S.n[f][i]);
-    S.g[f][i] = engineSprite(S.n[f][i], F.eng[i], T.er, F.glow, F.core);
-  });
+  TYPES.forEach((_, i) => prepType(f, i));
   S.fk[f] = S.key;
 }
+const factionJobs = (f: number, key: string) => [...TYPES.map((_, i) => () => { if (S.fk[f] !== key) prepType(f, i); }), () => { S.fk[f] = key; }];
 
 let starSeed = 0;
 const srand = () => { starSeed = (starSeed + 0x6d2b79f5) | 0; let t = Math.imul(starSeed ^ (starSeed >>> 15), 1 | starSeed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -188,17 +199,19 @@ function nebulaLayer(): Layer | null {
 export function prepSprites() {
   if (!A.ready || !A.shipTop) return;
   const { DPR, U, Z, W, H } = V, key = `${DPR}|${U.toFixed(2)}|${Z.toFixed(3)}|${Math.round(Math.max(W, H))}`; if (key === S.key) return; S.key = key;
-  prepFaction(G.fac);
-  clearTimeout(S.idle);
-  const rest = () => { const f = S.fk.findIndex((k) => k !== S.key); if (f < 0) return; prepFaction(f); S.idle = window.setTimeout(rest, 120); };
-  S.idle = window.setTimeout(rest, 120);
-  S.neb = nebulaLayer();
-  S.stars = [starLayer(420, 1 / 900, 0.32, 0.72, 0.16, 0.5, 0, 0x51a7, 0.5), starLayer(560, 1 / 4200, 0.55, 1.05, 0.34, 0.62, 3.2, 0x2b9d, 0.75), starLayer(760, 1 / 15000, 0.85, 1.55, 0.47, 0.71, 4.6, 0x7e13, 1)];
-  const tw = Math.min(A.shipTop.width, Math.ceil(ship.play * DPR * 1.3)), th = Math.round(tw * A.aspT);
-  S.shipT = mk(tw, th); const st = S.shipT.getContext('2d')!; st.imageSmoothingQuality = 'high'; st.drawImage(A.shipTop, 0, 0, tw, th);
-  const mw = Math.ceil(56 * Math.max(U, 0.7) * DPR), mh = Math.round(mw * A.aspT);
-  S.mini = mk(mw, mh); const m = S.mini.getContext('2d')!; m.imageSmoothingQuality = 'high'; m.drawImage(A.shipTop, 0, 0, mw, mh);
-  S.minig = mk(mw, mh); const g = S.minig.getContext('2d')!; g.drawImage(S.mini, 0, 0); g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(255,186,96,0.42)'; g.fillRect(0, 0, mw, mh);
+  const top = A.shipTop, others = [0, 1, 2].filter((f) => f !== G.fac);
+  jobs.length = 0;
+  jobs.push(...factionJobs(G.fac, key), () => { S.neb = nebulaLayer(); },
+    () => { S.stars = [starLayer(420, 1 / 900, 0.32, 0.72, 0.16, 0.5, 0, 0x51a7, 0.5), starLayer(560, 1 / 4200, 0.55, 1.05, 0.34, 0.62, 3.2, 0x2b9d, 0.75), starLayer(760, 1 / 15000, 0.85, 1.55, 0.47, 0.71, 4.6, 0x7e13, 1)]; },
+    () => {
+      const tw = Math.min(top.width, Math.ceil(ship.play * DPR * 1.3)), th = Math.round(tw * A.aspT);
+      S.shipT = mk(tw, th); const st = S.shipT.getContext('2d')!; st.imageSmoothingQuality = 'high'; st.drawImage(top, 0, 0, tw, th);
+      const mw = Math.ceil(56 * Math.max(U, 0.7) * DPR), mh = Math.round(mw * A.aspT);
+      S.mini = mk(mw, mh); const m = S.mini.getContext('2d')!; m.imageSmoothingQuality = 'high'; m.drawImage(top, 0, 0, mw, mh);
+      S.minig = mk(mw, mh); const g = S.minig.getContext('2d')!; g.drawImage(S.mini, 0, 0); g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(255,186,96,0.42)'; g.fillRect(0, 0, mw, mh);
+    },
+    ...others.flatMap((f) => factionJobs(f, key)));
+  pump();
 }
 
 export const LIT = { shade: null as HTMLCanvasElement | null, light: null as HTMLCanvasElement | null, spill: null as HTMLCanvasElement | null, key: '' };
