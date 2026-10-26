@@ -3,13 +3,16 @@ import { HI, reduce } from '../state';
 import { $, nextTask, out, sstep } from '../util';
 import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, eio, eout, F, FAC, G, game, GZ0, HOLD, initCore, input, LAND, lerp, MOUSE, restW, rs, scene, screen, setGame, ship, shipR, shipW, sm, STICK, T, TYPES, V, VP } from './core';
 import { initArt, LIT, prepLight } from './art';
-import { analyse, drawOrbit, edge, initBackdrop, keepMoons, locate, nozzles, prepMoons } from './backdrop';
+import { drawOrbit, initBackdrop, keepMoons, prepMoons } from './backdrop';
+import { edge, locate, moons, nozzles, type Scan } from './paint';
+import PAINT from '../../lib/paint.json';
 import { hudTick, measureLane, showBest, updateLabels } from './hud';
 import { grab, initInput, STEER } from './input';
 import { drawCharge, drawDim, drawEgg, drawRear } from './render';
 import { played, store } from './store';
 
-const metas = new Map<string, ReturnType<typeof analyse>>();
+const metas = new Map<string, Scan>(), file = (src: string) => src.slice(src.lastIndexOf('/') + 1);
+const shipped = (src: string) => (PAINT.paintings as Record<string, Scan>)[file(src)], shipNoz = (src: string) => (PAINT.ships as Record<string, number[][]>)[file(src)];
 let lab: typeof import('./test') | null = null, last = 0, slowFrames = 0, shown = '', flyShown = '0.000', shipAt = 0, bgOff = false, pic: HTMLImageElement, rested: Promise<unknown> | null = null, loading: Promise<void> | null = null;
 
 export let starVis = 0;
@@ -19,14 +22,19 @@ const load = (src: string) => new Promise<HTMLImageElement | null>((r) => { cons
 const decoded = (src: string) => load(src).then((i) => i && i.decode().then(() => i, () => i));
 
 const still = () => new Promise<HTMLImageElement | null>((r) => { if (!pic.currentSrc || !pic.naturalWidth) return r(null); const i = new Image(); i.src = pic.currentSrc; i.decode().then(() => r(i), () => r(i.naturalWidth ? i : null)); });
-function useBg(img: HTMLImageElement | null) {
-  A.bg = img && img.naturalWidth ? img : null; if (!A.bg) return;
-  let m = metas.get(A.bg.src); if (!m) metas.set(A.bg.src, (m = analyse(A.bg)));
-  A.meta = m; scene.sun = m.sun; scene.limb = m.limb; scene.edge = m.edge; prepMoons(A.bg); light();
+async function scanBg(img: HTMLImageElement, step: () => Promise<void>) {
+  const has = metas.get(img.src) ?? shipped(img.src); if (has) return has;
+  const m = locate(img); await step(); const e = edge(img, m.limb); await step();
+  const sc = { ...m, edge: e, ...moons(img) }; metas.set(img.src, sc); return sc;
 }
-function swapBg(img: HTMLImageElement | null) {
+async function useBg(img: HTMLImageElement | null, step = async () => {}) {
+  if (!img || !img.naturalWidth) { A.bg = null; return; }
+  const m = await scanBg(img, step);
+  A.bg = img; A.meta = m; scene.sun = m.sun; scene.limb = m.limb; scene.edge = m.edge; await step(); prepMoons(img, m); light();
+}
+async function swapBg(img: HTMLImageElement | null) {
   if (!img || !A.bg || img.src === A.bg.src) return;
-  A.bgOld = A.bg; A.bgT = performance.now(); useBg(img); restLayout();
+  const old = A.bg; await scanBg(img, async () => {}); A.bgOld = old; A.bgT = performance.now(); await useBg(img); restLayout();
 }
 const copyRects = () => {
   const h = D.hero.getBoundingClientRect(), r = document.createRange(), dy = reduce ? 0 : -scrollY * 0.18 + DV.drop * 0.7, out: number[][] = [];
@@ -121,15 +129,14 @@ export function initOrbit() {
   pic = D.hero.querySelector<HTMLImageElement>('.bg img')!;
   const bg = new Promise<void>((r) => { if (pic.complete) r(); else { pic.addEventListener('load', () => r(), { once: true }); pic.addEventListener('error', () => r(), { once: true }); } }).then(still).then(async (b) => {
     await nextTask();
-    if (b && b.naturalWidth && !metas.has(b.src)) { const m = locate(b); await nextTask(); metas.set(b.src, { ...m, edge: edge(b, m.limb) }); await nextTask(); }
-    useBg(b); await nextTask(); initArt(); await nextTask(); A.base = true;
+    await useBg(b, nextTask); await nextTask(); initArt(); await nextTask(); A.base = true;
     size(); addEventListener('resize', size); new ResizeObserver(() => restLayout()).observe(D.copy); document.fonts.ready.then(() => restLayout());
     pic.addEventListener('load', () => still().then(swapBg));
   });
   const sh = load(DATA.sprites.ship).then(async (s) => {
     A.ship = s; shipAt = performance.now();
     if (!s) return;
-    rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; LIT.key = '';
+    rs.noz = shipNoz(s.src) ?? nozzles(s, rs.noz); A.aspR = s.height / s.width; LIT.key = '';
     if (HI.pt && !HI.skip && !G.on && !VP.p) rs.x = 0;
     await nextTask();
     if (A.base) size();

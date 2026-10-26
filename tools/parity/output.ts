@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import projects from '../../src/content/projects.json';
 import { WIDTHS } from '../../src/lib/widths';
+import paint from '../../src/lib/paint.json';
 
 const TWO_D = /\b(translate[XYZ]?|scale[XYZ]?|rotate[XYZ]?|translate|scale|rotate)\(/g;
 const NOINDEX = '<meta name="robots" content="noindex">';
@@ -35,6 +36,7 @@ export async function output(dist: string, review: boolean) {
     const variant = WIDTHS[name]?.includes(out.width!) && out.height === Math.round(src.height! * out.width! / src.width!);
     if ((out.width !== src.width || out.height !== src.height) && !variant) problems.push(`${f} is ${out.width}x${out.height}, source ${src.width}x${src.height}`);
   }
+  for (const f of readdirSync(join(dist, '_astro'))) if ((/^bg-(wide|tall)\..+\.(avif|webp)$/.test(f) && !(f in paint.paintings)) || (/^ship\.[^.]+\.webp$/.test(f) && !(f in paint.ships))) problems.push(`${f} has no shipped analysis, run bun run paint`);
   console.log(problems.length ? problems.join('\n') : `output: clean (${review ? 'review' : 'live'} build)`);
   return problems;
 }

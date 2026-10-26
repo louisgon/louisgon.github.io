@@ -3,6 +3,8 @@ import { A, C, cam, CAP, D, DV, egg, FAC, G, input, onView, restW, rs, scene, sh
 import { LIT } from './art';
 import { PAL, prepFaction, S } from './sprites';
 import { moonSpots } from './backdrop';
+import { moonR, moonRef, nozzles, plate, scan, type Scan } from './paint';
+import PAINT from '../../lib/paint.json';
 import { AR, EB, EN, QBOT, query, SH, spawn, TG, WS, BM, BO, MI, NR, SP, compact, gridBuild, QB } from './world';
 import { addBolt, bl, BOOST, EVO, maxHull, mkW, novaRing, railHits, spdM, updBolts, updNova, updWeapons, wdesc, WEAP, gainXP } from './weapons';
 import { calmK, dartLine, hit, nextFaction, spawnBoss } from './enemies';
@@ -96,6 +98,14 @@ export function initTest() {
     },
     hits: () => T.hits,
     moons: () => moonSpots(),
+    paint: async () => {
+      const pic = D.hero.querySelector('picture')!, abs = (u: string) => new URL(u, location.href).href, file = (u: string) => u.slice(u.lastIndexOf('/') + 1);
+      const urls = [...new Set([...pic.querySelectorAll('source')].map((e) => abs(e.srcset)).concat(abs(pic.querySelector('img')!.getAttribute('src')!)))];
+      const load = async (u: string) => { const i = new Image(); i.src = u; await i.decode(); return i; };
+      const paintings = await Promise.all(urls.map(async (u) => { const img = await load(u), live = scan(img); return { file: file(u), same: JSON.stringify(live) === JSON.stringify((PAINT.paintings as Record<string, Scan>)[file(u)]), plate: plateDiff(img, live) }; }));
+      const ship = await load(A.ship!.src), noz = nozzles(ship, []);
+      return { paintings, ship: { file: file(ship.src), same: JSON.stringify(noz) === JSON.stringify((PAINT.ships as Record<string, number[][]>)[file(ship.src)]) } };
+    },
     boltCore: () => PAL.map((p) => { const c = p.bolt, x = c.getContext('2d')!, d = x.getImageData(0, c.height / 2, c.width, 1).data, lum = (i: number) => d[i * 4] * 0.3 + d[i * 4 + 1] * 0.59 + d[i * 4 + 2] * 0.11; let i = c.width / 2; while (i < c.width - 1 && d[i * 4 + 3] > 250 && lum(i) > 40) i++; const scale = 30 / c.width; let k = i; while (k < c.width - 1 && lum(k) < 40 && d[k * 4 + 3] > 200) k++; return { core: +((i - c.width / 2) * scale).toFixed(2), keyline: +((k - i) * scale).toFixed(2), hit: 7 }; }),
     notes: () => T.notes,
     hurtAt: (dx: number, dy: number) => { G.inv = 0; hurt('test', ship.x + dx * V.U, ship.y + dy * V.U); },
@@ -172,4 +182,23 @@ export function initTest() {
     },
   };
   Object.assign(window, { __lg: lg });
+}
+
+function plateDiff(img: HTMLImageElement, sc: Scan) {
+  const ref = moonRef(img.naturalWidth, img.naturalHeight); if (!ref || !sc.moons) return { max: 0, px: 0, half: false };
+  const sm = (a: number, b: number, x: number) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const ctx2 = (s: number) => { const c = document.createElement('canvas'); c.width = c.height = s; return [c, c.getContext('2d', { willReadFrequently: true })!] as const; };
+  let max = 0, px = 0, half = false;
+  ref.M.forEach(([mx, my, r], i) => {
+    const { sk } = ref, R = moonR(r, sk), s = R * 2, [c, x] = ctx2(s), { best, off } = sc.moons![i];
+    x.drawImage(img, mx - R, my - R, s, s, 0, 0, s, s);
+    const [, p] = ctx2(s); if (best) p.drawImage(img, best[0] - R, best[1] - R, s, s, 0, 0, s, s); else p.drawImage(c, 0, 0);
+    const out = p.getImageData(0, 0, s, s), o = out.data;
+    for (let y = 0; y < s; y++) for (let k2 = 0; k2 < s; k2++) { const q = Math.hypot(k2 - R, y - R), k = (y * s + k2) * 4, a = q < r + 4 * sk ? 1 : 1 - sm(r + 4 * sk, r + 11 * sk, q); for (let ch = 0; ch < 3; ch++) o[k + ch] += off[ch]; o[k + 3] = 255 * a; }
+    p.putImageData(out, 0, 0);
+    const a = p.getImageData(0, 0, s, s).data, b = plate(img, c, best, off, r, R, sk).getContext('2d', { willReadFrequently: true })!.getImageData(0, 0, s, s).data;
+    for (let k = 0; k < a.length; k += 4) { let d = 0; for (let ch = 0; ch < 4; ch++) d = Math.max(d, Math.abs(a[k + ch] - b[k + ch])); if (d) px++; max = Math.max(max, d); }
+    half ||= off.some((v) => Math.abs(v - Math.trunc(v)) === 0.5);
+  });
+  return { max, px, half };
 }

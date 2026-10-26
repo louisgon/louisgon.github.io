@@ -6,10 +6,11 @@
     "dev": "astro dev",
     "build": "astro build",
     "build:review": "REVIEW=on astro build",
-    "check": "astro check && tsc -p tools/parity && tsc -p tools/hero",
+    "check": "astro check && tsc -p tools/parity && tsc -p tools/hero && tsc -p tools/paint",
     "preview": "astro build && wrangler dev",
     "parity": "bun tools/parity/run.ts",
     "hero": "bun tools/hero/run.ts",
+    "paint": "bun tools/paint/run.ts",
     "review": "REVIEW=on BASE=/a/8t5qjd6kq3na/ astro build && artifact publish \"$PWD/dist\" --id 8t5qjd6kq3na",
     "deploy": "astro build && wrangler deploy"
   },
