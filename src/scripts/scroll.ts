@@ -47,7 +47,7 @@ export function initLanding() {
   let tg: HTMLElement | null = null, y = 0; try { tg = open < 0 && location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null; } catch {}
   const nav0 = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
   if (open >= 0) y = centerY(document.querySelector(`.proj[data-i="${open}"]`)!); else if (tg) y = landY(tg); else if (nav0 && /reload|back_forward/.test(nav0.type)) { try { y = +(sessionStorage.getItem('space-y') ?? 0) || 0; } catch {} }
-  const go = (v: number) => { if (lenis) { lenis.resize(); lenis.scrollTo(v, { immediate: true, force: true }); } else scrollTo(0, v); };
+  const go = (v: number) => { if (lenis) { lenis.resize(); lenis.scrollTo(v, { immediate: true, force: true }); if (!lenis.isStopped) { lenis.stop(); lenis.start(); } } else scrollTo(0, v); };
   if (y > innerHeight * 0.5) { HI.skip = true; go(Math.min(y, document.documentElement.scrollHeight - innerHeight)); const t = tg; if (t && document.fonts) document.fonts.ready.then(() => { if (!HI.moved) go(landY(t)); }); } else go(0);
   document.documentElement.classList.remove('landing');
 }
