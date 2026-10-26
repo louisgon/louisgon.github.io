@@ -20,8 +20,9 @@ import { readout } from './readout';
 import { controls } from './controls';
 import { first } from './first';
 import { modal } from './modal';
+import { slow } from './slow';
 
-const CHECKS = { egg, boost, fleets, cards, combat, feel, readout, controls, first, modal, land, pause, a11y, swipe, world, idle, perf };
+const CHECKS = { egg, boost, fleets, cards, combat, feel, readout, controls, first, modal, land, pause, a11y, swipe, world, idle, perf, slow };
 const only = arg('only')?.split(','), out = resolve(arg('out', join(tmpdir(), `hero-${Date.now()}`))!);
 let dist = arg('dist');
 mkdirSync(out, { recursive: true });
