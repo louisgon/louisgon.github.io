@@ -79,7 +79,7 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 
 ### Motion
 - Everything is buttery. No flicker, no snapping, nothing pops in. Every show, hide, swap, image and texture eases in and out. Treat any instant change as a bug.
-- The text scramble on headings, project titles, the case title and the nav readout stays. It must start as glyphs on its first visible frame, and each glyph is chosen to be no wider than the letter it stands in for, so the text never changes shape while it scrambles.
+- The text scramble on headings, project titles, the case title and the nav readout stays. It must start as glyphs on its first visible frame, and each glyph is chosen from those near the width of the letter it stands in for and then stretched to exactly that width, so the text never changes shape while it scrambles.
 - Scroll exits are natural parallax. Outgoing visuals move with the page at 0.35 to 0.75 speed with feathered edges, and the next section follows directly behind.
 - Nav jumps always glide. Case study transitions run in strict sequence (content out, warp, content in) through the one travel function.
 - Animate transforms with translate3d and scale3d, keep keyframes to transform and opacity, and give animated elements will-change transform, opacity and backface-visibility hidden.
