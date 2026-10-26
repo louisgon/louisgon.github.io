@@ -41,7 +41,6 @@ export function initAnchors() {
 
 export function initLanding() {
   HI.t0 = performance.now();
-  history.scrollRestoration = 'manual';
   addEventListener('pagehide', () => { try { sessionStorage.setItem('space-y', String(Math.round(scrollY))); } catch {} });
   ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((ev) => addEventListener(ev, () => { HI.moved = true; if (!HI.copy) HI.ff = true; }, { passive: true }));
   const open = caseAt(location.pathname);
