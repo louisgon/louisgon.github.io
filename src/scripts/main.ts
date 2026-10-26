@@ -1,5 +1,5 @@
 import { initReview } from '#review';
-import { reduce, S, TR, lf } from './state';
+import { HI, reduce, S, TR, lf } from './state';
 import { $, clamp, lerp } from './util';
 import { initAnchors, initLanding, initScroll, initWheelHush, lenis } from './scroll';
 import { initMenu } from './menu';
@@ -16,7 +16,6 @@ import { cursorTick, initCursor, initCursorQuery, initMagnetic } from './cursor'
 import { caseMoonsTick, initCases } from './cases';
 import { initWork, planetDriftTick, trajTick, workMoonsTick } from './work';
 
-const starfield = import('./stars');
 initScroll();
 initWheelHush();
 initMenu();
@@ -24,11 +23,14 @@ initAnchors();
 addEventListener('pointermove', (e) => { S.mx = e.clientX / innerWidth; S.my = e.clientY / innerHeight; });
 initOrbit();
 
-let stars: typeof import('./stars') | null = null, framed = false, last = 0, heroP = 0;
-const lit = starfield.then(async (m) => { await m.initStars(); if (framed) m.appear(performance.now()); stars = m; addEventListener('resize', m.resize); });
+let stars: typeof import('./stars') | null = null, framed = false, last = 0, heroP = 0, lit: Promise<void> | null = null;
+const wake = () => (lit ||= import('./stars').then(async (m) => { await m.initStars(); if (framed) m.appear(performance.now()); stars = m; addEventListener('resize', m.resize); }));
+const deep = document.documentElement.classList.contains('landing') || document.body.classList.contains('case-open');
+if (!deep) for (const ev of ['scroll', 'wheel', 'touchstart', 'pointermove', 'keydown']) addEventListener(ev, wake, { once: true, passive: true });
+let settled = deep;
 
 async function init() {
-  if (document.documentElement.classList.contains('landing') || document.body.classList.contains('case-open')) await lit.catch(() => {});
+  if (deep) await wake().catch(() => {});
   await document.fonts.ready;
   initWords();
   initRoles();
@@ -57,6 +59,7 @@ async function init() {
 
 function frame(now: number) {
   requestAnimationFrame(frame); framed = true;
+  if (!settled && HI.done && document.readyState === 'complete') { settled = true; if ('requestIdleCallback' in window) requestIdleCallback(wake, { timeout: 1000 }); else setTimeout(wake, 200); }
   if (lenis) lenis.raf(now);
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   S.DT = dt; S.smx = lerp(S.smx, S.mx, lf(0.05)); S.smy = lerp(S.smy, S.my, lf(0.05));

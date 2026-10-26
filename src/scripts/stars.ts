@@ -19,6 +19,9 @@ const HUES: Record<string, number[]> = { hero: [0.25, 0.45, 1.0], intro: [0.22, 
 
 export async function initStars() {
   const canvas = $<HTMLCanvasElement>('stars');
+  await nextTask();
+  canvas.getContext('webgl2', { alpha: true, depth: true, stencil: false, antialias: false, premultipliedAlpha: true, preserveDrawingBuffer: false, powerPreference: 'high-performance', failIfMajorPerformanceCaveat: false });
+  await nextTask();
   renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: 'high-performance' });
   DPR = Math.min(devicePixelRatio, 1.5); renderer.setPixelRatio(DPR); renderer.setClearColor(0x03050b, 1); renderer.autoClear = false;
   await nextTask();
