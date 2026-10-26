@@ -1,4 +1,5 @@
 import { reduce } from '../state';
+import { nextTask } from '../util';
 import { A, C, clamp, ctx, DV, F, G, mk, rand, scene, screen, sm, sprite, TAU, V, VP } from './core';
 import { SPR } from './art';
 
@@ -19,17 +20,19 @@ const hash = (x: number, y: number) => { let h = (Math.imul(x, 374761393) + Math
 const pnoise = (x: number, y: number, px: number, py: number) => { const xi = Math.floor(x), yi = Math.floor(y), u = x - xi, v = y - yi, h = (i: number, j: number) => hash(((i % px) + px) % px, ((j % py) + py) % py), a = h(xi, yi), b = h(xi + 1, yi), c = h(xi, yi + 1), d = h(xi + 1, yi + 1), su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v); return a + (b - a) * su + (c - a) * sv + (a - b - c + d) * su * sv; };
 const HZ = { n: 256, k: 150, v: 0.045, wind: 0.012 };
 
-export function analyse(img: HTMLImageElement) {
+export const analyse = (img: HTMLImageElement) => { const m = locate(img); return { ...m, edge: edge(img, m.limb) }; };
+
+export function locate(img: HTMLImageElement) {
   const c = document.createElement('canvas'), w = 96, h = Math.round(96 * img.naturalHeight / img.naturalWidth); c.width = w; c.height = h;
   const x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, 0, 0, w, h); const d = x.getImageData(0, 0, w, h).data;
   let bx = 0, by = 0, bl = -1;
   for (let y = 0; y < h * 0.7; y++) for (let i = 0; i < w; i++) { const k = (y * w + i) * 4, l = d[k] * 0.3 + d[k + 1] * 0.59 + d[k + 2] * 0.11; if (l > bl) { bl = l; bx = i; by = y; } }
   let ly = Math.round(h * 0.3), prev = 0;
   for (let y = 2; y < h * 0.8; y++) { let s = 0; for (let i = Math.floor(w * 0.35); i < w * 0.65; i++) { const k = (y * w + i) * 4; s += d[k] * 0.3 + d[k + 1] * 0.59 + d[k + 2] * 0.11; } s /= w * 0.3; if (s - prev > 22 && y > h * 0.08) { ly = y; break; } prev = s; }
-  return { sun: { x: bx / w, y: by / h }, limb: ly / h, edge: edge(img, ly / h) };
+  return { sun: { x: bx / w, y: by / h }, limb: ly / h };
 }
 
-function edge(img: HTMLImageElement, limb: number) {
+export function edge(img: HTMLImageElement, limb: number) {
   const c = document.createElement('canvas'), w = 240, h = Math.round(240 * img.naturalHeight / img.naturalWidth); c.width = w; c.height = h;
   const x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, 0, 0, w, h); const d = x.getImageData(0, 0, w, h).data;
   const L = (i: number, y: number) => { let s = 0; for (let j = i - 1; j <= i + 1; j++) { const k = (y * w + j) * 4; s += d[k] * 0.3 + d[k + 1] * 0.59 + d[k + 2] * 0.11; } return s / 3; };
@@ -66,9 +69,10 @@ export function initBackdrop() {
   setTimeout(initLife, 60);
 }
 
-function initLife() {
+async function initLife() {
   const n = HZ.n, c = mk(n), x = c.getContext('2d')!, id = x.createImageData(n, n), d = id.data;
   for (let y = 0; y < n; y++) for (let i = 0; i < n; i++) {
+    if (y === n / 2 && !i) await nextTask();
     const u = i / n, v = y / n, a = sm(0.44, 0.78, pnoise(u * 4, v * 3, 4, 3) * 0.58 + pnoise(u * 8, v * 6, 8, 6) * 0.28 + pnoise(u * 16, v * 12, 16, 12) * 0.14), j = (y * n + i) * 4;
     d[j] = 255; d[j + 1] = 176 + 40 * a; d[j + 2] = 96 + 52 * a; d[j + 3] = 255 * a;
   }

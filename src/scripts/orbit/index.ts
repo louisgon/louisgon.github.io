@@ -3,7 +3,7 @@ import { HI, reduce } from '../state';
 import { $, nextTask, out, sstep } from '../util';
 import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, eio, eout, F, FAC, G, game, GZ0, HOLD, initCore, input, LAND, lerp, MOUSE, restW, rs, scene, screen, setGame, ship, shipR, shipW, sm, STICK, T, TYPES, V, VP } from './core';
 import { initArt, LIT, prepLight } from './art';
-import { analyse, drawOrbit, initBackdrop, keepMoons, nozzles, prepMoons } from './backdrop';
+import { analyse, drawOrbit, edge, initBackdrop, keepMoons, locate, nozzles, prepMoons } from './backdrop';
 import { hudTick, measureLane, showBest, updateLabels } from './hud';
 import { grab, initInput, STEER } from './input';
 import { drawCharge, drawDim, drawEgg, drawRear } from './render';
@@ -114,22 +114,24 @@ export function loadGame() {
 export const ready = () => A.ready && !!game && game.prepped();
 
 export function initOrbit() {
-  initCore(); initBackdrop(); initArt(); initInput();
+  initCore(); initBackdrop(); initInput();
   egg.shown = store.get('lg01-whisper');
   showBest(); updateLabels(); $('bestLine').hidden = !played();
   size();
   pic = D.hero.querySelector<HTMLImageElement>('.bg img')!;
   const bg = new Promise<void>((r) => { if (pic.complete) r(); else { pic.addEventListener('load', () => r(), { once: true }); pic.addEventListener('error', () => r(), { once: true }); } }).then(still).then(async (b) => {
-    if (b && b.naturalWidth && !metas.has(b.src)) { metas.set(b.src, analyse(b)); await nextTask(); }
-    useBg(b); await nextTask(); A.base = true;
+    await nextTask();
+    if (b && b.naturalWidth && !metas.has(b.src)) { const m = locate(b); await nextTask(); metas.set(b.src, { ...m, edge: edge(b, m.limb) }); await nextTask(); }
+    useBg(b); await nextTask(); initArt(); await nextTask(); A.base = true;
     size(); addEventListener('resize', size); new ResizeObserver(() => restLayout()).observe(D.copy); document.fonts.ready.then(() => restLayout());
     pic.addEventListener('load', () => still().then(swapBg));
   });
-  const sh = load(DATA.sprites.ship).then((s) => {
+  const sh = load(DATA.sprites.ship).then(async (s) => {
     A.ship = s; shipAt = performance.now();
     if (!s) return;
     rs.noz = nozzles(s, rs.noz); A.aspR = s.height / s.width; LIT.key = '';
     if (HI.pt && !HI.skip && !G.on && !VP.p) rs.x = 0;
+    await nextTask();
     if (A.base) size();
   });
   rested = Promise.all([bg, sh]);
