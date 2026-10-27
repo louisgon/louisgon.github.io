@@ -2,6 +2,8 @@ body.hi-nav nav { opacity: 0; pointer-events: none; }
 body.hi-main main, body.hi-main footer { opacity: 0; }
 @media (pointer: coarse) { html:not(.landing) body.hi-main:not(.case-open) :is(main, footer) { content-visibility: hidden; } }
 body.hi-nav nav, body.hi-main main, body.hi-main footer { animation: hiFail .4s 8s forwards; }
+@media (pointer: coarse) { body { animation: hold 1ms; } }
+@keyframes hold { 0% { content-visibility: hidden; } }
 @keyframes hiFail { to { opacity: 1; content-visibility: visible; } }
 html.landing #hero { opacity: 0; animation: hiFail .4s 8s forwards; }
 #jump { position: fixed; left: 50%; top: 50%; z-index: 50; transform: translate3d(-50%, -50%, 0); text-align: center; pointer-events: none; opacity: 0; color: #eaf4ff; text-shadow: 0 0 14px rgb(120 200 255 / 90%); }
