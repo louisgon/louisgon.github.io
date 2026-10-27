@@ -15,10 +15,17 @@ const sats = [{ p: 0.1, v: 0.012, y: 0.12, warm: false }, { p: 0.62, v: 0.008, y
 const PM = new DOMMatrix();
 let clear: number[][] = [], lit: Scan['lit'] | null = null;
 const MOONGAP = 34;
-let haze: CanvasPattern | null = null, hzBuf: HTMLCanvasElement | null = null, hzX: CanvasRenderingContext2D | null = null, lifeT0 = 0, flare: HTMLCanvasElement | null = null, moons: Moon[] = [];
+let haze: CanvasPattern | null = null, hzBuf: HTMLCanvasElement | null = null, hzX: CanvasRenderingContext2D | null = null, lifeT0 = 0, flare: HTMLCanvasElement | null = null, glow: HTMLCanvasElement | null = null, moons: Moon[] = [];
 const hash = (x: number, y: number) => { let h = (Math.imul(x, 374761393) + Math.imul(y, 668265263)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 const pnoise = (x: number, y: number, px: number, py: number) => { const xi = Math.floor(x), yi = Math.floor(y), u = x - xi, v = y - yi, h = (i: number, j: number) => hash(((i % px) + px) % px, ((j % py) + py) % py), a = h(xi, yi), b = h(xi + 1, yi), c = h(xi, yi + 1), d = h(xi + 1, yi + 1), su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v); return a + (b - a) * su + (c - a) * sv + (a - b - c + d) * su * sv; };
 const HZ = { n: 256, k: 150, v: 0.045, wind: 0.012 };
+
+// a full screen radial gradient costs SwiftShader about 55ms a frame, a scaled image almost nothing
+const sunGlow = () => {
+  const n = 512, c = mk(n), x = c.getContext('2d')!, g = x.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
+  g.addColorStop(0, 'rgba(255,214,150,0.22)'); g.addColorStop(0.25, 'rgba(255,170,90,0.07)'); g.addColorStop(1, 'rgba(255,150,80,0)');
+  x.fillStyle = g; x.fillRect(0, 0, n, n); return c;
+};
 
 export function initBackdrop() {
   stars = Array.from({ length: 150 }, () => ({ x: rand(), y: rand(), r: rand() * 1.1 + 0.3, p: rand() * 6.28, s: 0.6 + rand() * 1.8 }));
@@ -155,9 +162,7 @@ export function drawOrbit() {
   const sx = B.x + scene.sun.x * B.w, sunY = B.y + scene.sun.y * B.h;
   ctx.globalCompositeOperation = 'lighter';
   const pul = 0.85 * br * (G.on ? 0.7 : 1) * fade;
-  const g = ctx.createRadialGradient(sx, sunY, 0, sx, sunY, Math.max(W, H) * 0.5);
-  g.addColorStop(0, `rgba(255,214,150,${0.22 * pul})`); g.addColorStop(0.25, `rgba(255,170,90,${0.07 * pul})`); g.addColorStop(1, 'rgba(255,150,80,0)');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  sprite(glow ||= sunGlow(), sx, sunY, Math.max(W, H) * 0.5, pul);
   if (flare) { const fw = Math.max(W, H) * 0.62 * (0.94 + 0.06 * br), fh = 12 * V.U; ctx.globalAlpha = 0.3 * pul; ctx.drawImage(flare, sx - fw / 2, sunY - fh / 2, fw, fh); ctx.globalAlpha = 1; }
   const limbY = B.y + scene.limb * B.h;
   for (const s of stars) { const yy = s.y * H + scrollOff * 0.42; if (yy > limbY - 10) continue; const a = (reduce ? 0.5 : 0.42 + 0.22 * Math.sin(t * s.s * 0.6 + s.p)) * (1 - clamp(yy / Math.max(limbY, 1) - 0.6) * 1.2) * fade; if (a <= 0) continue; ctx.fillStyle = `rgba(220,235,255,${a})`; ctx.fillRect(s.x * W - s.r, yy - s.r, s.r * 2, s.r * 2); }
