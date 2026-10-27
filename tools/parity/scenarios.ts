@@ -75,7 +75,7 @@ const ROUTES: Scenario[] = [
     await press(r.page, 'ArrowRight'); await r.wait(130); await press(r.page, 'ArrowRight'); await r.wait(130); await r.mark('keys-paged'); await r.expect('keys-paged', { path: 'work/kioti/', open: 'Kioti', focus: 'button.back', history: 1 });
     await press(r.page, 'Escape'); await r.wait(170); await r.mark('keys-back'); await r.expect('keys-back', { path: '', open: null, focus: '.proj[3] a.pic.rv.in', row: 3, history: 1 });
   } },
-  { name: 'desktop-keys-direct', profile: 'desktop', path: 'work/umf/', fresh: true, run: async (r) => {
+  { name: 'desktop-keys-direct', profile: 'desktop', path: 'work/rockit/', fresh: true, run: async (r) => {
     await r.wait(150); await press(r.page, 'Tab'); await r.wait(10); await r.mark('keys-direct'); await r.expect('keys-direct', { path: 'work/umf/', open: 'Unique Mānuka Factor', focus: 'button.back', row: 7 });
     await press(r.page, 'Enter'); await r.wait(90); await r.mark('keys-direct-back'); await r.expect('keys-direct-back', { path: '', open: null, focus: '.proj[7] a.pic.rv.in', row: 7, history: 1 });
   } },

@@ -11,7 +11,6 @@ const projects = defineCollection({
     team: z.string(),
     url: z.url(),
     stack: z.array(z.string()),
-    blurb: z.string(),
     fact: z.string(),
     story: z.object({ brief: z.string(), did: z.string(), result: z.string() }).optional(),
   }),
