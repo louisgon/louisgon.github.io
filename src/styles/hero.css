@@ -8,8 +8,8 @@
 @media (max-aspect-ratio: 17/20) { #hero .ph { --ar: 9 / 16; } }
 #hero .art:has(> .bg.off) > .ph { visibility: hidden; }
 #hero .bg img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale3d(1.07, 1.07, 1); will-change: transform, opacity; backface-visibility: hidden; }
-#hero .bg img { opacity: 0; transition: opacity .9s var(--ease-io); }
-#hero .bg.in img { opacity: 1; }
+#hero .bg img { opacity: 0; visibility: hidden; transition: opacity .9s var(--ease-io); }
+#hero .bg.in img { opacity: 1; visibility: visible; }
 #hero .bg.q img { transition-duration: .4s; }
 #orbit { position: absolute; inset: 0; display: block; width: 100%; height: 100%; opacity: 0; will-change: opacity; }
 #hero .scrim { -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent); mask-image: linear-gradient(180deg, #000 78%, transparent); }
