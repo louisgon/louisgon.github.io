@@ -10,7 +10,7 @@ type Travel = { y?: number | null; action?: (() => unknown) | null; focus?: HTML
 
 export async function travel({ y = null, action = null, focus = null, fast = false }: Travel) {
   if (TR.busy) return; TR.busy = true;
-  const rm = reduce, q = fast ? [260, 300, 120, 450] : [420, 680, 180, 700]; TR.f = fast ? 0.55 : 1;
+  const rm = reduce, q = fast ? [180, 200, 80, 320] : [260, 400, 110, 450]; TR.f = fast ? 0.55 : 1;
   lenis && lenis.stop(); document.documentElement.classList.add('tr-lock'); document.body.classList.remove('tr-in'); document.body.classList.toggle('tr-fast', fast);
   if (!rm) { TR.up = performance.now(); TR.down = 0; TR.dim = 1; }
   document.body.classList.add('tr-out'); await wait(rm ? 180 : q[0]);

@@ -1,6 +1,6 @@
 #case { position: fixed; inset: 0; z-index: 70; overflow-y: auto; overflow-x: hidden; overscroll-behavior-x: none; background: radial-gradient(120% 90% at 50% 20%, transparent 40%, rgb(3 5 11 / 40%)); opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility 0s .5s; overscroll-behavior: contain; }
 #case.on { opacity: 1; visibility: visible; transition: opacity .5s ease; }
-body.case-open nav, body.case-open #hero, body.case-open main, body.case-open footer { opacity: 0 !important; visibility: hidden !important; transition: none !important; }
+body.case-open:not(.fly-out) nav, body.case-open:not(.fly-out) #hero, body.case-open:not(.fly-out) main, body.case-open:not(.fly-out) footer { opacity: 0 !important; visibility: hidden !important; transition: none !important; }
 #caseIn { position: relative; max-width: 1180px; margin: 0 auto; padding: 84px clamp(16px, 5vw, 64px) 120px; }
 #case .back { appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: transparent; color: var(--fg); border-radius: 999px; padding: 10px 15px 10px 12px; font: 600 11px/1 "JetBrains Mono", monospace; letter-spacing: .12em; text-transform: uppercase; transition: border-color .25s, color .25s; }
 #case .back:hover { border-color: var(--holo); color: var(--holo); }
