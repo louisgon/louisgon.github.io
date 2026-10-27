@@ -28,6 +28,7 @@ function measurePace(now: number, iv: number) {
   const slow = pace.slow >= (pace.gap ? PACE.n / 2 : PACE.n - 2);
   pace.wait = slow && pace.gap ? Math.min(pace.wait * 2, 60000) : PACE.wait;
   pace.gap = slow ? clamp(2 * pace.sum / pace.slow, 66, 250) : 0; pace.t = now; pace.known = true; pace.n = pace.slow = pace.sum = 0;
+  if (slow && V.gpuCap > 0.6) { V.gpuCap = 0.6; if (game) game.S.key = ''; size(); }
 }
 
 export const heroEnd = () => $('hero').offsetHeight * 0.85;
@@ -101,7 +102,7 @@ function boost(p: number) {
 
 function size() {
   const r = D.hero.getBoundingClientRect(), oW = V.W, oH = V.H, oU = V.U, oB = rs.base, cv = D.cv;
-  V.W = r.width; V.H = r.height; V.DPR = Math.min(devicePixelRatio || 1, coarse ? V.dprCap : 2);
+  V.W = r.width; V.H = r.height; V.DPR = Math.min(devicePixelRatio || 1, coarse ? V.dprCap : 2, V.gpuCap);
   const w = Math.round(V.W * V.DPR), h = Math.round(V.H * V.DPR); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
   ctx.setTransform(V.DPR, 0, 0, V.DPR, 0, 0);
   const { W, H } = V, tall = (V.tall = W / H < 0.85);
@@ -189,7 +190,7 @@ export function orbitTick(now: number, hp: number) {
   F.fc++;
   if (import.meta.env.MODE === 'test') T.draws++;
   const w0 = performance.now(), { W, H } = V, iv = now - last, rdt = Math.min(iv / 1000, 0.05); last = now;
-  if (resting && HI.planet >= 1) measurePace(now, iv);
+  if (resting && document.readyState === 'complete') measurePace(now, iv);
   if (coarse && rdt > 0.021 && G.on) { if (++slowFrames > 90 && V.dprCap > 1.01) { V.dprCap = V.dprCap > 1.3 ? 1.25 : 1; slowFrames = 0; M!.S.key = ''; size(); } } else slowFrames = Math.max(0, slowFrames - 1);
   if (VP.dir && !(VP.dir > 0 && G.card)) {
     VP.p = clamp(VP.p + VP.dir * rdt / (reduce ? 0.3 : VP.dir > 0 ? BOOST : LAND));
