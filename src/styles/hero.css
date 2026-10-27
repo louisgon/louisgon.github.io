@@ -39,7 +39,7 @@
 #hero .mono .sep { width: .6em; height: .8em; }
 #hero .mono .sep::before, #hero .mono .sep::after { width: .18em; height: .18em; margin-left: -.09em; }
 
-#hero .hud { --c: rgb(255 207 138 / 75%); z-index: 6; background: none; container-type: size; inset: calc(76px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left)); opacity: 0; transition: opacity .35s ease; outline: none; will-change: transform, opacity; backface-visibility: hidden; }
+#hero .hud { --c: rgb(255 207 138 / 75%); z-index: 6; background: none; container-type: size; inset: calc(20px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left)); opacity: 0; transition: opacity .35s ease; outline: none; will-change: transform, opacity; backface-visibility: hidden; }
 #hero .hud::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(var(--c), var(--c)) 0 0 / var(--l) 1px, linear-gradient(var(--c), var(--c)) 0 0 / 1px var(--l), linear-gradient(var(--c), var(--c)) 100% 0 / var(--l) 1px, linear-gradient(var(--c), var(--c)) 100% 0 / 1px var(--l), linear-gradient(var(--c), var(--c)) 0 100% / var(--l) 1px, linear-gradient(var(--c), var(--c)) 0 100% / 1px var(--l), linear-gradient(var(--c), var(--c)) 100% 100% / var(--l) 1px, linear-gradient(var(--c), var(--c)) 100% 100% / 1px var(--l); background-repeat: no-repeat; opacity: 0; transition: opacity .35s ease; will-change: transform, opacity; backface-visibility: hidden; }
 #hero.flying .hud::before { opacity: 1; }
 #hero .hud .clk { position: absolute; left: 26px; top: 22px; }
@@ -189,7 +189,7 @@
   #hero .btn { padding: 13px 20px; font-size: 12px; }
   #hero .scrim { background: linear-gradient(180deg, rgb(3 6 14 / 80%), rgb(3 6 14 / 40%) 48%, transparent 64%); }
   #hero .best { display: none; }
-  #hero .hud { inset: calc(70px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left)); }
+  #hero .hud { inset: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left)); }
   #hero .hud .clk, #hero .hud .hull { left: 16px; }
   #hero .hud .kc { right: 16px; font-size: 10px; }
   #hero .hud .clk, #hero .hud .kc { top: 16px; }
