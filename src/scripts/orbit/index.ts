@@ -18,7 +18,7 @@ let lab: typeof import('./test') | null = null, last = 0, slowFrames = 0, shown 
 export let starVis = 0;
 
 const PACE = { n: 8, slow: 40, wait: 5000 };
-const pace = { gap: 0, t: 0, wait: PACE.wait, n: 0, slow: 0, sum: 0, known: false };
+const pace = { gap: 0, t: 0, wait: PACE.wait, n: 0, slow: 0, sum: 0, known: false, v: 0 };
 export const gpuPace = () => (pace.known ? pace.gap : null);
 // a GPU that cannot keep up (SwiftShader without a GPU) makes Chrome block the main thread for a whole frame, so leave it half idle
 function measurePace(now: number, iv: number) {
@@ -27,9 +27,10 @@ function measurePace(now: number, iv: number) {
   if (pace.n < PACE.n) return;
   const slow = pace.slow >= (pace.gap ? PACE.n / 2 : PACE.n - 2);
   pace.wait = slow && pace.gap ? Math.min(pace.wait * 2, 60000) : PACE.wait;
+  if (++pace.v === 1 && !slow) sharpen(2); else if (pace.v === 2 && slow && V.gpuCap > 0.6) sharpen(0.6);
   pace.gap = slow ? clamp(2 * pace.sum / pace.slow, 66, 250) : 0; pace.t = now; pace.known = true; pace.n = pace.slow = pace.sum = 0;
-  if (slow && V.gpuCap > 0.6) { V.gpuCap = 0.6; if (game) game.S.key = ''; size(); }
 }
+function sharpen(cap: number) { if (V.gpuCap !== cap) { V.gpuCap = cap; if (game) game.S.key = ''; size(); } }
 
 export const heroEnd = () => $('hero').offsetHeight * 0.85;
 
@@ -190,7 +191,7 @@ export function orbitTick(now: number, hp: number) {
   F.fc++;
   if (import.meta.env.MODE === 'test') T.draws++;
   const w0 = performance.now(), { W, H } = V, iv = now - last, rdt = Math.min(iv / 1000, 0.05); last = now;
-  if (resting && document.readyState === 'complete') measurePace(now, iv);
+  if (resting && document.readyState === 'complete') measurePace(now, iv); else if (!resting && pace.v < 2) sharpen(2);
   if (coarse && rdt > 0.021 && G.on) { if (++slowFrames > 90 && V.dprCap > 1.01) { V.dprCap = V.dprCap > 1.3 ? 1.25 : 1; slowFrames = 0; M!.S.key = ''; size(); } } else slowFrames = Math.max(0, slowFrames - 1);
   if (VP.dir && !(VP.dir > 0 && G.card)) {
     VP.p = clamp(VP.p + VP.dir * rdt / (reduce ? 0.3 : VP.dir > 0 ? BOOST : LAND));
