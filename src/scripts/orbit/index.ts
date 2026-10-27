@@ -16,6 +16,20 @@ const shipped = (src: string) => (PAINT.paintings as Record<string, Scan>)[file(
 let lab: typeof import('./test') | null = null, last = 0, slowFrames = 0, shown = '', flyShown = '0.000', shipAt = 0, flyT = 0, bgOff = false, pic: HTMLImageElement, rested: Promise<unknown> | null = null, loading: Promise<void> | null = null;
 
 export let starVis = 0;
+
+const PACE = { n: 8, slow: 40, wait: 5000 };
+const pace = { gap: 0, t: 0, wait: PACE.wait, n: 0, slow: 0, sum: 0, known: false };
+export const gpuPace = () => (pace.known ? pace.gap : null);
+// a GPU that cannot keep up (SwiftShader without a GPU) makes Chrome block the main thread for a whole frame, so leave it half idle
+function measurePace(now: number, iv: number) {
+  if ((pace.gap && now - pace.t < pace.wait) || iv > 500) return;
+  pace.n++; if (iv > PACE.slow) { pace.slow++; pace.sum += iv; }
+  if (pace.n < PACE.n) return;
+  const slow = pace.slow >= (pace.gap ? PACE.n / 2 : PACE.n - 2);
+  pace.wait = slow && pace.gap ? Math.min(pace.wait * 2, 60000) : PACE.wait;
+  pace.gap = slow ? clamp(2 * pace.sum / pace.slow, 66, 250) : 0; pace.t = now; pace.known = true; pace.n = pace.slow = pace.sum = 0;
+}
+
 export const heroEnd = () => $('hero').offsetHeight * 0.85;
 
 const load = (src: string) => new Promise<HTMLImageElement | null>((r) => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
@@ -170,10 +184,12 @@ export function orbitTick(now: number, hp: number) {
   starVis = HI.space * sstep(0, 0.5, hp);
   const fade = HI.planet.toFixed(3); if (fade !== shown) { shown = fade; D.cv.style.opacity = fade; }
   if (!V.vis || !A.base) { if (VP.dir < 0) M!.landed(); last = now; return; }
-  if (!G.on && !VP.p && coarse && !input.charge && now - last < 30) return;
+  const resting = !G.on && !VP.p && !input.charge;
+  if (resting && now - last < Math.max(coarse ? 30 : 0, pace.gap && now - pace.t < pace.wait ? pace.gap : 0)) return;
   F.fc++;
   if (import.meta.env.MODE === 'test') T.draws++;
-  const w0 = performance.now(), { W, H } = V, rdt = Math.min((now - last) / 1000, 0.05); last = now;
+  const w0 = performance.now(), { W, H } = V, iv = now - last, rdt = Math.min(iv / 1000, 0.05); last = now;
+  if (resting && HI.planet >= 1) measurePace(now, iv);
   if (coarse && rdt > 0.021 && G.on) { if (++slowFrames > 90 && V.dprCap > 1.01) { V.dprCap = V.dprCap > 1.3 ? 1.25 : 1; slowFrames = 0; M!.S.key = ''; size(); } } else slowFrames = Math.max(0, slowFrames - 1);
   if (VP.dir && !(VP.dir > 0 && G.card)) {
     VP.p = clamp(VP.p + VP.dir * rdt / (reduce ? 0.3 : VP.dir > 0 ? BOOST : LAND));
