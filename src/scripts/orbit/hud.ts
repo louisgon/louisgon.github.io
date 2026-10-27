@@ -38,9 +38,8 @@ export function showBest() { $('best0').innerHTML = $('best1').innerHTML = fmtT(
 export function updateLabels() {
   const t = input.last === 'touch';
   $('land').innerHTML = t ? 'Land' : 'Land <kbd>Esc</kbd>';
-  $('ctl').innerHTML = t ? 'Drag to steer · Land to exit' : 'Mouse or <kbd>WASD</kbd> to steer · <kbd>P</kbd> to pause';
+  $('ctl').innerHTML = t ? 'Drag to steer · Land to exit' : '<kbd>WASD</kbd> or arrows to steer · <kbd>P</kbd> to pause';
 }
-export const anchor = () => { input.mlock = true; input.ax = input.mx; input.ay = input.my; };
 export const setLast = (k: Kind) => { if (input.last === k) return; const was = input.last === 'touch'; input.last = k; if (was !== (k === 'touch')) updateLabels(); };
 
 export function hudTick(rdt: number, now: number) {

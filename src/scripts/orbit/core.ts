@@ -39,7 +39,6 @@ export const CAP = { first: 75, gap: 120, calm: 3, ramp: 5, track: 0.45, retrack
 export const coarse = matchMedia('(pointer: coarse)').matches;
 export const HOLD: Record<Kind, number> = { touch: 300, mouse: 230, key: 230 };
 export const STICK = { r: 64, dz: 10, curve: 1.7, ease: 9, turn: 1.6, spin: 0.06, speed: 0.9 };
-export const MOUSE = { dz: 10, r: 110, guide: 3 };
 
 const mix = (s: number) => { let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 let seed = 0x0b17, sseed = 0x0b17;
@@ -67,7 +66,7 @@ export const cam = { x: 0, y: 0 };
 export const VP = { p: 0, dir: 0, rx: 0, ry: 0, rw: 1, rv: 0 };
 export const DV = { th: 0, drop: 0, kx: 1, ky: 1, fk: 0, ba: 1, punch: 0, zb: 0, ga: 0, gz: 1, rx: 0, ry: 0, rw: 1, rsq: 1, ra: 1, tx: 0, ty: 0, tw: 1, tsq: 1, ta: 0 };
 export const C = { ox: 0, oy: 0, wz: 1, dz: 1, x0: 0, x1: 1, y0: 0, y1: 1, sx: 0, sy: 0 };
-export const input = { mx: 0.5, my: 0.5, gx: 0, gy: 0, follow: false, charge: null as Charge | null, tid: null as number | null, stick: null as { ox: number; oy: number; x: number; y: number } | null, keys: new Set<string>(), last: (coarse ? 'touch' : 'mouse') as Kind, moveAcc: 0, wheelAcc: 0, wheelT: 0, focusBack: null as HTMLElement | null, mlock: false, ax: 0.5, ay: 0.5, inside: false, guide: -1, fly: false };
+export const input = { mx: 0.5, my: 0.5, gx: 0, gy: 0, charge: null as Charge | null, tid: null as number | null, stick: null as { ox: number; oy: number; x: number; y: number } | null, keys: new Set<string>(), last: (coarse ? 'touch' : 'mouse') as Kind, focusBack: null as HTMLElement | null, fly: false };
 export const G = {
   on: false, run: 0, clock: 0, kills: 0, level: 1, xp: 0, need: 4, pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, over: false, dead: false, card: false, mode: '' as Mode,
   W: [] as Weapon[], wm: {} as Partial<Record<WeapId, Weapon>>, B: [] as BoostId[], bm: {} as Partial<Record<BoostId, number>>, miss: {} as Partial<Record<WeapId, number>>, opts: [] as Option[],

@@ -4,15 +4,15 @@ import { clearCards, covers, hold, lg, noColons, page, shot, st, topDown, touch,
 const cardOn = (p: Page) => p.waitForFunction(() => (window as unknown as { __lg: { st: () => { card: boolean } } }).__lg.st().card, null, { timeout: 5000 });
 const prs = (p: Page) => p.evaluate(() => [...document.querySelectorAll('#opts .opt')].map((o) => ({ k: o.className, tag: o.querySelector('.tg')?.textContent ?? '', d: o.querySelector('.ds')?.textContent ?? '', pr: o.querySelector('.pr')?.textContent ?? '' })));
 
-async function toCache(p: Page, w: number, h: number) {
-  let mode = '', opts: string[] = [], j = 8; const t0 = Date.now();
+const steer = async (p: Page, dx: number, dy: number, ms: number) => { const ks = [...(dx > 12 ? ['KeyD'] : dx < -12 ? ['KeyA'] : []), ...(dy > 12 ? ['KeyS'] : dy < -12 ? ['KeyW'] : [])]; for (const k of ks) await p.keyboard.down(k); await p.waitForTimeout(ms); for (const k of ks) await p.keyboard.up(k); };
+
+async function toCache(p: Page) {
+  let mode = '', opts: string[] = []; const t0 = Date.now();
   while (Date.now() - t0 < 12000) {
-    j = -j;
     const s = await st(p);
     if (s.card && s.mode === 'cache') { mode = s.mode; opts = (await lg(p, 'opts()')) as string[]; break; }
     if (s.card && s.mode === 'level') { await p.keyboard.press('Digit1'); await p.waitForTimeout(500); continue; }
-    if (s.cache) await p.mouse.move(Math.max(30, Math.min(w - 30, s.csx)) + j, Math.max(90, Math.min(h - 30, s.csy)), { steps: 2 });
-    await p.waitForTimeout(100);
+    if (s.cache) await steer(p, s.csx - s.sx, s.csy - s.sy, 120); else await p.waitForTimeout(100);
   }
   return { mode, opts };
 }
@@ -66,7 +66,7 @@ export async function cards(c: Ctx) {
     const ig = await st(p);
     c.ok('an ignored cache survives a whole capital interval and holds the next capital back', ig.cache && ig.boss === -1 && ig.nb === -1, { cache: ig.cache, boss: ig.boss, nb: ig.nb, clock: ig.clock });
     await p.waitForTimeout(150); await shot(c, p, 'cards-cache');
-    const ev = await toCache(p, 1440, 900);
+    const ev = await toCache(p);
     await p.waitForTimeout(450); await shot(c, p, 'cards-cache-card');
     c.ok('flying over the cache opens the evolution card', ev.mode === 'cache' && ev.opts.includes('e:railstorm'), ev);
     c.ok('no colons or dashes on the cache card', !(await noColons(p)).length, await noColons(p));
@@ -77,8 +77,9 @@ export async function cards(c: Ctx) {
     c.ok('the breather has ramped back to full spawns', evd.calm === 1, evd.calm);
     await p.waitForTimeout(600); await shot(c, p, 'cards-evolved');
     await clearCards(p);
+    await p.evaluate("window.__lg.st().W.forEach((w) => { const m = w.match(/^([a-z]+)5$/); if (m) window.__lg.give(m[1], 4); })");
     await lg(p, 'cache(0)');
-    const rw = await toCache(p, 1440, 900);
+    const rw = await toCache(p);
     const full = await st(p);
     c.ok('a cache with nothing to evolve offers only rewards that do something', rw.mode === 'cache' && rw.opts.length >= 2 && rw.opts.every((o) => o.startsWith('x:')) && rw.opts.includes('x:windfall') && (full.hull < full.hullMax || !rw.opts.includes('x:refit')), { ...rw, hull: full.hull });
     await p.waitForTimeout(450); await p.keyboard.press('Digit1'); await clearCards(p);
@@ -109,7 +110,7 @@ export async function cards(c: Ctx) {
     await p.waitForTimeout(800); await hold(p); await topDown(p); await p.mouse.move(720, 450);
     await lg(p, "god(true); window.__lg.give('pulse', 5); window.__lg.give('magnet', 3); window.__lg.give('damage', 3); window.__lg.give('area', 3); window.__lg.give('thrust', 1)");
     await lg(p, 'boss()'); await p.waitForTimeout(300); await lg(p, 'killBoss()'); await p.waitForTimeout(1600);
-    const sw = await toCache(p, 1440, 900), card = await prs(p);
+    const sw = await toCache(p), card = await prs(p);
     c.ok('full boost slots never lock out an evolution, the cache trades a boost for the pair', sw.mode === 'cache' && sw.opts[0] === 'e:railstorm' && card[0]?.pr === 'Trades Thrusters for Cooldown', { ...sw, pr: card[0]?.pr });
     await p.waitForTimeout(450); await p.keyboard.press('Digit1'); await p.waitForTimeout(400);
     const tr = await st(p);

@@ -1,16 +1,25 @@
 import { reduce } from '../state';
+import { lenis } from '../scroll';
 import { $ } from '../util';
 import { addShake, cam, CAP, clamp, D, egg, fmtT, G, HIT, input, lerp, reseed, restW, rs, sayT, ship, shipW, STICK, T, T_HV, TURN, TYPES, V, VP, wrapA, type Kind } from './core';
 import { AR, BM, BO, DB, EB, EN, fx, MI, NR, QR, query, RB, resetWorld, SH, SP, sparks, TG, TQ, WS } from './world';
 import { flushSprites } from './sprites';
 import { deathBurst } from './enemies';
 import { mkW, needFor } from './weapons';
-import { anchor, buzz, live, resetHud, setLast, showBest } from './hud';
+import { buzz, live, resetHud, setLast, showBest } from './hud';
 import { modal, renderBuild, renderHull, setHull, showCard } from './cards';
 import { cancelInput } from './input';
 import { P, store } from './store';
 
 let lateT = 0, tipT = 0, toastT = 0;
+
+function hold(on: boolean) {
+  document.body.classList.toggle('in-game', on); $('nav').inert = on; document.documentElement.classList.toggle('tr-lock', on);
+  if (!lenis) { if (on) scrollTo(0, 0); return; }
+  if (!on) { lenis.start(); return; }
+  if (scrollY < 1) { lenis.stop(); return; }
+  lenis.scrollTo(0, { duration: reduce ? 0 : 0.45, force: true, lock: true, onComplete: () => { if (G.on) lenis!.stop(); } });
+}
 
 export function start(kind?: Kind) {
   flushSprites();
@@ -22,19 +31,19 @@ export function start(kind?: Kind) {
   renderHull(); renderBuild(); resetHud();
   D.hero.classList.add('playing'); D.hero.classList.remove('bossing', 'carded', 'late'); D.toast.classList.remove('on'); D.card.classList.remove('on'); modal(false);
   const back = document.activeElement; if (back instanceof HTMLElement && back !== document.body && !D.hud.contains(back)) input.focusBack = back;
-  D.copy.inert = D.fly.inert = true;
+  D.copy.inert = D.fly.inert = true; hold(true);
   if (kind) setLast(kind);
   if (VP.p < 1) {
     if (!VP.p) addShake(0.2);
     VP.dir = 1; VP.rx = rs.x; VP.ry = rs.y; VP.rw = restW(); VP.rv = 0;
     ship.x = ship.y = cam.x = cam.y = 0; ship.vx = ship.vy = ship.cx = ship.cy = 0; ship.h = ship.hv = ship.bank = 0;
   } else boosted();
-  input.gx = ship.x; input.gy = ship.y; input.follow = false; input.mlock = true; input.guide = -1;
+  input.gx = ship.x; input.gy = ship.y;
   buzz(8);
 }
 
 export function boosted() {
-  D.hero.classList.add('flying'); D.hud.inert = false; anchor();
+  D.hero.classList.add('flying'); D.hud.inert = false;
   if (input.last === 'key') D.hud.focus({ preventScroll: true });
   clearTimeout(lateT); lateT = window.setTimeout(() => D.hero.classList.add('late'), 9000);
   if (input.last === 'touch') { D.hero.classList.add('tip'); clearTimeout(tipT); tipT = window.setTimeout(() => D.hero.classList.remove('tip'), 3200); }
@@ -66,7 +75,7 @@ export function landed() {
   VP.p = 0; VP.dir = 0; VP.rv = 0;
   WS.nE = 0; SP.n = DB.n = BO.n = MI.n = EB.n = SH.n = 0; WS.nFX = 0; for (const R of RB) R.n = 0;
   for (const s of BM) s.on = false; for (const s of AR) s.on = false;
-  D.hero.classList.remove('playing'); D.copy.inert = D.fly.inert = false;
+  D.hero.classList.remove('playing'); D.copy.inert = D.fly.inert = false; hold(false);
   const back = input.focusBack; input.focusBack = null;
   if (back && back.isConnected && (document.activeElement === document.body || !document.activeElement)) back.focus({ preventScroll: true });
   rs.x = VP.rx; rs.y = VP.ry; rs.vx = rs.vy = 0; rs.sc = 1; rs.bank = 0;

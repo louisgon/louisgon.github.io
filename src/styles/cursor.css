@@ -1,6 +1,0 @@
-#reticle { position: fixed; left: 0; top: 0; z-index: 95; width: 0; height: 0; pointer-events: none; opacity: 0; transition: opacity .3s; }
-#reticle i { position: absolute; left: 0; top: 0; width: 9px; height: 9px; border: 1.5px solid var(--holo); filter: drop-shadow(0 0 4px rgb(120 200 255 / 80%)); will-change: transform; backface-visibility: hidden; }
-#reticle i:nth-child(1) { border-right: 0; border-bottom: 0; } #reticle i:nth-child(2) { border-left: 0; border-bottom: 0; }
-#reticle i:nth-child(3) { border-right: 0; border-top: 0; } #reticle i:nth-child(4) { border-left: 0; border-top: 0; }
-#lockLbl { position: fixed; left: 0; top: 0; z-index: 96; pointer-events: none; font: 600 9px/1 "JetBrains Mono", monospace; letter-spacing: .16em; color: var(--holo); text-shadow: 0 0 8px rgb(120 200 255 / 80%); opacity: 0; transition: opacity .2s; will-change: transform; }
-body.cur #reticle.lk { opacity: 1; }

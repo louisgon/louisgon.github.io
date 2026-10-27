@@ -21,7 +21,7 @@ export async function boost(c: Ctx) {
     c.ok('a mouse launch holds still while the pointer rests below centre', Math.hypot(d1.x - d0.x, d1.y - d0.y) < 12 && !d1.card, { from: [d0.x, d0.y], to: [d1.x, d1.y], pointer: [s0.rx, s0.ry] });
     await p.mouse.move(s0.rx + 3, s0.ry); await p.waitForTimeout(300); const d2 = await st(p);
     await p.mouse.move(s0.rx + 40, s0.ry + 20, { steps: 4 }); await p.waitForTimeout(400); const d3 = await st(p);
-    c.ok('the mouse takes over after a deliberate move of a few pixels', Math.hypot(d2.x - d1.x, d2.y - d1.y) < 12 && Math.hypot(d3.x - d2.x, d3.y - d2.y) > 40, { nudge: [d2.x - d1.x, d2.y - d1.y], move: [d3.x - d2.x, d3.y - d2.y] });
+    c.ok('the mouse never takes over the ship', Math.hypot(d2.x - d1.x, d2.y - d1.y) < 12 && Math.hypot(d3.x - d2.x, d3.y - d2.y) < 12, { nudge: [d2.x - d1.x, d2.y - d1.y], move: [d3.x - d2.x, d3.y - d2.y] });
     const early = on.filter((i) => k.view[i] < 0.15), punch = Math.max(...early.map((i) => k.punch[i]));
     c.ok('the engines punch at the start of the boost before the planet moves far', punch > 0.6 && early.every((i) => k.drop[i] < 0.12), `peak ${punch}, drop by then ${Math.max(...early.map((i) => k.drop[i]))}`);
     c.ok('the planet slides down and out of frame in one continuous move', monotone(drops, 1) && drops[drops.length - 1] >= 1.2 && monotone(ths, 1) && ths[ths.length - 1] === 1, `drop ${drops[0]} to ${drops[drops.length - 1]} over ${drops.length} frames`);
@@ -52,12 +52,12 @@ export async function boost(c: Ctx) {
     c.ok('the turn rate stays capped near 540 degrees a second', turn <= 620, `peak ${Math.round(turn)}`);
     let a = await st(p), b = a, d = a, steered = false;
     for (let i = 0; i < 3 && !steered; i++) {
-      await clearCards(p); await p.mouse.move(720, 450, { steps: 6 }); await p.waitForTimeout(400); a = await st(p);
-      await p.mouse.move(1300, 450, { steps: 6 }); await p.waitForTimeout(900); b = await st(p);
-      await p.mouse.move(720, 820, { steps: 6 }); await p.waitForTimeout(900); d = await st(p);
+      await clearCards(p); await p.waitForTimeout(400); a = await st(p);
+      b = await key(p, ['KeyD'], 900); await p.waitForTimeout(150);
+      d = await key(p, ['ArrowDown'], 900); await p.waitForTimeout(150);
       steered = !b.card && !d.card && b.x > a.x + 300 && d.y > b.y + 200 && angErr(b.hd, 90) < 25;
     }
-    c.ok('the mouse steers in world space and the ship faces where it flies', steered, `(${a.x},${a.y}) to (${b.x},${b.y}) ${b.hd}, then (${d.x},${d.y}) ${d.hd}`);
+    c.ok('the keys steer in world space and the ship faces where it flies', steered, `(${a.x},${a.y}) to (${b.x},${b.y}) ${b.hd}, then (${d.x},${d.y}) ${d.hd}`);
     c.ok('the camera keeps LG-01 centred on desktop', Math.abs(d.sx - 720) < 1440 * 0.04 && Math.abs(d.sy - 450) < 900 * 0.06, `ship at ${Math.round(d.sx)},${Math.round(d.sy)}`);
     c.ok('the camera keeps the ship near the centre', Math.abs(d.sx - 720) < 200 && Math.abs(d.sy - 450) < 200, `${d.sx},${d.sy}`);
     c.ok('steering never scrolls', (await scrolled(p)) === 0);

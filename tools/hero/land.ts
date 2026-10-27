@@ -20,11 +20,12 @@ export async function land(c: Ctx) {
   const [lx, ly] = await box(p, 'land'); await p.mouse.click(lx, ly);
   c.ok('the Land button lands', await atRest(p));
   await space(p); await topDown(p); await p.mouse.wheel(0, 300); await p.waitForTimeout(1300);
-  c.ok('a wheel lands and scrolls the page', !(await st(p)).on && (await scrolled(p)) > 50, await scrolled(p));
-  await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(1200);
-  c.ok('scrolling away mid landing still settles back at rest', await atRest(p));
-  await space(p); await topDown(p); await p.evaluate(() => scrollTo(0, 120)); await p.waitForTimeout(1300);
-  c.ok('a scroll lands', !(await st(p)).on);
+  c.ok('a wheel neither lands nor scrolls while flying', (await st(p)).on && (await scrolled(p)) === 0, await scrolled(p));
+  c.ok('the header hides while flying', await p.evaluate(() => document.body.classList.contains('in-game') && getComputedStyle(document.querySelector('nav')!).pointerEvents === 'none'));
+  await p.keyboard.press('Escape'); await p.waitForTimeout(1300);
+  c.ok('the header comes back after landing', await p.evaluate(() => !document.body.classList.contains('in-game') && !document.querySelector('nav')!.inert));
+  await p.mouse.wheel(0, 300); await p.waitForTimeout(900);
+  c.ok('the page scrolls again after landing', (await scrolled(p)) > 50, await scrolled(p));
   await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(1200);
   await space(p); await p.waitForTimeout(500); const md = await st(p); await p.keyboard.press('Escape');
   c.ok('Escape mid boost reverses from where it was', md.view > 0 && md.view < 1 && (await atRest(p)), md.view);
@@ -35,10 +36,10 @@ export async function land(c: Ctx) {
   c.ok('Land from results plays the reverse too', v2[0] === 1 && monotone(v2, -1) && v2.includes(0) && v2.some((v) => v > 0.2 && v < 0.8), `${v2.length} frames`);
   c.ok('the ship is back at rest after landing from results', await atRest(p));
   await shot(c, p, 'land-results-rest');
-  await space(p); await p.waitForTimeout(300);
-  await p.evaluate(() => (window as unknown as { __y: (id: string, k: number) => void }).__y('work', 0)); await p.waitForTimeout(800);
-  await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(1500);
-  c.ok('leaving the hero mid boost lands and settles at rest', await atRest(p));
+  await p.evaluate(() => scrollTo(0, 360)); await p.waitForTimeout(800); await p.focus('#fly'); await p.keyboard.press('Enter'); await p.waitForTimeout(1600);
+  c.ok('starting while scrolled down returns to the top and locks there', (await playing(p)) && (await scrolled(p)) === 0, await scrolled(p));
+  await p.keyboard.press('Escape');
+  c.ok('landing after a scrolled start settles at rest', await atRest(p));
   c.ok('landing console clean', !errors.length, errors);
   await context.close();
 }

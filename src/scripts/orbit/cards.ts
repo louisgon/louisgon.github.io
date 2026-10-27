@@ -3,7 +3,7 @@ import { D, FAC, fmtT, G, input, maxW, pad2, sayT, ship, T, V, VP, type Mode, ty
 import { P } from './store';
 import { bl, BOOST, EVO, maxHull, WEAP } from './weapons';
 import { boostPr, cacheOptions, options } from './upgrades';
-import { anchor, live, measureLane } from './hud';
+import { live, measureLane } from './hud';
 
 const ICON: Record<string, string> = {
   pulse: '<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
@@ -118,7 +118,7 @@ export function hideCard() {
   G.card = false; G.mode = ''; D.hero.classList.remove('carded'); D.card.classList.remove('on'); modal(false);
   if (document.activeElement && D.card.contains(document.activeElement)) D.hud.focus({ preventScroll: true });
   if (VP.p < 1) D.hud.inert = true;
-  input.gx = ship.x; input.gy = ship.y; input.follow = false; anchor(); settle();
+  input.gx = ship.x; input.gy = ship.y; settle();
   G.inv = Math.max(G.inv, 0.6);
 }
 

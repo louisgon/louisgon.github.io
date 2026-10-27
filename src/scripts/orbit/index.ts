@@ -1,7 +1,7 @@
 import { DATA } from '../data';
 import { HI, reduce } from '../state';
 import { $, nextTask, out, sstep } from '../util';
-import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, eio, eout, F, FAC, G, game, GZ0, HOLD, initCore, input, LAND, lerp, MOUSE, PIX, restW, rs, scene, screen, setGame, ship, shipR, shipW, sm, STICK, T, TYPES, V, VP } from './core';
+import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, eio, eout, F, FAC, G, game, GZ0, HOLD, initCore, input, LAND, lerp, PIX, restW, rs, scene, screen, setGame, ship, shipR, shipW, sm, STICK, T, TYPES, V, VP } from './core';
 import { initArt, LIT, prepLight, prepLightSoon } from './art';
 import { drawOrbit, initBackdrop, keepMoons, prepMoons } from './backdrop';
 import { edge, locate, moons, nozzles, type Scan } from './paint';
@@ -242,14 +242,10 @@ export function orbitTick(now: number, hp: number) {
     if (input.keys.size && !auto) {
       let kx = 0, ky = 0; input.keys.forEach((k) => { kx += STEER[k][0]; ky += STEER[k][1]; });
       const m = Math.hypot(kx, ky) || 1; dvx = kx / m * maxV; dvy = ky / m * maxV;
-      input.gx = ship.x; input.gy = ship.y; input.follow = false;
+      input.gx = ship.x; input.gy = ship.y;
     } else if (input.stick && !auto) {
       const s = input.stick, dx = s.x - s.ox, dy = s.y - s.oy, d = Math.hypot(dx, dy);
       if (d > STICK.dz) { const m = Math.min(1, (d - STICK.dz) / (STICK.r - STICK.dz)) ** STICK.curve * maxV; dvx = dx / d * m; dvy = dy / d * m; }
-      input.gx = ship.x; input.gy = ship.y;
-    } else if (input.follow && !input.mlock && !auto) {
-      const dx = input.mx * W - (W / 2 + (ship.x - cam.x) * V.Z), dy = input.my * H - (H / 2 + (ship.y - cam.y) * V.Z), d = Math.hypot(dx, dy), k = clamp((d - MOUSE.dz) / (MOUSE.r - MOUSE.dz));
-      if (k > 0) { dvx = dx / d * k * maxV; dvy = dy / d * k * maxV; }
       input.gx = ship.x; input.gy = ship.y;
     } else {
       if (auto && dt > 0) { M!.gridBuild(); lab!.bot(rdt); }
@@ -322,7 +318,7 @@ export function orbitTick(now: number, hp: number) {
   drawDim();
   drawEgg();
   drawCharge();
-  if (M) { M.drawStick(); M.drawPointer(); }
+  if (M) M.drawStick();
   ctx.restore();
   hudTick(rdt, now);
   if (import.meta.env.MODE === 'test') T.work[T.wi++ % T.work.length] = performance.now() - w0;

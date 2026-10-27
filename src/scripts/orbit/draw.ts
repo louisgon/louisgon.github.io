@@ -1,5 +1,5 @@
 import { reduce } from '../state';
-import { A, at, base, C, cam, clamp, ctx, D, DV, F, FAC, G, HIT, input, LP, MOUSE, onView, rand, rnd, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
+import { A, at, base, C, cam, clamp, ctx, D, DV, F, FAC, G, HIT, input, LP, onView, rand, rnd, screen, ship, shipH, shipW, sprite, STICK, T_BS, T_HV, TAU, toWorld, V, VP } from './core';
 import { SPR } from './art';
 import { DCOL, PAL, prepFaction, S, SK, TX } from './sprites';
 import { LANE } from './hud';
@@ -343,16 +343,6 @@ export function drawHurt(rdt: number) {
   const g = ctx.createRadialGradient(x, y, 0, x, y, r);
   g.addColorStop(0, `rgba(255,96,60,${0.72 * k})`); g.addColorStop(0.35, `rgba(220,52,28,${0.3 * k})`); g.addColorStop(1, 'rgba(160,26,12,0)');
   ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
-}
-
-export function drawPointer() {
-  if (!G.on || VP.p < 1 || G.card || G.dead || input.last !== 'mouse' || !input.inside) return;
-  const { W, H } = V, x = input.mx * W, y = input.my * H, dx = x - DV.tx, dy = y - DV.ty, d = Math.hypot(dx, dy), live = input.follow && !input.mlock;
-  const k = live ? clamp((d - MOUSE.dz) / (MOUSE.r - MOUSE.dz)) : 0, a = live ? 0.34 + 0.46 * k : 0.26, g = live && input.guide >= 0 ? clamp(1 - (G.clock - input.guide) / MOUSE.guide) * k : 0;
-  ctx.globalCompositeOperation = 'source-over'; ctx.lineCap = 'round';
-  if (g > 0.01 && d > 40) { const r0 = shipW() * V.Z * 0.42; ctx.strokeStyle = `rgba(214,236,255,${0.2 * g})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(DV.tx + dx / d * r0, DV.ty + dy / d * r0); ctx.lineTo(x - dx / d * 10, y - dy / d * 10); ctx.stroke(); }
-  ctx.strokeStyle = `rgba(214,236,255,${a})`; ctx.lineWidth = 1.25; ctx.beginPath(); ctx.arc(x, y, 6.5, 0, TAU); ctx.stroke();
-  ctx.fillStyle = `rgba(214,236,255,${a})`; ctx.beginPath(); ctx.arc(x, y, 1.4, 0, TAU); ctx.fill();
 }
 
 export function drawStick() {
