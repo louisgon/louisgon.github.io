@@ -9,7 +9,7 @@ import { secCur } from './nav';
 export let warpS = 0, dimS = 0;
 let renderer: THREE.WebGLRenderer, DPR: number, scene: THREE.Scene, camera: THREE.PerspectiveCamera;
 let bgScene: THREE.Scene, bgCam: THREE.OrthographicCamera, bgRT: THREE.WebGLRenderTarget, blitScene: THREE.Scene;
-let z = 0, cruiseS = 0, velS = 0, flyS = 0, streamS = 1, fadeS = 0.6, blackS = 0, ftAvg = 16, appear0 = -1e9;
+let z = 0, blank = false, cruiseS = 0, velS = 0, flyS = 0, streamS = 1, fadeS = 0.6, blackS = 0, ftAvg = 16, appear0 = -1e9;
 const DEPTH = 300, BGS = 0.34;
 const U = { uTime: { value: 0 }, uZ: { value: 0 }, uStretch: { value: 0 }, uFade: { value: 0.6 }, uDepth: { value: DEPTH }, uPR: { value: 1 }, uDisc: { value: new THREE.Vector3(0, 0, 0) } };
 const W = { hue: new THREE.Vector3(0.25, 0.45, 1.0), neb: 1 };
@@ -64,7 +64,8 @@ export function starsTick(dt: number, now: number) {
   { const sec = HUES[secCur] ? secCur : 'hero', hu = HUES[sec]; W.hue.x = lerp(W.hue.x, hu[0], lf(0.03)); W.hue.y = lerp(W.hue.y, hu[1], lf(0.03)); W.hue.z = lerp(W.hue.z, hu[2], lf(0.03));
     const inHero = S.zone === 'hero' && !$('case').classList.contains('on'); W.neb = lerp(W.neb, inHero ? 1 : 0.5 - depthK() * 0.22, lf(0.04)); }
   bgU.uT.value = now / 1000; bgU.uNeb.value = W.neb; blitU.uA.value = vis; blitU.uT.value = now / 1000; bgU.uDim.value = Math.max(dimS * 0.9, blackS);
-  renderer.setClearAlpha(0); renderer.clear(); if (vis <= 0.003) return;
+  if (vis <= 0.003) { if (!blank) { renderer.setClearAlpha(0); renderer.clear(); blank = true; } return; }
+  blank = false; renderer.setClearAlpha(0); renderer.clear();
   ftAvg = lerp(ftAvg, dt * 1000, 0.02); if (ftAvg > 24 && DPR > 0.75 && !TR.busy) { DPR = Math.max(0.75, DPR - 0.25); ftAvg = 16; resize(); }
   renderer.setRenderTarget(bgRT); renderer.render(bgScene, bgCam); renderer.setRenderTarget(null); renderer.render(blitScene, bgCam); renderer.render(scene, camera);
 }
