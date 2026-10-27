@@ -1,5 +1,5 @@
 const art = document.querySelector<HTMLImageElement>('#hero .bg img')!;
-const shown = art.decode().catch(() => {}).then(() => art.parentElement!.classList.add('in'));
+const shown = art.decode().catch(() => {}).then(() => { const bg = art.parentElement!.classList; bg.toggle('q', performance.now() < 1500); bg.add('in'); });
 const images = () => document.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((img) => {
   if (img.dataset.srcset) img.srcset = img.dataset.srcset;
   img.src = img.dataset.src!;
