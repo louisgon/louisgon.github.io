@@ -1,9 +1,13 @@
 #hero { --lay: wide; position: relative; z-index: 2; height: 100vh; height: 100svh; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 #hero.playing { touch-action: none; cursor: none; }
 #hero.carded { cursor: auto; }
-#hero .art { position: absolute; inset: 0; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 78%, rgb(0 0 0 / var(--fly, 0))); mask-image: linear-gradient(180deg, #000 78%, rgb(0 0 0 / var(--fly, 0))); }
+#hero .art { position: absolute; inset: 0; container-type: size; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 78%, rgb(0 0 0 / var(--fly, 0))); mask-image: linear-gradient(180deg, #000 78%, rgb(0 0 0 / var(--fly, 0))); }
 #hero .bg { position: absolute; inset: 0; overflow: hidden; }
 #hero .bg.off { visibility: hidden; }
+#hero .ph { --ar: 16 / 9; position: absolute; left: 50%; top: 50%; width: max(100cqw, 100cqh * var(--ar)); height: max(100cqh, 100cqw / (var(--ar))); transform: translate3d(-50%, -50%, 0) scale3d(1.07, 1.07, 1); }
+#hero .ph i { position: absolute; inset: 0; -webkit-mask-image: var(--m); mask-image: var(--m); }
+@media (max-aspect-ratio: 17/20) { #hero .ph { --ar: 9 / 16; } }
+#hero .art:has(> .bg.off) > .ph { visibility: hidden; }
 #hero .bg img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale3d(1.07, 1.07, 1); will-change: transform, opacity; backface-visibility: hidden; }
 #hero .bg img { opacity: 0; transition: opacity .9s var(--ease-io); }
 #hero .bg.in img { opacity: 1; }
