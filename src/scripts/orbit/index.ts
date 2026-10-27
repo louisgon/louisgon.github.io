@@ -13,7 +13,7 @@ import { played, store } from './store';
 
 const metas = new Map<string, Scan>(), file = (src: string) => src.slice(src.lastIndexOf('/') + 1);
 const shipped = (src: string) => (PAINT.paintings as Record<string, Scan>)[file(src)], shipNoz = (src: string) => (PAINT.ships as Record<string, number[][]>)[file(src)];
-let lab: typeof import('./test') | null = null, last = 0, slowFrames = 0, shown = '', flyShown = '0.000', shipAt = 0, bgOff = false, pic: HTMLImageElement, rested: Promise<unknown> | null = null, loading: Promise<void> | null = null;
+let lab: typeof import('./test') | null = null, last = 0, slowFrames = 0, shown = '', flyShown = '0.000', shipAt = 0, flyT = 0, bgOff = false, pic: HTMLImageElement, rested: Promise<unknown> | null = null, loading: Promise<void> | null = null;
 
 export let starVis = 0;
 export const heroEnd = () => $('hero').offsetHeight * 0.85;
@@ -158,8 +158,8 @@ function intro(now: number) {
   if (!HI.pt && A.base) HI.pt = now;
   if (HI.skip) { HI.space = HI.cue = clamp(t / 400); HI.planet = HI.pt ? clamp((now - HI.pt) / 400) : 0; if (!HI.copy) { HI.copy = now; b.remove('hi-nav', 'hi-main'); } if (HI.space >= 1 && HI.planet >= 1) HI.done = true; return; }
   HI.space = reduce ? clamp(t / 500) : out(clamp(t / 800));
-  HI.planet = HI.pt ? (reduce ? clamp((now - HI.pt) / 600) : out(clamp((now - HI.pt) / 1000))) : 0;
-  if (!HI.copy) { b.remove('hi-main'); const at = HI.ff ? now : Math.min(HI.pt ? HI.pt + 250 : Infinity, HI.t0 + 3500); if (now >= at - 200) b.remove('hi-nav'); if (now >= at) HI.copy = now; }
+  HI.planet = HI.pt ? (reduce ? clamp((now - HI.pt) / 600) : out(clamp((now - HI.pt) / 500))) : 0;
+  if (!HI.copy) { b.remove('hi-main'); const at = HI.ff ? now : Math.min(HI.pt ? HI.pt + 250 : Infinity, HI.t0 + 3500); if (now >= at - 250) b.remove('hi-nav'); if (now >= at) HI.copy = now; }
   if (HI.copy) HI.cue = reduce ? 1 : out(clamp((now - HI.copy - 900) / 700));
   if (HI.copy && HI.cue >= 1 && HI.planet >= 1 && HI.space >= 1) HI.done = true;
 }
@@ -200,11 +200,11 @@ export function orbitTick(now: number, hp: number) {
   if (G.on || VP.p) G.ease = 1;
   if (G.ease) { const k = 1 - Math.exp(-rdt * 3); G.px = lerp(G.px, G.on ? 0 : px, k); G.py = lerp(G.py, G.on ? 0 : py, k); if (!G.on && !VP.p && Math.abs(G.px - px) + Math.abs(G.py - py) < 1e-3) G.ease = 0; }
   else { G.px = px; G.py = py; }
-  if (!rs.x) { rs.x = W * rs.restX; rs.y = H * (reduce || HI.skip ? rs.restY : rs.restY + 0.25); }
+  if (!rs.x) { rs.x = W * rs.restX; rs.y = H * (reduce || HI.skip ? rs.restY : rs.restY + 0.16); flyT = now; }
   if (!G.on && !VP.p) {
     rs.tx = rs.restX + G.px * (0.08 + egg.hover * 0.04) + Math.sin(t * 0.37) * 0.008; rs.ty = rs.restY + G.py * 0.03 + Math.sin(t * 0.61) * 0.006 - (reduce ? 0 : sy * 0.35);
     if (reduce) { rs.x = rs.tx * W; rs.y = rs.ty * H; rs.vx = rs.vy = 0; }
-    else { rs.vx += ((rs.tx * W - rs.x) * 5 - rs.vx * 4.2) * rdt; rs.vy += ((rs.ty * H - rs.y) * 5 - rs.vy * 4.2) * rdt; rs.x += rs.vx * rdt; rs.y += rs.vy * rdt; }
+    else { const k = now - flyT < 1200 ? 25 : 5, c = now - flyT < 1200 ? 10 : 4.2; rs.vx += ((rs.tx * W - rs.x) * k - rs.vx * c) * rdt; rs.vy += ((rs.ty * H - rs.y) * k - rs.vy * c) * rdt; rs.x += rs.vx * rdt; rs.y += rs.vy * rdt; }
     rs.sc += ((1 - (reduce ? 0 : sy * 0.25)) - rs.sc) * (reduce ? 1 : 1 - Math.exp(-rdt / 0.2));
     rs.bank = lerp(rs.bank, clamp(-rs.vx / (W * 1.6), -0.32, 0.32), 1 - Math.exp(-rdt * 10));
   } else rs.bank = lerp(rs.bank, 0, 1 - Math.exp(-rdt * 6));
@@ -279,7 +279,7 @@ export function orbitTick(now: number, hp: number) {
     M!.drawDebris(dfx);
     ctx.imageSmoothingQuality = 'low';
   }
-  if (A.ship && VP.p < 1) { if (!VP.p) drawRear(rs.x, rs.y, restW(), 1, shipAt <= HI.pt ? 1 : reduce ? clamp((now - shipAt) / 600) : out(clamp((now - shipAt) / 800)), rs.vx, rs.vy, 0); else drawRear(DV.rx, DV.ry, DV.rw, DV.rsq, DV.ra, 0, 0, 1, DV.punch); }
+  if (A.ship && VP.p < 1) { if (!VP.p) drawRear(rs.x, rs.y, restW(), 1, shipAt <= HI.pt ? 1 : reduce ? clamp((now - shipAt) / 600) : out(clamp((now - shipAt) / 400)), rs.vx, rs.vy, 0); else drawRear(DV.rx, DV.ry, DV.rw, DV.rsq, DV.ra, 0, 0, 1, DV.punch); }
   if (VP.p > 0) {
     ctx.imageSmoothingQuality = 'medium';
     if (A.shipTop && !G.dead) { M!.drawTrail(dfx); M!.drawTop(DV.tx, DV.ty, DV.tw, DV.tsq, DV.ta * (1 - VP.rv), t); }

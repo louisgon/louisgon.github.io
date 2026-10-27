@@ -26,7 +26,7 @@
 #hero .fly { position: absolute; z-index: 5; left: 0; top: 0; width: 0; height: 0; padding: 0; border: 0; background: none; opacity: 0; pointer-events: none; }
 #hero .fly:focus-visible { outline: none; box-shadow: none; }
 #hero kbd { padding: 3px 6px; border: 1px solid rgb(143 211 255 / 40%); border-radius: 4px; font: inherit; color: var(--holo); }
-#hero .hint { position: absolute; z-index: 5; left: 50%; bottom: calc(5vh + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 12px; color: var(--dim); white-space: nowrap; opacity: var(--ho, 1); transform: translate3d(-50%, 0, 0); transition: opacity .4s ease; pointer-events: none; animation: cueIn .7s ease .9s backwards; will-change: transform, opacity; backface-visibility: hidden; }
+#hero .hint { position: absolute; z-index: 5; left: 50%; bottom: calc(5vh + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 12px; color: var(--dim); white-space: nowrap; opacity: var(--ho, 1); transform: translate3d(-50%, 0, 0); transition: opacity .4s ease; pointer-events: none; animation: cueIn .4s ease .1s backwards; will-change: transform, opacity; backface-visibility: hidden; }
 @keyframes cueIn { from { opacity: 0; } }
 #hero .best { position: absolute; z-index: 5; right: clamp(20px, 5vw, 72px); bottom: calc(7.4vh + env(safe-area-inset-bottom)); color: var(--dim); opacity: var(--ho, 1); transition: opacity .4s ease; pointer-events: none; will-change: opacity; }
 #hero .best b { color: var(--gold); font-weight: 400; }
