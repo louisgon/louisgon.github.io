@@ -1,9 +1,9 @@
 ---
-import { avif, haze, small, webp } from '../lib/assets';
+import { avif, haze, shade, small, webp } from '../lib/assets';
 
 const tall = '(max-aspect-ratio: 17/20)', low = `${tall} and (max-width: 500px) and (max-height: 860px) and (max-resolution: 1.8dppx)`, w = small('hero/bg-tall');
-const [wideAvif, wideWebp, tallAvif, tallWebp, lowAvif, lowWebp, wideHaze, tallHaze] = await Promise.all([avif('hero/bg-wide'), webp('hero/bg-wide'), avif('hero/bg-tall'), webp('hero/bg-tall'), avif('hero/bg-tall', w), webp('hero/bg-tall', w), haze('hero/bg-wide', 5, 6), haze('hero/bg-tall', 5, 8)]);
-const hazeCss = `#hero .ph{background:${wideHaze}}@media ${tall}{#hero .ph{background:${tallHaze}}}`;
+const [wideAvif, wideWebp, tallAvif, tallWebp, lowAvif, lowWebp, wideHaze, tallHaze] = await Promise.all([avif('hero/bg-wide'), webp('hero/bg-wide'), avif('hero/bg-tall'), webp('hero/bg-tall'), avif('hero/bg-tall', w), webp('hero/bg-tall', w), haze('hero/bg-wide', 5, 6), haze('hero/bg-tall', 5, 8)]), copyShade = await shade(26);
+const hazeCss = `#hero{--shade:${copyShade}}#hero .ph{background:${wideHaze}}@media ${tall}{#hero .ph{background:${tallHaze}}}`;
 ---
 <section id="hero" aria-label="LG-01 above a desert world.">
   <div class="art" id="art" aria-hidden="true">

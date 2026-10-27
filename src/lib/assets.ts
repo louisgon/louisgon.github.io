@@ -28,3 +28,10 @@ export const haze = async (name: string, cols: number, rows: number) => {
   const px = await sharp(join(process.cwd(), 'src/assets', `${name}.webp`)).resize(cols, rows, { fit: 'fill', kernel: 'lanczos3' }).blur(0.5).removeAlpha().raw().toBuffer();
   return `${await png(px, cols, rows, 3)} 50% 50% / ${+(cols / (cols - 1) * 100).toFixed(4)}% ${+(rows / (rows - 1) * 100).toFixed(4)}% no-repeat`;
 };
+const SHADE = [[0, .62], [.25, .52], [.45, .33], [.62, .16], [.78, .05], [1, 0]];
+export const shade = async (n: number) => {
+  const alpha = (d: number) => { const i = SHADE.findIndex(([at]) => at >= d); if (i < 1) return i ? 0 : SHADE[0][1]; const [d0, a0] = SHADE[i - 1], [d1, a1] = SHADE[i]; return a0 + (a1 - a0) * (d - d0) / (d1 - d0); };
+  const px = Buffer.alloc(n * n * 4);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) px.set([3, 6, 14, Math.round(alpha(Math.hypot((x + .5) / n - .5, (y + .5) / n - .5) * 3) * 255)], (y * n + x) * 4);
+  return png(px, n, n, 4);
+};

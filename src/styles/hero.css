@@ -16,7 +16,7 @@
 #hero .scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(3 6 14 / 74%), rgb(3 6 14 / 36%) 34%, transparent 58%), linear-gradient(180deg, rgb(3 6 14 / 45%), transparent 30%); transition: opacity .6s var(--ease-out); }
 
 #hero .copy { position: absolute; z-index: 5; left: clamp(20px, 5vw, 72px); top: 15vh; width: min(900px, 72vw); transform: translate3d(0, var(--cy, 0px), 0); transition: opacity .5s var(--ease-out); will-change: transform, opacity; backface-visibility: hidden; }
-#hero .copy::before { content: ""; position: absolute; z-index: -1; inset: -25% -20% -45% -15%; pointer-events: none; background: radial-gradient(ellipse 44% 48% at 36% 60%, rgb(3 6 14 / 58%), rgb(3 6 14 / 48%) 25%, rgb(3 6 14 / 31%) 45%, rgb(3 6 14 / 15%) 62%, rgb(3 6 14 / 5%) 78%, transparent); }
+#hero .copy::before { content: ""; position: absolute; z-index: -1; inset: -25% -20% -45% -15%; pointer-events: none; opacity: .935; background: var(--shade) 93.75% 27.273% / 132% 144% no-repeat; }
 #hero .hl { margin: 0; font-size: clamp(40px, 4.8vw, 92px); line-height: .98; text-shadow: 0 6px 34px rgb(0 0 0 / 55%); }
 #hero .hl span { display: block; }
 #hero .hs { margin: 24px 0 0; max-width: 42ch; color: #c9d6f2; font-size: clamp(17px, 1.35vw, 20px); text-shadow: 0 2px 20px rgb(0 0 0 / 70%); }
@@ -182,7 +182,7 @@
 @media (max-width: 860px) {
   #hero { --lay: tall; }
   #hero .copy { left: 20px; right: 20px; width: auto; top: clamp(88px, 11.6vh, 112px); }
-  #hero .copy::before { inset: -18% -20px -30% -20px; background: radial-gradient(ellipse 72% 46% at 50% 64%, rgb(3 6 14 / 62%), rgb(3 6 14 / 52%) 25%, rgb(3 6 14 / 33%) 45%, rgb(3 6 14 / 16%) 62%, rgb(3 6 14 / 5%) 78%, transparent); }
+  #hero .copy::before { inset: -18% -20px -30% -20px; opacity: 1; background-position: 50% 13.158%; background-size: 216% 138%; }
   #hero .hl { font-size: clamp(34px, 9.2vw, 40px); }
   #hero .hs { max-width: 34ch; margin-top: clamp(14px, 2.2vh, 20px); font-size: 16px; line-height: 1.55; }
   #hero .hc { gap: 10px; margin-top: clamp(18px, 2.8vh, 26px); }
@@ -220,7 +220,7 @@
 @media (max-height: 520px) and (orientation: landscape) {
   #hero { --lay: short; }
   #hero .copy { top: calc(env(safe-area-inset-top) + 76px); width: min(560px, 56vw); }
-  #hero .copy::before { inset: -20% -12% -24% -20px; background: radial-gradient(ellipse 50% 50% at 42% 58%, rgb(3 6 14 / 58%), rgb(3 6 14 / 48%) 25%, rgb(3 6 14 / 31%) 45%, rgb(3 6 14 / 15%) 62%, rgb(3 6 14 / 5%) 78%, transparent); }
+  #hero .copy::before { inset: -20% -12% -24% -20px; opacity: .935; background-position: 66% 34%; background-size: 150% 150%; }
   #hero .hl { font-size: min(8.2vh, 4.4vw); }
   #hero .hs { max-width: 40ch; margin-top: 10px; font-size: 14px; line-height: 1.5; }
   #hero .hc { margin-top: 14px; }
