@@ -1,7 +1,7 @@
-nav { position: fixed; z-index: 60; left: 0; right: 0; top: 0; display: flex; align-items: center; gap: 22px; padding: 16px clamp(16px, 3vw, 40px); transition: opacity .4s var(--ease-io); }
+nav { position: fixed; z-index: 60; left: 0; right: 0; top: 0; display: flex; align-items: center; gap: 18px; padding: 16px clamp(16px, 3vw, 40px); transition: opacity .4s var(--ease-io), transform .4s var(--ease-io); }
 nav::before { content: ""; position: absolute; left: 0; right: 0; top: 0; bottom: -44px; z-index: -1; pointer-events: none; background: linear-gradient(180deg, var(--bg) calc(100% - 44px), rgb(4 6 13 / 88%) calc(100% - 33px), rgb(4 6 13 / 56%) calc(100% - 20px), rgb(4 6 13 / 20%) calc(100% - 8px), rgb(4 6 13 / 0%)); opacity: 0; transition: opacity .6s var(--ease-io); will-change: transform, opacity; backface-visibility: hidden; }
 nav.solid::before { opacity: 1; }
-nav .mbtn { display: none; appearance: none; cursor: pointer; width: 42px; height: 42px; margin-left: 10px; padding: 0; place-items: center; border: 1px solid rgb(143 211 255 / 40%); border-radius: 50%; background: rgb(4 10 22 / 70%); color: var(--fg); }
+nav .mbtn { display: none; appearance: none; cursor: pointer; width: 38px; height: 38px; padding: 0; place-items: center; border: 1px solid rgb(143 211 255 / 40%); border-radius: 50%; background: rgb(4 10 22 / 70%); color: var(--fg); }
 nav .mbtn .ic { grid-area: 1 / 1; width: 18px; height: 18px; transition: opacity .25s ease, transform .4s var(--ease-out); will-change: transform, opacity; backface-visibility: hidden; }
 nav .mbtn .ic.x { opacity: 0; transform: rotate3d(0, 0, 1, -90deg); }
 nav .mbtn[aria-expanded="true"] .ic.m { opacity: 0; transform: rotate3d(0, 0, 1, 90deg); } nav .mbtn[aria-expanded="true"] .ic.x { opacity: 1; transform: none; }
@@ -18,13 +18,12 @@ nav .ro b { display: inline-block; min-width: 2ch; color: var(--fg); font-weight
 nav .links { position: relative; margin-left: auto; display: flex; gap: 4px; }
 nav .links a { position: relative; z-index: 1; padding: 10px 12px; text-decoration: none; color: var(--dim); font: 600 11px/1 "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; transition: color .35s var(--ease-out); }
 nav .links a:hover, nav .links a.on { color: var(--fg); }
-nav .mk { position: absolute; left: 0; top: 0; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease-out); }
+nav .mk { position: absolute; left: 0; top: 0; width: 1px; height: 2px; background: var(--holo); transform-origin: 0 50%; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease-out), transform .5s var(--ease-out); will-change: transform, opacity; backface-visibility: hidden; }
 nav .mk.on { opacity: 1; }
-nav .mk b { position: absolute; left: 0; top: 0; width: 7px; height: 7px; border: 1px solid var(--holo); filter: drop-shadow(0 0 4px rgb(143 211 255 / 65%)); transition: transform .55s var(--ease-out); will-change: transform; backface-visibility: hidden; }
-nav .mk b:nth-child(1) { border-right: 0; border-bottom: 0; } nav .mk b:nth-child(2) { border-left: 0; border-bottom: 0; } nav .mk b:nth-child(3) { border-right: 0; border-top: 0; } nav .mk b:nth-child(4) { border-left: 0; border-top: 0; }
-nav .talk { margin-left: 12px; padding: 12px 17px; border-radius: 999px; background: var(--fg); color: var(--bg); text-decoration: none; font: 600 11.5px/1 "Inter Tight", sans-serif; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; transition: background .25s, transform .25s var(--ease-pop); will-change: transform; backface-visibility: hidden; }
+nav .talk { display: inline-flex; align-items: center; height: 38px; padding: 0 17px; border-radius: 999px; background: var(--fg); color: var(--bg); text-decoration: none; font: 600 11.5px/1 "Inter Tight", sans-serif; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; transition: background .25s, transform .25s var(--ease-pop); will-change: transform; backface-visibility: hidden; }
 @media (hover: hover) { nav .talk:hover { background: var(--holo); transform: translate3d(0, -1px, 0); } }
 nav .hudline { position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; pointer-events: none; }
 nav .hudline i { position: absolute; inset: 0; background: linear-gradient(90deg, var(--holo), var(--gold)); box-shadow: 0 0 8px rgb(143 211 255 / 70%); transform-origin: 0 50%; transform: scale3d(0, 1, 1); will-change: transform; }
 @media (max-width: 860px) { nav .links { display: none; } nav .talk { margin-left: auto; } }
-@media (max-width: 860px) { nav .mbtn { display: grid; } nav { gap: 14px; } }
+@media (max-width: 860px) { nav .mbtn { display: grid; } nav { gap: 12px; } nav .talk { margin-left: auto; padding: 0 16px; } nav .talk + .mbtn { margin-left: -4px; } }
+body.in-game nav { opacity: 0; transform: translate3d(0, -100%, 0); pointer-events: none; }

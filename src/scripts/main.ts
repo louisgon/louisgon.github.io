@@ -12,7 +12,7 @@ import { busTick, initBus, initCards, stackTick } from './stack';
 import { initMarquee, marqueeTick } from './clients';
 import { initNav, navSolidTick, navTick } from './nav';
 import { initDividers, initReveal } from './reveal';
-import { cursorTick, initCursor, initCursorQuery, initMagnetic } from './cursor';
+import { initCursor } from './cursor';
 import { caseMoonsTick, initCases } from './cases';
 import { initWork, planetDriftTick, trajTick, workMoonsTick } from './work';
 
@@ -43,9 +43,7 @@ async function init() {
   if (!deep) await nextTask();
   initNav();
   initDividers();
-  initMagnetic();
   initReveal();
-  initCursorQuery();
   initLanding();
   initCursor();
   initCases();
@@ -72,7 +70,6 @@ function frame(now: number) {
   navSolidTick();
   if (stars) stars.fovTick();
   introEntranceTick(now);
-  cursorTick(dt);
   planetDriftTick(now);
   orbitTick(now, hp);
   if (stars) stars.starsTick(dt, now);
