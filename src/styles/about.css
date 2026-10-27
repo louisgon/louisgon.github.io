@@ -20,16 +20,16 @@
 @media (hover: hover) and (pointer: fine) { #pilot .roles li:hover > div { transform: translate3d(3px, 0, 0); } #pilot .roles li:hover b { color: var(--holo); } }
 #pilot .pt .st { transition-delay: calc(var(--i, 0) * 60ms); }
 @media (max-width: 860px) { #pilot { display: flex; flex-direction: column; align-items: stretch; gap: 0; text-align: left; } #pilot .pt > .h2 { align-self: flex-start; text-align: left; } #pilot .pt { display: contents; } #pilot .pt > .h2 { order: 2; } #pilot .pt > .lead { order: 3; } #pilot .holo-wrap { order: 4; margin: 34px auto 0; } #pilot .roles { order: 5; } }
-#pilot .roles { position: relative; list-style: none; margin: 34px 0 0; padding: 0 0 0 28px; --t: 27.5px; --b: 27.5px; }
+#pilot .roles { position: relative; list-style: none; margin: 34px 0 0; padding: 0 0 0 28px; --dot: 26.5px; --t: 26.5px; --b: 26.5px; }
 #pilot .roles::before, #pilot .roles::after { content: ""; position: absolute; left: 5px; width: 1px; top: var(--t); bottom: var(--b); }
 #pilot .roles::before { background: rgb(143 211 255 / 16%); }
 #pilot .roles::after { background: linear-gradient(180deg, var(--gold), var(--holo) 40%); box-shadow: 0 0 8px rgb(143 211 255 / 55%); transform-origin: 50% 0; transform: scale3d(1, var(--rp, 0), 1); will-change: transform; }
-#pilot .roles li { position: relative; display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 22px; padding: 14px 0; will-change: transform, opacity; backface-visibility: hidden; }
-#pilot .roles li::before { content: ""; position: absolute; left: -28px; top: 22px; width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgb(143 211 255 / 55%); background: var(--bg); transition: background .5s, border-color .5s, box-shadow .5s; }
+#pilot .roles li { position: relative; display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: baseline; gap: 22px; padding: 14px 0; will-change: transform, opacity; backface-visibility: hidden; }
+#pilot .roles li::before { content: ""; box-sizing: border-box; position: absolute; left: -28px; top: var(--dot); width: 11px; height: 11px; margin-top: -5.5px; border-radius: 50%; border: 1px solid rgb(143 211 255 / 55%); background: var(--bg); transition: background .5s, border-color .5s, box-shadow .5s; }
 #pilot .roles li.on::before { background: rgb(143 211 255 / 55%); }
 #pilot .roles li.now::before { border-color: var(--gold); }
 #pilot .roles li.now.on::before { background: var(--gold); box-shadow: 0 0 0 5px rgb(255 207 138 / 14%), 0 0 12px var(--gold); }
-#pilot .roles li.now::after { content: ""; position: absolute; left: -31px; top: 19px; width: 17px; height: 17px; border-radius: 50%; border: 1px solid rgb(255 207 138 / 40%); animation: ping 3.6s ease-out infinite; }
+#pilot .roles li.now::after { content: ""; box-sizing: border-box; position: absolute; left: -31px; top: var(--dot); width: 17px; height: 17px; margin-top: -8.5px; border-radius: 50%; border: 1px solid rgb(255 207 138 / 40%); animation: ping 3.6s ease-out infinite; }
 #pilot .roles .yr { font-size: 22px; line-height: 1; color: var(--fg); }
 #pilot .roles .yr small { display: block; margin-top: 7px; font: 600 10px/1 "JetBrains Mono", monospace; letter-spacing: .14em; color: var(--dim); }
 #pilot .roles li.now .yr { color: var(--gold); }

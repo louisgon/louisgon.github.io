@@ -2,10 +2,9 @@ import { reduce, lf } from './state';
 import { $, clamp, lerp, out, visible } from './util';
 import { CUR } from './cursor';
 
-const DOT = 27.5;
-let roleEls: HTMLElement[] = [], span = [0, 0], sigT = 0, holoK = 0;
+let roleEls: HTMLElement[] = [], DOT = 0, span = [0, 0], sigT = 0, holoK = 0;
 
-function fitRoles() { const ro = $('roles'), tp = roleEls[0].offsetTop + DOT, bt = ro.offsetHeight - roleEls[roleEls.length - 1].offsetTop - DOT; ro.style.setProperty('--t', `${tp}px`); ro.style.setProperty('--b', `${bt}px`); span = [tp, ro.offsetHeight - tp - bt]; }
+function fitRoles() { const ro = $('roles'); DOT = parseFloat(getComputedStyle(ro).getPropertyValue('--dot')); const tp = roleEls[0].offsetTop + DOT, bt = ro.offsetHeight - roleEls[roleEls.length - 1].offsetTop - DOT; ro.style.setProperty('--t', `${tp}px`); ro.style.setProperty('--b', `${bt}px`); span = [tp, ro.offsetHeight - tp - bt]; }
 
 export function initRoles() {
   roleEls = [...document.querySelectorAll<HTMLElement>('#roles li')];
