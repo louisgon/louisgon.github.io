@@ -1,7 +1,7 @@
 const art = document.querySelector<HTMLImageElement>('#hero .bg img')!;
 const painted = new Promise((r) => { try { new PerformanceObserver((list, obs) => { if (list.getEntriesByName('first-contentful-paint').length) { obs.disconnect(); r(0); } }).observe({ type: 'paint', buffered: true }); } catch { r(0); } setTimeout(r, 3000); });
 // a painting decoded before the first frame lands in its raster, which costs seconds without a GPU
-const shown = Promise.all([art.decode().catch(() => {}), painted]).then(() => { const bg = art.parentElement!.classList; bg.toggle('q', performance.now() < 1500); bg.add('in'); });
+const shown = painted.then(() => art.decode().catch(() => {})).then(() => { const bg = art.parentElement!.classList; bg.toggle('q', performance.now() < 1500); bg.add('in'); });
 const images = () => document.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((img) => {
   if (img.dataset.srcset) img.srcset = img.dataset.srcset;
   img.src = img.dataset.src!;
