@@ -32,5 +32,7 @@ const beacon = () => {
 };
 if (import.meta.env.PROD && import.meta.env.MODE !== 'test' && !__REVIEW__) {
   const later = () => ('requestIdleCallback' in window ? requestIdleCallback(beacon, { timeout: 4000 }) : setTimeout(beacon, 2000));
-  document.readyState === 'complete' ? later() : addEventListener('load', later, { once: true });
+  const loaded = new Promise((r) => (document.readyState === 'complete' ? r(0) : addEventListener('load', r, { once: true })));
+  const painted = new Promise((r) => { try { new PerformanceObserver((list, obs) => { if (list.getEntriesByName('first-contentful-paint').length) { obs.disconnect(); r(0); } }).observe({ type: 'paint', buffered: true }); } catch { r(0); } });
+  Promise.all([loaded, painted]).then(later);
 }
