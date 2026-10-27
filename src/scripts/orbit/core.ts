@@ -54,6 +54,8 @@ export const wrapA = (a: number) => a - TAU * Math.round(a / TAU);
 export const pad2 = (n: number) => String(n).padStart(2, '0');
 export const fmtT = (s: number) => { s = Math.max(0, Math.floor(s)); return `${pad2(Math.floor(s / 60))}<i class="sep"></i>${pad2(s % 60)}`; };
 export const sayT = (s: number) => { s = Math.floor(s); const m = Math.floor(s / 60), r = s % 60; return `${m ? `${m} minute${m === 1 ? '' : 's'} ` : ''}${r} second${r === 1 ? '' : 's'}`; };
+export const PIX = new WeakMap<HTMLImageElement, ImageBitmap>();
+export const pix = (img: HTMLImageElement): CanvasImageSource => PIX.get(img) ?? img;
 export const mk = (w: number, h = w) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; };
 
 export const V = { W: 0, H: 0, DPR: 1, tall: false, U: 1, Z: 1, vw: 1, vh: 1, far: 600, dprCap: 1.5, gpuCap: 0.6, vis: true };

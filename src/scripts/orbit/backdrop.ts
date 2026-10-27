@@ -1,6 +1,6 @@
 import { reduce } from '../state';
 import { nextTask } from '../util';
-import { A, C, clamp, ctx, DV, F, G, mk, rand, scene, screen, sm, sprite, TAU, V, VP } from './core';
+import { A, C, clamp, ctx, DV, F, G, mk, pix, rand, scene, screen, sm, sprite, TAU, V, VP } from './core';
 import { SPR } from './art';
 import { bright, moonR, moonRef, plate, type Scan } from './paint';
 
@@ -57,10 +57,10 @@ export async function prepMoons(img: HTMLImageElement | null, sc: Scan | null, s
   const { sk, M } = ref;
   for (const [i, [mx, my, r]] of M.entries()) {
     if (i && step) await step();
-    const R = moonR(r, sk), s = R * 2, c = mk(s), x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(img, mx - R, my - R, s, s, 0, 0, s, s);
+    const R = moonR(r, sk), s = R * 2, c = mk(s), x = c.getContext('2d', { willReadFrequently: true })!; x.drawImage(pix(img), mx - R, my - R, s, s, 0, 0, s, s);
     const disc = mk(s), q = disc.getContext('2d')!; q.drawImage(c, 0, 0); q.globalCompositeOperation = 'destination-in';
     const f = q.createRadialGradient(R, R, r, R, R, r + 4 * sk); f.addColorStop(0, '#000'); f.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = f; q.fillRect(0, 0, s, s);
-    out.push({ x: mx, y: my, r, R, plate: plate(img, c, sc.moons![i].best, sc.moons![i].off, r, R, sk), disc, dx: 0, dy: 0, hide: false, sk });
+    out.push({ x: mx, y: my, r, R, plate: plate(pix(img), c, sc.moons![i].best, sc.moons![i].off, r, R, sk), disc, dx: 0, dy: 0, hide: false, sk });
   }
   moons = out; lit = sc.lit; placeMoons();
 }
@@ -134,12 +134,12 @@ const FEATHER = 16;
 function cover(img: HTMLImageElement | null, ox: number, oy: number, z: number, fk = 0) {
   const { W, H } = V;
   if (!img) { ctx.fillStyle = '#0a0e1c'; ctx.fillRect(0, 0, W, H); return { s: 1, x: 0, y: 0, w: W, h: H }; }
-  const nw = img.naturalWidth, nh = img.naturalHeight, s = Math.max(W / nw, H / nh) * z, w = nw * s, h = nh * s, x = (W - w) / 2 + ox, y = (H - h) / 2 + oy;
-  if (fk <= 0) ctx.drawImage(img, x, y, w, h);
+  const nw = img.naturalWidth, nh = img.naturalHeight, s = Math.max(W / nw, H / nh) * z, w = nw * s, h = nh * s, x = (W - w) / 2 + ox, y = (H - h) / 2 + oy, src = pix(img);
+  if (fk <= 0) ctx.drawImage(src, x, y, w, h);
   else {
     const a0 = ctx.globalAlpha, band = 0.13, sb = nh * band / FEATHER, db = h * band / FEATHER;
-    ctx.drawImage(img, 0, nh * band, nw, nh * (1 - band), x, y + h * band, w, h * (1 - band));
-    for (let i = 0; i < FEATHER; i++) { const q = (i + 0.5) / FEATHER; ctx.globalAlpha = a0 * (1 - fk * (1 - q * q * (3 - 2 * q))); ctx.drawImage(img, 0, sb * i, nw, sb + 0.5 * nh / h, x, y + db * i, w, db + 0.5); }
+    ctx.drawImage(src, 0, nh * band, nw, nh * (1 - band), x, y + h * band, w, h * (1 - band));
+    for (let i = 0; i < FEATHER; i++) { const q = (i + 0.5) / FEATHER; ctx.globalAlpha = a0 * (1 - fk * (1 - q * q * (3 - 2 * q))); ctx.drawImage(src, 0, sb * i, nw, sb + 0.5 * nh / h, x, y + db * i, w, db + 0.5); }
     ctx.globalAlpha = a0;
   }
   return { s, x, y, w, h };

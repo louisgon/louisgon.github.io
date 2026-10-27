@@ -1,7 +1,7 @@
 import { DATA } from '../data';
 import { HI, reduce } from '../state';
 import { $, nextTask, out, sstep } from '../util';
-import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, eio, eout, F, FAC, G, game, GZ0, HOLD, initCore, input, LAND, lerp, MOUSE, restW, rs, scene, screen, setGame, ship, shipR, shipW, sm, STICK, T, TYPES, V, VP } from './core';
+import { A, base, BOOST, C, cam, clamp, coarse, ctx, D, DV, egg, eio, eout, F, FAC, G, game, GZ0, HOLD, initCore, input, LAND, lerp, MOUSE, PIX, restW, rs, scene, screen, setGame, ship, shipR, shipW, sm, STICK, T, TYPES, V, VP } from './core';
 import { initArt, LIT, prepLight, prepLightSoon } from './art';
 import { drawOrbit, initBackdrop, keepMoons, prepMoons } from './backdrop';
 import { edge, locate, moons, nozzles, type Scan } from './paint';
@@ -37,7 +37,15 @@ export const heroEnd = () => $('hero').offsetHeight * 0.85;
 const load = (src: string) => new Promise<HTMLImageElement | null>((r) => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
 const decoded = (src: string) => load(src).then((i) => i && i.decode().then(() => i, () => i));
 
-const still = () => new Promise<HTMLImageElement | null>((r) => { if (!pic.currentSrc || !pic.naturalWidth) return r(null); const i = new Image(); i.src = pic.currentSrc; i.decode().then(() => r(i), () => r(i.naturalWidth ? i : null)); });
+// without a GPU a canvas decodes the painting on the main thread, a blob decodes off it
+const still = async () => {
+  if (!pic.currentSrc || !pic.naturalWidth) return null;
+  const i = new Image(); i.src = pic.currentSrc;
+  const [bmp] = await Promise.all([fetch(i.src, { cache: 'force-cache' }).then((r) => r.blob()).then((b) => createImageBitmap(b)).catch(() => null), i.complete ? 0 : new Promise((r) => { i.onload = i.onerror = r; })]);
+  if (!i.naturalWidth) return null;
+  if (bmp && bmp.width === i.naturalWidth && bmp.height === i.naturalHeight) PIX.set(i, bmp);
+  return i;
+};
 async function scanBg(img: HTMLImageElement, step: () => Promise<void>) {
   const has = metas.get(img.src) ?? shipped(img.src); if (has) return has;
   const m = locate(img); await step(); const e = edge(img, m.limb); await step();

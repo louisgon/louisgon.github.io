@@ -78,7 +78,7 @@ export function moons(img: HTMLImageElement) {
 
 export const scan = (img: HTMLImageElement): Scan => { const m = locate(img); return { ...m, edge: edge(img, m.limb), ...moons(img) }; };
 
-export function plate(img: HTMLImageElement, crop: HTMLCanvasElement, best: number[] | null, off: number[], r: number, R: number, sk: number) {
+export function plate(img: CanvasImageSource, crop: HTMLCanvasElement, best: number[] | null, off: number[], r: number, R: number, sk: number) {
   const s = R * 2, c = can(s), p = c.getContext('2d', { willReadFrequently: true })!;
   if (best) p.drawImage(img, best[0] - R, best[1] - R, s, s, 0, 0, s, s); else p.drawImage(crop, 0, 0);
   const add = off.map((v) => Math.round(v)), up = add.map((v) => Math.max(0, v)), down = add.map((v) => Math.max(0, -v));
