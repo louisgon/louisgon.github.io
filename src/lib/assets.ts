@@ -19,8 +19,12 @@ export const webp = async (name: string, width?: number) => (await getImage({ sr
 export const avif = async (name: string, width?: number) => (await getImage({ src: source(name), format: 'avif', quality: AVIF, width })).src;
 export const small = (name: string) => WIDTHS[name.split('/').pop()!][0];
 export const srcset = async (name: string) => { const full = source(name).width, w = small(name); return `${await webp(name, w)} ${w}w, ${await webp(name)} ${full}w`; };
+const png = async (px: Buffer, width: number, height: number, channels: 3 | 4) => {
+  const b = await sharp(px, { raw: { width, height, channels } }).png({ compressionLevel: 9 }).toBuffer(), keep = [b.subarray(0, 8)];
+  for (let o = 8; o < b.length; o += b.readUInt32BE(o) + 12) if (['IHDR', 'IDAT', 'IEND'].includes(b.toString('ascii', o + 4, o + 8))) keep.push(b.subarray(o, o + b.readUInt32BE(o) + 12));
+  return `url(data:image/png;base64,${Buffer.concat(keep).toString('base64')})`;
+};
 export const haze = async (name: string, cols: number, rows: number) => {
   const px = await sharp(join(process.cwd(), 'src/assets', `${name}.webp`)).resize(cols, rows, { fit: 'fill', kernel: 'lanczos3' }).blur(0.5).removeAlpha().raw().toBuffer();
-  const hex = (i: number) => `#${[...px.subarray(i, i + 3)].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
-  return Array.from({ length: cols }, (_, c) => `linear-gradient(${Array.from({ length: rows }, (_, r) => hex((r * cols + c) * 3)).join(',')})`);
+  return `${await png(px, cols, rows, 3)} 50% 50% / ${+(cols / (cols - 1) * 100).toFixed(4)}% ${+(rows / (rows - 1) * 100).toFixed(4)}% no-repeat`;
 };

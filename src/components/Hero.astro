@@ -3,12 +3,11 @@ import { avif, haze, small, webp } from '../lib/assets';
 
 const tall = '(max-aspect-ratio: 17/20)', low = `${tall} and (max-width: 500px) and (max-height: 860px) and (max-resolution: 1.8dppx)`, w = small('hero/bg-tall');
 const [wideAvif, wideWebp, tallAvif, tallWebp, lowAvif, lowWebp, wideHaze, tallHaze] = await Promise.all([avif('hero/bg-wide'), webp('hero/bg-wide'), avif('hero/bg-tall'), webp('hero/bg-tall'), avif('hero/bg-tall', w), webp('hero/bg-tall', w), haze('hero/bg-wide', 5, 6), haze('hero/bg-tall', 5, 8)]);
-const layer = (g: readonly string[]) => g.map((bg, c) => `#hero .ph i:nth-child(${g.length - c}){background-image:${bg}${c < g.length - 1 ? `;--m:linear-gradient(90deg,#000 ${+(c / (g.length - 1) * 100).toFixed(2)}%,transparent ${+((c + 1) / (g.length - 1) * 100).toFixed(2)}%)` : ''}}`).join('');
-const hazeCss = `${layer(wideHaze)}@media ${tall}{${layer(tallHaze)}}`;
+const hazeCss = `#hero .ph{background:${wideHaze}}@media ${tall}{#hero .ph{background:${tallHaze}}}`;
 ---
 <section id="hero" aria-label="LG-01 above a desert world.">
   <div class="art" id="art" aria-hidden="true">
-    <div class="ph">{wideHaze.map(() => <i></i>)}</div>
+    <div class="ph"></div>
     <style is:inline set:html={hazeCss}></style>
     <picture class="bg"><source media={low} type="image/avif" srcset={lowAvif}><source media={low} type="image/webp" srcset={lowWebp}><source media={tall} type="image/avif" srcset={tallAvif}><source media={tall} type="image/webp" srcset={tallWebp}><source type="image/avif" srcset={wideAvif}><img src={wideWebp} alt="" fetchpriority="low"></picture>
     <canvas id="orbit"></canvas>
