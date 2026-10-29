@@ -4,7 +4,7 @@ import { decode } from './scramble';
 
 export let io: IntersectionObserver;
 
-export function revealEl(el: Element) { if (el.classList.contains('cr')) { el.classList.add('shown'); return; } if (el.classList.contains('in')) return; el.classList.add('in'); if (el.classList.contains('chd')) io.unobserve(el); if (el.classList.contains('h2')) decode(el as HTMLElement, 150); if (el.classList.contains('proj')) { el.querySelectorAll('.rv').forEach((c) => c.classList.add('in')); decode(el.querySelector('h3')!, 350); } if (el.matches('#pilot .pt')) { $('pilot').querySelector('.holo-wrap')!.classList.add('in'); setTimeout(() => revealEl($('pilot').querySelector('.h2')!), 60); } }
+export function revealEl(el: Element) { if (el.classList.contains('cr')) { el.classList.add('shown'); return; } if (el.classList.contains('in')) return; el.classList.add('in'); if (el.classList.contains('chd')) { decode(el.querySelector('h2')!, 260); io.unobserve(el); } if (el.classList.contains('h2')) decode(el as HTMLElement, 150); if (el.classList.contains('proj')) { el.querySelectorAll('.rv').forEach((c) => c.classList.add('in')); decode(el.querySelector('h3')!, 350); } if (el.matches('#pilot .pt')) { $('pilot').querySelector('.holo-wrap')!.classList.add('in'); setTimeout(() => revealEl($('pilot').querySelector('.h2')!), 60); } }
 
 export const settle = (el: Element) => { if (el.classList.contains('in')) return; const ns = [el, ...el.querySelectorAll('img')] as HTMLElement[]; ns.forEach((n) => (n.style.transition = 'none')); revealEl(el); void (el as HTMLElement).offsetWidth; ns.forEach((n) => (n.style.transition = '')); };
 

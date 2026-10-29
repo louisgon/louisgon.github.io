@@ -12,21 +12,32 @@ function poolFor(font: string, up: boolean, ch: string) {
   m.set(k, fit); return fit;
 }
 
+const textsIn = (root: Node) => { const out: Text[] = []; const walk = (n: Node) => n.childNodes.forEach((c) => (c.nodeType === 3 ? c.textContent!.trim() && out.push(c as Text) : walk(c))); walk(root); return out; };
+
+export const undecode = (el: Element) => done.delete(el);
 
 export function decode(el: HTMLElement, delay = 0) {
   if (reduce || done.has(el)) return; done.add(el);
   const start = () => {
     const lab = el.textContent!.replace(/\s+/g, ' ').trim(), hadLab = el.hasAttribute('aria-label'); if (!hadLab) el.setAttribute('aria-label', lab);
-    const cs = getComputedStyle(el), font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, up = cs.textTransform === 'uppercase';
-    const box = el.getBoundingClientRect(), sx = box.width ? el.offsetWidth / box.width || 1 : 1, cells: [HTMLSpanElement, string, string][] = [], swaps: [HTMLSpanElement, Text][] = [];
-    const texts: Text[] = []; const walk = (n: Node) => n.childNodes.forEach((c) => (c.nodeType === 3 ? c.textContent!.trim() && texts.push(c as Text) : walk(c))); walk(el);
-    const words: [HTMLSpanElement, string][] = [], ls = parseFloat(cs.letterSpacing) || 0;
-    texts.forEach((node) => {
+    const cs = getComputedStyle(el), font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, up = cs.textTransform === 'uppercase', ls = parseFloat(cs.letterSpacing) || 0;
+    const box = el.getBoundingClientRect(), sx = box.width ? el.offsetWidth / box.width || 1 : 1, cells: [HTMLSpanElement, string, string][] = [], swaps: [ChildNode, Node][] = [];
+    // text with neighbours scrambles on a copy laid over the untouched original, so nothing beside it can move; masked heading lines keep their reveal by scrambling in place
+    const float = !el.querySelector('.ln'), pos = el.style.position;
+    let stage: HTMLElement = el;
+    if (float) {
+      stage = document.createElement('span'); stage.setAttribute('aria-hidden', 'true'); stage.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;padding:inherit;box-sizing:border-box;pointer-events:none';
+      el.childNodes.forEach((n) => stage.append(n.cloneNode(true)));
+      textsIn(el).forEach((n) => { const h = document.createElement('span'); h.style.cssText = 'color:transparent;-webkit-text-fill-color:transparent;text-shadow:none'; n.replaceWith(h); h.append(n); swaps.push([h, n]); });
+      if (cs.position === 'static') el.style.position = 'relative';
+      el.append(stage);
+    }
+    const words: [HTMLSpanElement, string][] = [];
+    textsIn(stage).forEach((node) => {
       const wrap = document.createElement('span'); wrap.style.display = 'contents';
       node.textContent!.split(/(\s+)/).forEach((w) => { if (!w) return; if (/^\s+$/.test(w)) { wrap.append(w); return; } const s = document.createElement('span'); s.style.whiteSpace = 'nowrap'; s.textContent = w; wrap.append(s); words.push([s, w]); });
-      swaps.push([wrap, node]);
+      node.replaceWith(wrap); if (!float) swaps.push([wrap, node]);
     });
-    swaps.forEach(([w, n]) => n.replaceWith(w));
     // a laid out word includes all its letter spacing in every engine, so cells split that measured width by glyph widths
     ctx.font = font;
     words.forEach(([s, w]) => {
@@ -41,7 +52,10 @@ export function decode(el: HTMLElement, delay = 0) {
         const real = k * 1.35 - (j / total) * 0.9 > 0.45, v = real ? ch : pool[(Math.random() * pool.length) | 0];
         if (g.textContent !== v) g.textContent = v;
       });
-      if (k < 1) requestAnimationFrame(tick); else { swaps.forEach(([w, n]) => w.replaceWith(n)); if (!hadLab) el.removeAttribute('aria-label'); }
+      if (k < 1) { requestAnimationFrame(tick); return; }
+      if (float) { stage.remove(); el.style.position = pos; }
+      swaps.forEach(([w, n]) => w.replaceWith(n));
+      if (!hadLab) el.removeAttribute('aria-label');
     })(performance.now());
   };
   document.fonts && document.fonts.status !== 'loaded' ? document.fonts.ready.then(start) : start();
