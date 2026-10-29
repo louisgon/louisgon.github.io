@@ -8,7 +8,7 @@ export const SK: { t: HTMLCanvasElement; s: boolean; a: number; sh: boolean }[] 
 export type Pal = { bolt: HTMLCanvasElement; core: HTMLCanvasElement; fx: number; streak: [number, number]; mix: number; ember: number; deb: number; smoke: number; hi: string };
 export const PAL: Pal[] = [];
 export const DCOL = ['#3a3f47', '#5c626b', '#272b31', '#7e858f', '#6e3020', '#57582e', '#8c7426', '#3c322b', '#4c2c68', '#704494', '#2c1b42', '#2c6c7a'];
-type Layer = { pat: CanvasPattern; size: number; k: number };
+type Layer = { pat: CanvasPattern; size: number; k: number; ext?: number };
 export const S = {
   key: '', fk: ['', '', ''], n: [[], [], []] as Spr[][], e: [[], [], []] as Spr[][], w: [[], [], []] as Spr[][], g: [[], [], []] as Spr[][], dwf: [[], [], []] as number[][],
   mini: null as HTMLCanvasElement | null, minig: null as HTMLCanvasElement | null, shipT: null as HTMLCanvasElement | null,
@@ -173,10 +173,11 @@ function starLayer(css: number, density: number, r0: number, r1: number, a0: num
 }
 function nebulaLayer(): Layer | null {
   const img = A.nebula; if (!img) return null;
-  const { DPR, W, H } = V, size = pot(Math.max(W, H) * 1.1 * DPR, 512, Math.min(2048, img.width)), c = mk(size), x = c.getContext('2d')!;
+  // the tile is stored at 1024 at most but keeps the extent a 2048 tile drew at, so the nebula keeps its scale
+  const { DPR, W, H } = V, ext = pot(Math.max(W, H) * 1.1 * DPR, 512, 2048), size = Math.min(ext, 1024, img.width), c = mk(size), x = c.getContext('2d')!;
   x.imageSmoothingQuality = 'high'; x.drawImage(img, 0, 0, size, size);
   x.fillStyle = 'rgba(2,4,10,0.22)'; x.fillRect(0, 0, size, size);
-  return { pat: ctx.createPattern(c, 'repeat')!, size, k: 0.3 };
+  return { pat: ctx.createPattern(c, 'repeat')!, size, k: 0.3, ext };
 }
 
 export function prepSprites() {

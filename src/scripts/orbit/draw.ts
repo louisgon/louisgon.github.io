@@ -367,7 +367,7 @@ export function drawSpace(t: number, a: number) {
     L.pat.setTransform(PM); ctx.fillStyle = L.pat; ctx.fillRect(0, 0, cv.width, cv.height);
   };
   ctx.globalAlpha = a;
-  pat(S.neb, Math.max(S.neb.size, Math.max(W, H) * 1.1 * DPR));
+  pat(S.neb, Math.max(S.neb.ext ?? S.neb.size, Math.max(W, H) * 1.1 * DPR));
   for (const L of S.stars) pat(L, L.size);
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.globalCompositeOperation = 'lighter';
