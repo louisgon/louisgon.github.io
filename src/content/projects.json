@@ -87,11 +87,11 @@
       "Cloudflare Workers",
       "Stripe"
     ],
-    "fact": "I built reading, checkout and account features for Esses Magazine, connecting Astro to Craft CMS and Stripe.",
+    "fact": "Built Esses Magazine’s reader site on Astro and Craft CMS, from issues and stories to the paywall, Stripe checkout and reader accounts.",
     "story": {
-      "brief": "I worked on a magazine site that combines editorial content with paid access and print or digital subscriptions.",
-      "did": "I connected the page layouts to Craft CMS and built paywalls, checkout and account management. I also added caching that responds to publishing changes and access permissions.",
-      "result": "Readers can access stories, choose a subscription and manage billing and subscription changes in one site."
+      "brief": "Esses is a print and digital magazine about the world of Grand Prix racing, and it needed a reader site that sells subscriptions as well as it tells stories.",
+      "did": "I built the Astro front end on Cloudflare Workers against Craft CMS, with pages built from blocks, issues with covers and tables of contents, a metered paywall, email first sign in, Stripe checkout through Craft Commerce and an account area for billing, shipping and subscriptions, plus a cache that clears itself when editors publish.",
+      "result": "Readers move from a free story to a subscription and manage it themselves, and editors publish without waiting on a cache."
     }
   },
   {

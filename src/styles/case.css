@@ -46,3 +46,4 @@ body.case-open:not(.fly-out) nav, body.case-open:not(.fly-out) #hero, body.case-
 #case .splanet { display: none; position: absolute; z-index: 0; right: -6vw; top: -46px; width: 28vw; pointer-events: none; opacity: 0; transition: opacity .8s ease .2s; animation: cfloat 9s ease-in-out infinite alternate; }
 #case .hero-shot.shown + .splanet { opacity: 1; }
 @media (max-width: 600px) { #case .cplanet { display: none; } #case .splanet { display: block; } #case .shotw .hero-shot { margin-top: 52px; } #case .kh { display: none; } }
+#case .chd .st { transition-duration: .5s, .65s; transition-delay: calc(var(--i, 0) * 50ms); }

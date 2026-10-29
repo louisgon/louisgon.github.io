@@ -11,7 +11,7 @@ html.landing #hero { opacity: 0; animation: hiFail .4s 8s forwards; }
 #jump .d { margin-top: 12px; font: 700 clamp(18px, 2.4vw, 34px)/1 "Syncopate", sans-serif; text-transform: uppercase; letter-spacing: .06em; }
 #jump .bar { width: 180px; height: 2px; margin: 16px auto 0; background: rgb(207 234 255 / 25%); overflow: hidden; }
 #jump .bar i { display: block; height: 100%; background: #fff; transform-origin: 0 50%; box-shadow: 0 0 10px #fff; }
-body.fly-out nav, body.fly-out #hero, body.fly-out main, body.fly-out footer { opacity: 0; transition: opacity .22s var(--ease-io); }
+body.fly-out nav, body.fly-out #hero, body.fly-out main, body.fly-out footer { opacity: 0; transition: opacity .3s var(--ease-io); }
 body.fly-back nav, body.fly-back #hero, body.fly-back main, body.fly-back footer { transition: opacity .3s var(--ease-io); }
 body.fade-back nav, body.fade-back main, body.fade-back footer { will-change: opacity; }
 .skip-link { position: fixed; z-index: 120; left: 16px; top: 12px; padding: 12px 16px; border-radius: 10px; background: var(--fg); color: var(--bg); font: 600 13px/1 "Inter Tight", sans-serif; text-decoration: none; opacity: 0; transform: translate3d(0, -220%, 0); transition: transform .3s var(--ease-out), opacity .2s ease; }
