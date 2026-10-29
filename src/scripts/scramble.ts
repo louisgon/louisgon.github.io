@@ -12,7 +12,6 @@ function poolFor(font: string, up: boolean, ch: string) {
   m.set(k, fit); return fit;
 }
 
-export const undecode = (el: Element) => done.delete(el);
 
 export function decode(el: HTMLElement, delay = 0) {
   if (reduce || done.has(el)) return; done.add(el);

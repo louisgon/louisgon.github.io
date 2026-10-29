@@ -1,7 +1,6 @@
 import { S, TR, ez } from './state';
 import { $, clamp, nn } from './util';
 import { lenis } from './scroll';
-import { decode, undecode } from './scramble';
 
 const NAVN: Record<string, number> = { hero: 0, intro: 1, stack: 2, work: 3, clients: 3, pilot: 4, contact: 5 };
 const SECS = ['hero', 'intro', 'stack', 'work', 'clients', 'pilot', 'contact'];
@@ -15,7 +14,7 @@ function placeMk() { const a = navLinks.find((l) => l.classList.contains('on')),
   if (!was) { void navMk.offsetWidth; navMk.style.transition = ''; } }
 
 export function setNav(cur: string) { navCur = cur; const id = cur === 'clients' ? 'work' : cur; navAll.forEach((a) => { const on = a.getAttribute('href') === `#${id}`; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); }); placeMk();
-  const n = nn(NAVN[cur] ?? 0), el = $('navNum'); if (el.textContent !== n) { el.textContent = n; undecode(el); decode(el); } }
+  const n = nn(NAVN[cur] ?? 0), el = $('navNum'); if (el.textContent !== n) el.textContent = n; }
 
 export function initNav() {
   navLinks = [...document.querySelectorAll<HTMLAnchorElement>('nav .links a')]; navAll = [...navLinks, ...$('mnav').querySelectorAll('a')]; navMk = $('navMk');
