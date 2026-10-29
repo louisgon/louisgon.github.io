@@ -10,7 +10,7 @@ export async function getProjects() {
 }
 
 export async function getSiteData() {
-  const sprites = await Promise.all(SPRITES.map(async (k) => [k, await webp(`hero/${k}`, k === 'nebula' ? 1024 : undefined)] as const));
+  const sprites = await Promise.all(SPRITES.map(async (k) => [k, await webp(`hero/${k}`)] as const));
   return { projects: await getProjects(), sprites: Object.fromEntries(sprites) as Record<string, string> };
 }
 
