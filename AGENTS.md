@@ -100,7 +100,7 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 
 ### Interface
 - Header is a solid holo underline under the active link (never brackets, never a gradient), a 00 to 05 readout, the labels Log, Stack, Work, About and Contact, and a solid white Let's talk pill. Once the page leaves the top it sits on a solid dark backing that fades out just below it and eases in, so nothing shows through. No blur.
-- Each section carries one label. Stack, Work, About and Contact use their numbered divider (02 Systems to 05 Contact) with no eyebrow repeating it and no coordinate readout. The Pilot log keeps its single eyebrow and Clients its line.
+- Each section carries one label. Stack, Work, About and Contact use their numbered divider (02 Stack to 05 Contact, matching the nav) with no eyebrow repeating it and no coordinate readout. The Pilot log keeps its single eyebrow and Clients its line.
 - On phones a section starts 72px below its divider and ends 64px above the next, and the Pilot log takes its natural height. Contact is sized to its content on every screen, never a screen of empty space. On phones the brands are a still two column list with no Pause button, and wider screens keep the slow strip with its Pause control.
 - Buttons are refined pills, solid white primary and outline secondary, with labels only. No icon on View the work, Get in touch, Case study or Visit site, and never a diagonal external arrow anywhere.
 - Icons are Lucide inline SVG at a 1.5 stroke with round caps, used only for icon-only controls and small nav cues. Never use text glyph arrows.
