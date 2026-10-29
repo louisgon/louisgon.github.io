@@ -41,9 +41,9 @@ async function flyCase(i: number, pic: HTMLElement, step: Step) {
   g.style.visibility = ''; pic.style.visibility = 'hidden'; pic.style.transition = ''; S.boost = Math.max(S.boost, 0.6);
   document.body.classList.add('fly-out'); g.classList.add('go');
   showCase(i, true); const shot = $('caseIn').querySelector<HTMLElement>('.hero-shot')!; shot.classList.add('held', 'shown'); const b = shot.getBoundingClientRect();
-  g.style.borderRadius = `${(14 + (16 * a.width) / b.width) / 2}px`;
-  await flyTo(g, a, shot, reduce ? 300 : 620); shot.classList.remove('held'); g.remove(); pic.style.visibility = ''; document.body.classList.remove('fly-out');
-  revealEl($('caseIn').querySelector('.chd')!); pend.forEach(revealEl); pend.clear(); land($('caseIn').querySelector<HTMLElement>('.back')!, $('case')); TR.casing = false; idle();
+  g.style.borderRadius = `${(14 + (16 * a.width) / b.width) / 2}px`; revealEl($('caseIn').querySelector('.chd')!); pend.forEach(revealEl); pend.clear();
+  await flyTo(g, a, shot, reduce ? 300 : 850); shot.classList.remove('held'); g.remove(); pic.style.visibility = ''; document.body.classList.remove('fly-out');
+  land($('caseIn').querySelector<HTMLElement>('.back')!, $('case')); TR.casing = false; idle();
 }
 async function flyBack(step: Step) {
   if (TR.busy) { TR.next = () => flyBack(step); return; } route(null, step); const pic = document.querySelector<HTMLElement>(`.proj[data-i="${caseI}"] .pic`), shot = $('caseIn').querySelector<HTMLElement>('.hero-shot');
@@ -54,7 +54,7 @@ async function flyBack(step: Step) {
   hideCase(); const proj = pic.closest<HTMLElement>('.proj')!; scrollToY(centerY(proj));
   pic.style.transform = ''; proj.querySelectorAll('.rv').forEach(settle);
   const a = pic.getBoundingClientRect(); pic.style.visibility = 'hidden'; g.style.borderRadius = `${(16 + (14 * b.width) / a.width) / 2}px`;
-  await flyTo(g, b, pic, 560); pic.style.visibility = ''; g.remove(); document.body.classList.remove('fly-back'); $('case').classList.remove('leaving'); pend.forEach(revealEl); pend.clear();
+  await flyTo(g, b, pic, 800); pic.style.visibility = ''; g.remove(); document.body.classList.remove('fly-back'); $('case').classList.remove('leaving'); pend.forEach(revealEl); pend.clear();
   document.documentElement.classList.remove('tr-lock'); lenis && lenis.start(); land(caseReturn(pic)!, pic.closest<HTMLElement>('.proj')); idle();
 }
 async function fadeBack(step: Step) {
@@ -78,7 +78,7 @@ async function adopt(i: number) {
 }
 
 export function initCases() {
-  caseIO = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; caseIO.unobserve(e.target); if (TR.busy) pend.add(e.target); else revealEl(e.target); }), { root: $('case'), threshold: 0.12 });
+  caseIO = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; caseIO.unobserve(e.target); if (TR.busy && !TR.casing) pend.add(e.target); else revealEl(e.target); }), { root: $('case'), threshold: 0.12 });
   setTimeout(() => (window.requestIdleCallback || setTimeout)(() => { if (!TR.busy && !$('case').classList.contains('on')) { fillCase(0).then(() => void $('case').offsetHeight); } }), 4000);
   const warm = (e: Event) => { const p = (e.target as Element).closest<HTMLElement>('.proj'); if (p && !TR.busy && !$('case').classList.contains('on')) fillCase(Number(p.dataset.i)); };
   $('projects').addEventListener('pointerover', warm, { passive: true }); $('projects').addEventListener('focusin', warm);
