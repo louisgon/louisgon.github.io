@@ -115,6 +115,7 @@ Scenarios marked `fresh` cover behaviour the baseline does not have (direct case
 - The hero game steers with WASD or the arrows, and touch drags a thumb stick. The mouse never steers. Starting scrolls to the top and locks scrolling, the header hides, and only Land, Esc or the results card exit.
 - Planets are accents and always paint behind text. `#projects` is the one stacking context for every row's planet, and `#work .hd` sits above it.
 - Hover effects apply only under (hover: hover). Tap highlight is off.
+- The letter scramble must never change layout. Text with anything beside it (case titles, the header counter, project titles) scrambles on a copy laid over the untouched original, with the copy breaking lines where the original breaks. Only masked heading lines scramble in place. Check it in WebKit, since Safari measures text differently.
 
 ### Accessibility
 - Every interaction works from the keyboard with visible focus. Dialogs trap and return focus, Escape closes, arrow keys page case studies, and links go where they say.
