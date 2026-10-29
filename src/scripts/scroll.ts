@@ -7,7 +7,7 @@ import { caseAt } from './data';
 export let lenis: Lenis | null = null;
 let keyNav = false;
 
-export function landY(t: HTMLElement) { if (t.id === 'hero') return 0; if (t.id === 'intro') return t.getBoundingClientRect().top + scrollY + Math.max(0, (t.offsetHeight - innerHeight) * 0.5); return t.getBoundingClientRect().top + scrollY; }
+export function landY(t: HTMLElement) { if (t.id === 'hero') return 0; if (t.id === 'intro') return t.getBoundingClientRect().top + scrollY + Math.max(0, (t.offsetHeight - innerHeight) * 0.5); return t.getBoundingClientRect().top + scrollY - $('nav').offsetHeight - 24; }
 
 export const centerY = (el: Element) => { const r = el.getBoundingClientRect(); return scrollY + r.top + r.height / 2 - innerHeight / 2; };
 
