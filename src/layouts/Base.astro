@@ -23,7 +23,7 @@ import lateFonts from '../styles/fonts-late.css?inline';
 interface Props { open?: number }
 const { open } = Astro.props;
 const site = await getSiteData();
-const data = JSON.stringify(site).replace(/</g, '\\u003c');
+const data = JSON.stringify({ ...site, projects: site.projects.map(({ story, ...p }) => p) }).replace(/</g, '\\u003c');
 const page = pageMeta(open === undefined ? undefined : site.projects[open]);
 ---
 <!doctype html>

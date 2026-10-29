@@ -1,6 +1,6 @@
 import { caseHTML, planetHTML } from '../lib/case';
 import { pageMeta } from '../lib/pages';
-import { caseAt, PROJECTS } from './data';
+import { caseAt, loadStories, PROJECTS } from './data';
 import { pend, reduce, S, TR } from './state';
 import { $, bez, visible, wait } from './util';
 import { centerY, land, lenis, scrollToY } from './scroll';
@@ -25,7 +25,7 @@ function caseLife() {
   const shot = c.querySelector<HTMLElement>('.hero-shot')!; shot.addEventListener('pointermove', (e) => { if (reduce || e.pointerType !== 'mouse') return; const r = shot.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; shot.style.transform = `perspective(1400px) rotate3d(1, 0, 0, ${-y * 5}deg) rotate3d(0, 1, 0, ${x * 7}deg)`; }); shot.addEventListener('pointerleave', () => (shot.style.transform = ''));
 }
 const caseReady = () => Promise.all(([...$('case').querySelectorAll('img')].map((m) => m.decode().catch(() => {})) as Promise<unknown>[]).concat(document.fonts ? [document.fonts.ready] : []));
-function fillCase(i: number) { caseI = i; if (fillI === i && fillP) return fillP; fillI = i; $('caseIn').innerHTML = caseHTML(PROJECTS, i); $('cpw').innerHTML = planetHTML(PROJECTS, i); return (fillP = caseReady()); }
+function fillCase(i: number) { caseI = i; if (fillI === i && fillP) return fillP; fillI = i; return (fillP = loadStories().then(() => { if (fillI !== i) return; $('caseIn').innerHTML = caseHTML(PROJECTS, i); $('cpw').innerHTML = planetHTML(PROJECTS, i); return caseReady(); })); }
 function setBgInert(on: boolean) { if (on) [...document.body.children].forEach((el) => { if (el.id === 'case' || el.tagName === 'SCRIPT' || el.tagName === 'CANVAS' || bgInert.has(el)) return; bgInert.set(el, (el as HTMLElement).inert); (el as HTMLElement).inert = true; }); else { bgInert.forEach((v, el) => ((el as HTMLElement).inert = v)); bgInert.clear(); } }
 const caseReturn = (pic?: HTMLElement) => (caseRet && caseRet.isConnected && caseRet.closest<HTMLElement>('.proj') && caseRet.closest<HTMLElement>('.proj')!.dataset.i === String(caseI) ? caseRet : pic || document.querySelector<HTMLElement>(`.proj[data-i="${caseI}"] .acts [data-case]`));
 function showCase(i: number, filled?: boolean) { if (!filled) fillCase(i); fillI = -1; $('case').classList.add('on'); document.body.classList.add('case-open'); $('case').scrollTop = 0; document.documentElement.classList.add('case-lock'); caseLife(); setBgInert(true); $('case').setAttribute('aria-label', `${PROJECTS[i].title} case study`); }
@@ -79,7 +79,7 @@ async function adopt(i: number) {
 
 export function initCases() {
   caseIO = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; caseIO.unobserve(e.target); if (TR.busy) pend.add(e.target); else revealEl(e.target); }), { root: $('case'), threshold: 0.12 });
-  setTimeout(() => (window.requestIdleCallback || setTimeout)(() => { if (!TR.busy && !$('case').classList.contains('on')) { fillCase(0); void $('case').offsetHeight; } }), 4000);
+  setTimeout(() => (window.requestIdleCallback || setTimeout)(() => { if (!TR.busy && !$('case').classList.contains('on')) { fillCase(0).then(() => void $('case').offsetHeight); } }), 4000);
   const warm = (e: Event) => { const p = (e.target as Element).closest<HTMLElement>('.proj'); if (p && !TR.busy && !$('case').classList.contains('on')) fillCase(Number(p.dataset.i)); };
   $('projects').addEventListener('pointerover', warm, { passive: true }); $('projects').addEventListener('focusin', warm);
   $('projects').addEventListener('click', (e) => { const a = (e.target as Element).closest<HTMLElement>('[data-case]'); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; const i = Number(a.closest<HTMLElement>('.proj')!.dataset.i); e.preventDefault(); caseRet = a; if (reduce) openCase(i, 'push'); else flyCase(i, a.closest('.proj')!.querySelector<HTMLElement>('.pic')!, 'push'); });

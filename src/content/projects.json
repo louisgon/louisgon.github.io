@@ -9,9 +9,14 @@
       "Astro",
       "WordPress",
       "Cloudflare Workers",
-      "GSAP"
+      "Algolia"
     ],
-    "fact": "A headless WordPress ministry site with an Astro front end on Cloudflare Workers, bringing daily devotions, studies and the podcast into one place."
+    "fact": "Built Anne Graham Lotz’s site front to back, Astro on Cloudflare Workers over headless WordPress, with a resource library, translations and an edge cache.",
+    "story": {
+      "brief": "Anne Graham Lotz’s ministry publishes daily devotions, articles, Bible studies and video teaching in several languages, and needed one fast site to hold all of it.",
+      "did": "I set up the Astro app on Cloudflare Workers and the headless WordPress theme behind it, then built the pages and blocks, a resource library with nested filters editors control, Algolia search, translation through Polylang and DeepL, and a Durable Object cache that batches reads and refreshes stale pages in the background.",
+      "result": "Editors organise resources and compose pages from blocks, readers find studies and devotions in their own language, and pages stay fast as content changes."
+    }
   },
   {
     "id": "azul",
@@ -20,15 +25,16 @@
     "team": "Goodfolks",
     "url": "https://azul.com",
     "stack": [
-      "PHP",
-      "JavaScript",
-      "Sass"
+      "WordPress",
+      "Craft CMS",
+      "Astro",
+      "Cloudflare Workers"
     ],
-    "fact": "Kept a large Java company’s platform and documentation site healthy and moving for six years.",
+    "fact": "Five years building Azul’s site, and now rebuilding it from the ground up on Craft CMS and Astro.",
     "story": {
-      "brief": "A large Java company needed its platform and documentation site kept healthy and moving, year after year.",
-      "did": "Looked after both for six years, shipping new work and keeping the docs in step with the product.",
-      "result": "It became my longest client partnership, six years and counting."
+      "brief": "Azul builds and supports Java for large companies, and its marketing team is always shipping something new.",
+      "did": "I have built and looked after Azul’s WordPress site since 2022. Now I am rebuilding it from scratch on Craft CMS and Astro and moving all of its content across, in six languages.",
+      "result": "The team keeps shipping on today’s site while the new one comes together from the same content."
     }
   },
   {
@@ -38,11 +44,17 @@
     "team": "Goodfolks",
     "url": "https://puck.news/",
     "stack": [
-      "WordPress",
-      "PHP",
-      "JavaScript"
+      "Rails",
+      "ViewComponent",
+      "Stimulus",
+      "Vite"
     ],
-    "fact": "Ongoing development on a live subscription news platform and its integrations, without ever breaking publishing."
+    "fact": "Front end across Puck’s move from WordPress to Rails, from the reader site and join flow to sign in, Puck Pro and the component library behind them.",
+    "story": {
+      "brief": "Puck publishes news, newsletters and podcasts for paying subscribers. Its move from WordPress to Rails split the site into engines for reading, joining, accounts and Puck Pro.",
+      "did": "I helped carry the old site into the new app, then built the front end across every engine, from the home, newsletter, podcast, search and author templates to the join flow, email link sign in, consent and the header, all on a shared ViewComponent library with a workbench for visual review.",
+      "result": "Four engines, one front end. Readers browse, subscribe and sign in without seeing the seams, and new pages come together from components the team has already reviewed."
+    }
   },
   {
     "id": "airmail",
@@ -51,16 +63,16 @@
     "team": "Goodfolks",
     "url": "https://airmail.news",
     "stack": [
-      "Laravel",
-      "PHP",
-      "Alpine.js",
-      "MySQL"
+      "Rails",
+      "ViewComponent",
+      "Stimulus",
+      "PostgreSQL"
     ],
-    "fact": "Rebuilt a legacy WordPress system as a Laravel app, reading the old database over an SSH tunnel through the switch so nothing was lost.",
+    "fact": "Built across Air Mail’s Rails site since 2022, from the navigation and Arts Intel to city guides, subscriptions and the full shopping experience.",
     "story": {
-      "brief": "Air Mail had outgrown a legacy WordPress system and needed to move without losing any of its content.",
-      "did": "Built the replacement as a Laravel app that read the old database live over an SSH tunnel, so both systems ran side by side through the switch.",
-      "result": "The move happened with nothing lost, and the team publishes on the new app today."
+      "brief": "Air Mail is a weekly publication with an arts calendar, city guides, a shop and paid subscriptions, all running on one Rails site.",
+      "did": "I built the navigation across the magazine, beauty, arts and shopping sections, the Arts Intel calendar and its filters, city guides, subscription pages and checkout steps, and the shop from collections and product pages to gift guides and the shopping bag. I also built search, light and dark themes, and interactive features like a word game and a tournament bracket.",
+      "result": "Readers move between the magazine, the arts calendar, subscriptions and the shop on one consistent site, and new editorial formats ship on shared components."
     }
   },
   {
@@ -72,9 +84,15 @@
     "stack": [
       "Astro",
       "Craft CMS",
-      "Cloudflare Workers"
+      "Cloudflare Workers",
+      "Stripe"
     ],
-    "fact": "A headless magazine, with an Astro front end on Cloudflare Workers against Craft CMS."
+    "fact": "I built reading, checkout and account features for Esses Magazine, connecting Astro to Craft CMS and Stripe.",
+    "story": {
+      "brief": "I worked on a magazine site that combines editorial content with paid access and print or digital subscriptions.",
+      "did": "I connected the page layouts to Craft CMS and built paywalls, checkout and account management. I also added caching that responds to publishing changes and access permissions.",
+      "result": "Readers can access stories, choose a subscription and manage billing and subscription changes in one site."
+    }
   },
   {
     "id": "perry-weather",
@@ -83,16 +101,16 @@
     "team": "Goodfolks",
     "url": "https://perryweather.com/",
     "stack": [
-      "Preact",
-      "Hono",
-      "Cloudflare Workers",
-      "Rive"
+      "WordPress",
+      "Twig",
+      "GSAP",
+      "Vite"
     ],
-    "fact": "A marketing site that doubles as a product surface, with Rive animation, Preact islands and a Hono API on Cloudflare Workers.",
+    "fact": "Rebuilt Perry Weather’s WordPress site around interactive components, from a storm demo that plays as you scroll to pricing and a partner directory.",
     "story": {
-      "brief": "Perry Weather wanted a marketing site that also works as a product surface, not just a brochure.",
-      "did": "Built it with Rive animation and Preact islands for the interactive parts, backed by a Hono API on Cloudflare Workers.",
-      "result": "A fast, mostly static site where the interactive pieces load only where they are needed."
+      "brief": "Perry Weather needed a site that explains its weather safety products clearly and gives its team flexible pages to publish with.",
+      "did": "I built the interactive components across the site, from a product demo that turns from calm to storm as you scroll to draggable pricing cards, story slideshows and search for partners and resources. Along the way I moved the old components to Twig and tidied 39 blocks into one structure.",
+      "result": "The team builds pages from one block library, visitors find what they need in a few keystrokes, and video and forms load only when needed."
     }
   },
   {
@@ -104,10 +122,15 @@
     "stack": [
       "Craft CMS",
       "PHP",
-      "Mapbox GL",
+      "JavaScript",
       "Vite"
     ],
-    "fact": "A Craft CMS build with a Mapbox dealer locator, backed by its own API service."
+    "fact": "Built Kioti’s Craft CMS site from the first commit, with model comparison, filters fed by the product API, owner manuals and reusable blocks.",
+    "story": {
+      "brief": "Kioti sells tractors, mowers and utility vehicles, and buyers need to narrow a large range and compare models before they visit a dealer.",
+      "did": "I set up the Craft site and built the product pages, comparison tables that update as you choose, filters driven by the product API including price and size, owner manual browsing, and the blocks editors use to build pages.",
+      "result": "Buyers narrow the range, compare models side by side and find the right manual, and editors build pages without needing a developer."
+    }
   },
   {
     "id": "rockit",
@@ -116,11 +139,16 @@
     "team": "Calibrate",
     "url": "https://www.rockitapple.com/",
     "stack": [
-      "Craft CMS",
+      "WordPress",
       "PHP",
-      "Sass",
-      "Vite"
+      "JavaScript",
+      "Sass"
     ],
-    "fact": "Built and maintained the brand site on Craft CMS."
+    "fact": "Built the entire front end of Rockit Apple’s WordPress site, with playful motion to match the brand.",
+    "story": {
+      "brief": "Rockit sells small apples in a tube with a playful brand, and the site needed to feel the same.",
+      "did": "I built the front end from the ground up, every page, layout and interaction, with motion throughout.",
+      "result": "A brand site with the energy of the campaigns, on WordPress the team can edit."
+    }
   }
 ]
