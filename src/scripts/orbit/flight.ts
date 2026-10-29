@@ -10,6 +10,7 @@ import { buzz, live, resetHud, setLast, showBest } from './hud';
 import { modal, renderBuild, renderHull, setHull, showCard } from './cards';
 import { cancelInput } from './input';
 import { P, store } from './store';
+import { releaseGame } from './index';
 
 let lateT = 0, tipT = 0, toastT = 0;
 
@@ -28,8 +29,8 @@ export function start(kind?: Kind) {
   Object.assign(G, { on: true, over: false, dead: false, card: false, mode: '', clock: 0, kills: 0, level: 1, xp: 0, need: needFor(1), pend: 0, lvlT: 0, hull: 3, inv: 0, blinkT: 0, vig: 0, shake: 0, stop: 0, slow: 0, W: [], wm: {}, B: [], bm: {}, miss: {}, opts: [], spawnAcc: 2.5, dartT: 26, nextBoss: CAP.first, bossN: 0, calmT: -1e9, boss: null, cache: null, warned: false, regen: 0, killsF: 0, reveal: 0, hitT: 0, arcId: 0, tips: {}, newBest: false, fac: 0, lap: 0, switching: false });
   if (import.meta.env.MODE === 'test') Object.assign(T, { botT: 0, botA: 0, botFlip: 15, botDir: 1, bdx: 0, bdy: 0, hits: [], notes: [] });
   const w = mkW('pulse'); G.W.push(w); G.wm.pulse = w;
-  renderHull(); renderBuild(); resetHud();
-  D.hero.classList.add('playing'); D.hero.classList.remove('bossing', 'carded', 'late'); D.toast.classList.remove('on'); D.card.classList.remove('on'); modal(false);
+  D.hero.classList.add('playing'); renderHull(); renderBuild(); resetHud();
+  D.hero.classList.remove('bossing', 'carded', 'late'); D.toast.classList.remove('on'); D.card.classList.remove('on'); modal(false);
   const back = document.activeElement; if (back instanceof HTMLElement && back !== document.body && !D.hud.contains(back)) input.focusBack = back;
   D.copy.inert = D.fly.inert = true; hold(true);
   if (kind) setLast(kind);
@@ -75,7 +76,7 @@ export function landed() {
   VP.p = 0; VP.dir = 0; VP.rv = 0;
   WS.nE = 0; SP.n = DB.n = BO.n = MI.n = EB.n = SH.n = 0; WS.nFX = 0; for (const R of RB) R.n = 0;
   for (const s of BM) s.on = false; for (const s of AR) s.on = false;
-  D.hero.classList.remove('playing'); D.copy.inert = D.fly.inert = false; hold(false);
+  D.hero.classList.remove('playing'); D.copy.inert = D.fly.inert = false; hold(false); releaseGame();
   const back = input.focusBack; input.focusBack = null;
   if (back && back.isConnected && (document.activeElement === document.body || !document.activeElement)) back.focus({ preventScroll: true });
   rs.x = VP.rx; rs.y = VP.ry; rs.vx = rs.vy = 0; rs.sc = 1; rs.bank = 0;

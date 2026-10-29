@@ -59,6 +59,8 @@ async function useBg(img: HTMLImageElement | null, step = async () => {}, soft =
 async function swapBg(img: HTMLImageElement | null) {
   if (!img || !A.bg || img.src === A.bg.src) return;
   const old = A.bg; await scanBg(img, async () => {}); A.bgOld = old; A.bgT = performance.now(); await useBg(img); restLayout();
+  // the fade that clears the old painting only draws while the hero is on screen, so a rotation offscreen would keep both
+  setTimeout(() => { if (A.bgOld === old) A.bgOld = null; PIX.get(old)?.close(); PIX.delete(old); }, 400);
 }
 const copyRects = () => {
   const h = D.hero.getBoundingClientRect(), r = document.createRange(), dy = reduce ? 0 : -scrollY * 0.18 + DV.drop * 0.7, out: number[][] = [];
@@ -128,7 +130,15 @@ function size() {
   game?.prepSprites();
 }
 
+let freeT = 0;
+// a finished run frees its art after a while, since decoded sprites and nebula layers hold tens of MB on a phone
+export function releaseGame() {
+  clearTimeout(freeT);
+  freeT = window.setTimeout(() => { if (G.on || VP.p || input.charge || !game) return; game.dropSprites(); A.ready = false; A.shipTop = A.nebula = null; A.art = []; loading = null; if (egg.over || egg.focus) loadGame(); }, 20000);
+}
+
 export function loadGame() {
+  clearTimeout(freeT);
   if (loading || !rested) return;
   const sp = DATA.sprites;
   loading = Promise.all([rested, import('./play')]).then(([, m]) => {

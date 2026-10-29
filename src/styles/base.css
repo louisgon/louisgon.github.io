@@ -12,7 +12,7 @@ a { color: inherit; }
 .disp { font-family: "Syncopate", sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .01em; }
 .serif { font-family: "Cormorant Garamond", serif; font-style: italic; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--gold); }
 .k { color: var(--holo); }
-main { position: relative; z-index: 2; }
+main { position: relative; }
 section.s { position: relative; overflow-x: clip; padding: clamp(90px, 14vh, 160px) clamp(16px, 5vw, 72px); }
 @media (max-width: 860px) { section.s { padding-top: 72px; padding-bottom: 64px; } }
 .eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }

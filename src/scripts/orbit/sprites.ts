@@ -22,6 +22,7 @@ function pump() {
   nextTask().then(step);
 }
 export const flushSprites = () => { while (jobs.length) jobs.shift()!(); };
+export const dropSprites = () => { jobs.length = 0; Object.assign(S, { key: '', fk: ['', '', ''], n: [[], [], []], e: [[], [], []], w: [[], [], []], g: [[], [], []], dwf: [[], [], []], mini: null, minig: null, shipT: null, neb: null, stars: [] }); };
 
 function streak(rgb: string) {
   const c = mk(64, 16), x = c.getContext('2d')!; x.translate(32, 8); x.scale(1, 0.24);
