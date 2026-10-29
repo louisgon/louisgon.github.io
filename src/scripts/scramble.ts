@@ -23,12 +23,14 @@ export function decode(el: HTMLElement, delay = 0) {
     const cs = getComputedStyle(el), font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, up = cs.textTransform === 'uppercase', ls = parseFloat(cs.letterSpacing) || 0;
     const box = el.getBoundingClientRect(), sx = box.width ? el.offsetWidth / box.width || 1 : 1, cells: [HTMLSpanElement, string, string][] = [], swaps: [ChildNode, Node][] = [];
     // text with neighbours scrambles on a copy laid over the untouched original, so nothing beside it can move; masked heading lines keep their reveal by scrambling in place
-    const float = !el.querySelector('.ln'), pos = el.style.position;
+    const float = !el.querySelector('.ln'), pos = el.style.position, real: HTMLSpanElement[] = [];
     let stage: HTMLElement = el;
     if (float) {
       stage = document.createElement('span'); stage.setAttribute('aria-hidden', 'true'); stage.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;padding:inherit;box-sizing:border-box;pointer-events:none';
       el.childNodes.forEach((n) => stage.append(n.cloneNode(true)));
-      textsIn(el).forEach((n) => { const h = document.createElement('span'); h.style.cssText = 'color:transparent;-webkit-text-fill-color:transparent;text-shadow:none'; n.replaceWith(h); h.append(n); swaps.push([h, n]); });
+      textsIn(el).forEach((n) => { const h = document.createElement('span'); h.style.cssText = 'color:transparent;-webkit-text-fill-color:transparent;text-shadow:none';
+        n.textContent!.split(/(\s+)/).forEach((w) => { if (!w) return; if (/^\s+$/.test(w)) { h.append(w); return; } const r = document.createElement('span'); r.textContent = w; h.append(r); real.push(r); });
+        n.replaceWith(h); swaps.push([h, n]); });
       if (cs.position === 'static') el.style.position = 'relative';
       el.append(stage);
     }
@@ -38,6 +40,8 @@ export function decode(el: HTMLElement, delay = 0) {
       node.textContent!.split(/(\s+)/).forEach((w) => { if (!w) return; if (/^\s+$/.test(w)) { wrap.append(w); return; } const s = document.createElement('span'); s.style.whiteSpace = 'nowrap'; s.textContent = w; wrap.append(s); words.push([s, w]); });
       node.replaceWith(wrap); if (!float) swaps.push([wrap, node]);
     });
+    // the copy breaks lines where the original does, since rounding in its cells can wrap a title that only just fits
+    if (float) { stage.style.whiteSpace = 'nowrap'; const tops = real.map((r) => r.getBoundingClientRect().top); words.forEach(([w], i) => { if (i && tops[i] - tops[i - 1] > 2) w.before(document.createElement('br')); }); }
     // a laid out word includes all its letter spacing in every engine, so cells split that measured width by glyph widths
     ctx.font = font;
     words.forEach(([s, w]) => {
